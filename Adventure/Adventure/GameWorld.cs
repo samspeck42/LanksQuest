@@ -61,7 +61,7 @@ namespace Adventure
             currentMap = new Dungeon(this, 0);
             //CurrentMap = new Overworld(this);
             player = new Player(this);
-            player.Center = new Vector2(300, 300);
+            player.Center = new Vector2(500, 350);
             enteredNewMap = true;
         }
 

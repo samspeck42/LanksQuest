@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Audio;
 
 namespace Adventure
 {
-    public class ArrowSwitch : ActivatingEntity
+    public class ArrowSwitch : ActivatingEntity, Activatable
     {
         private AnimatedSprite offSprite;
         private AnimatedSprite onSprite;
@@ -100,6 +100,16 @@ namespace Adventure
             trapOffSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Environment/arrow_switch_trap_off");
             trapOnSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Environment/arrow_switch_trap_on");
             activateSound = game.Content.Load<SoundEffect>("Audio/arrow_switch_activate");
+        }
+
+        public void Activate()
+        {
+            isActive = true;
+        }
+
+        public void Deactivate()
+        {
+            isActive = false;
         }
     }
 

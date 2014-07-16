@@ -54,7 +54,7 @@ namespace Adventure
 
             lifeTimer++;
             if (lifeTimer >= LIFETIME || JustCollidedWithWall)
-                IsAlive = false;
+                isAlive = false;
         }
 
         public void Fire(float angle)
@@ -69,7 +69,7 @@ namespace Adventure
         public override void OnEntityCollision(Entity other)
         {
             if (other is Player)
-                IsAlive = false;
+                isAlive = false;
         }
     }
 

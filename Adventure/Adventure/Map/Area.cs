@@ -442,7 +442,9 @@ namespace Adventure
 
             foreach (Entity entity in Entities)
             {
-                if (cellRectangle.Contains(new Point((int)Math.Round(entity.Center.X), (int)Math.Round(entity.Center.Y))))
+                if (cellRectangle.Intersects(entity.HitBox) || 
+                    cellRectangle.Contains(entity.HitBox) ||
+                    entity.HitBox.Contains(cellRectangle))
                     entityList.Add(entity);
             }
             return entityList;

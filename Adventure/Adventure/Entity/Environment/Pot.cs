@@ -35,7 +35,7 @@ namespace Adventure
 
         public void StartBreaking()
         {
-            IsAlive = false;
+            isAlive = false;
         }
 
         public float DropChance

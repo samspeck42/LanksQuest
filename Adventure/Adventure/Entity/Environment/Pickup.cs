@@ -160,7 +160,7 @@ namespace Adventure
                 lifeTimer++;
                 if (lifeTimer >= LIFETIME)
                 {
-                    IsAlive = false;
+                    isAlive = false;
                 }
             }
         }
@@ -225,6 +225,10 @@ namespace Adventure
 
         public override void OnEntityCollision(Entity other)
         {
+            if (other is Player)
+            {
+                isAlive = false;
+            }
         }
     }
 

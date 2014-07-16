@@ -45,7 +45,8 @@ namespace Adventure
             set { Position = new Vector2(value.X - (Width / 2), value.Y - (Height / 2)); }
         }
 
-        public bool IsAlive = true;
+        protected bool isAlive = true;
+        public bool IsAlive {get{return isAlive;}}
         private bool justCollidedWithWall = false;
         public bool JustCollidedWithWall { get { return justCollidedWithWall; } }
         public bool IsAffectedByWallCollisions = true;

@@ -98,7 +98,7 @@ namespace Adventure
 
         public virtual void Die()
         {
-            IsAlive = false;
+            isAlive = false;
             tryToTriggerActivations();
         }
 

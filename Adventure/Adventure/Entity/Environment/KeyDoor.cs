@@ -50,7 +50,7 @@ namespace Adventure
 
             if (isOpening && CurrentSprite.IsDoneAnimating)
             {
-                IsAlive = false;
+                isAlive = false;
             }
         }
 
