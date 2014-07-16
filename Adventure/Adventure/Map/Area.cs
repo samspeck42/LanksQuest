@@ -435,12 +435,12 @@ namespace Adventure
             return null;
         }
 
-        public List<Entity> GetEntitiesAtCell(Point cell)
+        public List<Entity> GetActiveEntitiesAtCell(Point cell)
         {
             List<Entity> entityList = new List<Entity>();
             Rectangle cellRectangle = Area.CreateRectangleForCell(cell);
 
-            foreach (Entity entity in Entities)
+            foreach (Entity entity in GetActiveEntities())
             {
                 if (cellRectangle.Intersects(entity.HitBox) || 
                     cellRectangle.Contains(entity.HitBox) ||

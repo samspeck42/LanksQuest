@@ -157,10 +157,10 @@ namespace Adventure
 
             inventory = new Inventory();
 
-            Bow bow = new Bow(game, null);
-            bow.LoadContent();
-            inventory.CollectEquippableItem(bow);
-            inventory.EquipItem(bow, Buttons.B);
+            //Bow bow = new Bow(game, null);
+            //bow.LoadContent();
+            //inventory.CollectEquippableItem(bow);
+            //inventory.EquipItem(bow, Buttons.B);
         }
 
         public override void LoadContent()

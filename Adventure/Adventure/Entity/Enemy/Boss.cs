@@ -452,7 +452,7 @@ namespace Adventure
                 changeColorsEffect.Parameters["blue"].SetValue(false);
             }
 
-            spriteBatch.DrawString(game.Font, "Health: " + Health, new Vector2(Center.X - 50, Center.Y - 70), Color.White);
+            //spriteBatch.DrawString(game.Font, "Health: " + Health, new Vector2(Center.X - 50, Center.Y - 70), Color.White);
             //spriteBatch.DrawString(game.Font, "isStunned: " + isStunned.ToString(), new Vector2(Center.X - 50, Center.Y - 50), Color.White);
             //spriteBatch.DrawString(game.Font, "EyeState: " + EyeState.ToString(), new Vector2(Center.X - 50, Center.Y - 30), Color.White);
         }

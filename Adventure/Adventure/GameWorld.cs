@@ -61,7 +61,7 @@ namespace Adventure
             currentMap = new Dungeon(this, 0);
             //CurrentMap = new Overworld(this);
             player = new Player(this);
-            player.Center = new Vector2(500, 350);
+            player.Center = new Vector2(300, 300);
             enteredNewMap = true;
         }
 
@@ -72,7 +72,7 @@ namespace Adventure
             Player.LoadContent();
 
             currentMap.Load();
-            currentArea = currentMap.GetAreaByIndex(4);
+            currentArea = currentMap.GetAreaByIndex(0);
             changeColorsEffect = Content.Load<Effect>("Effects/ChangeColorsEffect");
             Font = Content.Load<SpriteFont>("Fonts/font");
             SquareTexture = Content.Load<Texture2D>("tile_border");

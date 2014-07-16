@@ -101,7 +101,7 @@ namespace Adventure
             }
             else
             {
-                foreach (Entity entity in area.GetEntitiesAtCell(tipCell))
+                foreach (Entity entity in area.GetActiveEntitiesAtCell(tipCell))
                 {
                     if (entity.Contains(TipPosition) && canBeStoppedBy(entity))
                     {
@@ -155,7 +155,7 @@ namespace Adventure
                     Position.X = entityHit.Position.X + entityHitPosition.X;
                     Position.Y = entityHit.Position.Y + entityHitPosition.Y;
 
-                    if (!entityHit.IsAlive)
+                    if (!entityHit.IsAlive || !entityHit.IsActive)
                         this.isAlive = false;
                 }
             }

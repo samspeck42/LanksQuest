@@ -143,11 +143,12 @@ namespace Adventure
 
         public void Activate()
         {
+            isActive = true;
         }
 
         public void Deactivate()
         {
-            isAlive = false;
+            isActive = false;
         }
     }
 }

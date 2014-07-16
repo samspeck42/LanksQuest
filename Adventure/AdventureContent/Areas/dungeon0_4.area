@@ -12,6 +12,7 @@ dungeon_floor
 dungeon_wall_corner_topleft_convex
 dungeon_wall_corner_bottomleft_convex
 dungeon_wall_corner_bottomright_convex
+track_vertical
 
 [BackgroundTileLayout]
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
@@ -21,15 +22,15 @@ dungeon_wall_corner_bottomright_convex
 0 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 9 1 8 0 
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 0 4 5 5 5 5 5 5 5 5 5 5 5 5 5 5 9 5 6 0 
-0 3 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 7 0 
-0 3 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 7 0 
-0 3 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 7 0 
-0 3 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 11 0 
-0 3 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 0 
-0 3 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 10 0 
-0 3 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 7 0 
-0 3 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 7 0 
-0 3 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 7 0 
+0 3 9 13 9 13 13 9 13 13 9 13 9 9 9 9 9 9 7 0 
+0 3 9 13 9 13 13 9 13 13 9 13 9 9 9 9 9 9 7 0 
+0 3 9 13 9 13 13 9 13 13 9 13 9 9 9 9 9 9 7 0 
+0 3 9 13 9 13 13 9 13 13 9 13 9 9 9 9 9 9 11 0 
+0 3 9 13 9 13 13 9 13 13 9 13 9 9 9 9 9 9 9 0 
+0 3 9 13 9 13 13 9 13 13 9 13 9 9 9 9 9 9 10 0 
+0 3 9 13 9 13 13 9 13 13 9 13 9 9 9 9 9 9 7 0 
+0 3 9 13 9 13 13 9 13 13 9 13 9 9 9 9 9 9 7 0 
+0 3 9 13 9 13 13 9 13 13 9 13 9 9 9 9 9 9 7 0 
 0 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 8 0 
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 
@@ -74,6 +75,18 @@ dungeon_wall_corner_bottomright_convex
 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
 
 [Entities]
+Pot (spawnCell:2,2) 
+Pot (spawnCell:2,3)
+Pot (spawnCell:3,2)
+Pot (spawnCell:3,3)
+Pot (spawnCell:4,2)
+Pot (spawnCell:4,3)
+RobotEnemy (id:re1)(spawnCell:14,7)(isAsleep:true)
+RobotEnemy (id:re2)(spawnCell:17,7)(isAsleep:true)
+RobotEnemy (id:re3)(spawnCell:14,15)(isAsleep:true)
+RobotEnemy (id:re4)(spawnCell:17,15)(isAsleep:true)
+ClosedDoor (id:cd1)(spawnCell:16,4)(faceDirection:0)(isOpen:false)
+ClosedDoor (id:cd2)(spawnCell:16,6)(faceDirection:1)(isOpen:false)
 Spikes (id:s1)(spawnCell:13,15)(areActivated:true)
 Spikes (id:s2)(spawnCell:13,14)(areActivated:true)
 Spikes (id:s3)(spawnCell:13,13)(areActivated:true)
@@ -83,4 +96,55 @@ Spikes (id:s6)(spawnCell:13,10)(areActivated:true)
 Spikes (id:s7)(spawnCell:13,9)(areActivated:true)
 Spikes (id:s8)(spawnCell:13,8)(areActivated:true)
 Spikes (id:s9)(spawnCell:13,7)(areActivated:true)
-ArrowSwitch (spawnCell:11,11)(velocity:0,1)
+MovableBlock (id:mb1)(spawnCell:10,15)
+MovableBlock (id:mb2)(spawnCell:10,14)
+MovableBlock (id:mb3)(spawnCell:10,13)
+MovableBlock (id:mb4)(spawnCell:10,12)
+MovableBlock (id:mb5)(spawnCell:10,11)
+MovableBlock (id:mb6)(spawnCell:10,10)
+MovableBlock (id:mb7)(spawnCell:10,9)
+MovableBlock (id:mb8)(spawnCell:10,8)
+MovableBlock (id:mb9)(spawnCell:10,7)
+ArrowSwitch (id:as1)(spawnCell:11,11)(velocity:0,1.4)(deactivations:mb1;mb2;mb3;mb4;mb5;mb6;mb7;mb8;mb9)
+ArrowSwitch (id:as2)(spawnCell:9,9)(velocity:0,1.4)(type:1)(activations:re1)
+MovableBlock (spawnCell:9,15)
+MovableBlock (spawnCell:9,7)
+MovableBlock (id:mb10)(spawnCell:7,15)
+MovableBlock (id:mb11)(spawnCell:7,14)
+MovableBlock (id:mb12)(spawnCell:7,13)
+MovableBlock (id:mb13)(spawnCell:7,12)
+MovableBlock (id:mb14)(spawnCell:7,11)
+MovableBlock (id:mb15)(spawnCell:7,10)
+MovableBlock (id:mb16)(spawnCell:7,9)
+MovableBlock (id:mb17)(spawnCell:7,8)
+MovableBlock (id:mb18)(spawnCell:7,7)
+ArrowSwitch (id:as3)(spawnCell:8,9)(velocity:0,1.4)(deactivations:mb10;mb11;mb12;mb13;mb14;mb15;mb16;mb17;mb18)
+ArrowSwitch (id:as4)(spawnCell:6,9)(velocity:0,1.4)(type:1)(activations:re2)
+MovableBlock (spawnCell:6,15)
+MovableBlock (spawnCell:6,14)
+MovableBlock (spawnCell:6,8)
+MovableBlock (spawnCell:6,7)
+MovableBlock (id:mb19)(spawnCell:4,15)
+MovableBlock (id:mb20)(spawnCell:4,14)
+MovableBlock (id:mb21)(spawnCell:4,13)
+MovableBlock (id:mb22)(spawnCell:4,12)
+MovableBlock (id:mb23)(spawnCell:4,11)
+MovableBlock (id:mb24)(spawnCell:4,10)
+MovableBlock (id:mb25)(spawnCell:4,9)
+MovableBlock (id:mb26)(spawnCell:4,8)
+MovableBlock (id:mb27)(spawnCell:4,7)
+ArrowSwitch (id:as5)(spawnCell:5,7)(velocity:0,1.4)(deactivations:mb19;mb20;mb21;mb22;mb23;mb24;mb25;mb26;mb27)
+ArrowSwitch (id:as6)(spawnCell:3,9)(velocity:0,1.4)(type:1)(activations:re3)
+ArrowSwitch (id:as7)(spawnCell:3,13)(velocity:0,-1.4)(type:1)(activations:re4)
+MovableBlock (spawnCell:3,15)(movableDirections:2)
+MovableBlock (spawnCell:3,14)(movableDirections:0)
+MovableBlock (spawnCell:3,8)
+MovableBlock (spawnCell:3,7)
+ArrowSwitch (spawnCell:2,11)(deactivations:s1;s2;s3;s4;s5;s6;s7;s8;s9;as1;as2;as3;as4;as5;as6;as7)
+MovableBlock (spawnCell:2,7)
+MovableBlock (spawnCell:2,8)
+MovableBlock (spawnCell:2,9)
+MovableBlock (spawnCell:2,10)
+MovableBlock (spawnCell:2,12)
+MovableBlock (spawnCell:2,13)
+FloorSwitch (spawnCell:2,14)(activations:cd1;cd2)

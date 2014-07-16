@@ -57,22 +57,22 @@ namespace Adventure
             Vector2 direction = Vector2.Zero;
             bool spikesAbove = false, spikesBelow = false, spikesLeft = false, spikesRight = false;
 
-            foreach (Entity entity in area.GetEntitiesAtCell(new Point(SpawnCell.X, SpawnCell.Y - 1)))
+            foreach (Entity entity in area.GetActiveEntitiesAtCell(new Point(SpawnCell.X, SpawnCell.Y - 1)))
             {
                 if (entity is Spikes)
                     spikesAbove = true;
             }
-            foreach (Entity entity in area.GetEntitiesAtCell(new Point(SpawnCell.X, SpawnCell.Y + 1)))
+            foreach (Entity entity in area.GetActiveEntitiesAtCell(new Point(SpawnCell.X, SpawnCell.Y + 1)))
             {
                 if (entity is Spikes)
                     spikesBelow = true;
             }
-            foreach (Entity entity in area.GetEntitiesAtCell(new Point(SpawnCell.X - 1, SpawnCell.Y)))
+            foreach (Entity entity in area.GetActiveEntitiesAtCell(new Point(SpawnCell.X - 1, SpawnCell.Y)))
             {
                 if (entity is Spikes)
                     spikesLeft = true;
             }
-            foreach (Entity entity in area.GetEntitiesAtCell(new Point(SpawnCell.X + 1, SpawnCell.Y)))
+            foreach (Entity entity in area.GetActiveEntitiesAtCell(new Point(SpawnCell.X + 1, SpawnCell.Y)))
             {
                 if (entity is Spikes)
                     spikesRight = true;

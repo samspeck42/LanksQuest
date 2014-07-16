@@ -27,7 +27,7 @@ namespace Adventure
         {
             ownedEquippableItems = new List<EquippableItem>();
             money = 0;
-            numKeys = 3;
+            numKeys = 0;
             numArrows = 0;
             numBombs = 0;
             equippedItemsDict = new Dictionary<Buttons, EquippableItem>();
