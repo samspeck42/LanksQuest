@@ -1,5 +1,0 @@
--entity should hold a reference to its own area
--find activations, deactivations using string id
-fix getting entities in collision path
-push player around impassable entities as well as tiles
-
