@@ -1,0 +1,138 @@
+[BackgroundTileTextures]
+dungeon_floor
+dungeon_wall_bottom
+dungeon_wall_top
+dungeon_wall_left
+dungeon_wall_right
+dungeon_wall_corner_bottomleft
+dungeon_wall_corner_bottomright
+dungeon_wall_corner_topleft
+dungeon_wall_corner_topright
+dungeon_ceiling
+dungeon_wall_corner_bottomleft_convex
+dungeon_wall_corner_topleft_convex
+dungeon_wall_corner_topright_convex
+dungeon_wall_corner_bottomright_convex
+
+[BackgroundTileLayout]
+9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 
+7 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 8 9 
+3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 9 
+13 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 9 
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 9 
+12 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 9 
+3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 9 
+3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 9 
+3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 9 
+3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 9 
+3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 9 
+3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 9 
+3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 9 
+5 1 1 12 0 0 0 0 0 11 1 1 1 1 1 1 1 1 6 9 
+9 9 9 3 0 0 0 0 0 4 9 9 9 9 9 9 9 9 9 9 
+7 2 2 13 0 0 0 0 0 10 2 2 2 2 2 2 2 2 8 9 
+3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 9 
+3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 9 
+3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 9 
+3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 9 
+3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 9 
+3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 9 
+13 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 9 
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 9 
+12 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 9 
+3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 9 
+3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 9 
+3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 9 
+5 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 6 9 
+9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 
+
+[ForegroundTileLayout]
+-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+
+[CollisionLayout]
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
+1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+1 1 1 1 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 
+1 1 1 1 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 
+1 1 1 1 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 
+1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
+
+[Entities]
+ClosedDoor (id:cd1)(spawnCell:0,4)(faceDirection:3)(isOpen:false)
+ClosedDoor (id:cd2)(spawnCell:0,23)(faceDirection:3)(isOpen:true)
+MovableBlock (id:mb1)(spawnCell:6,6)(movableDirections:3)(activations:cd1;cd1,2)(dependents:mb2)
+MovableBlock (id:mb2)(spawnCell:10,3)(movableDirections:1)(activations:cd1;cd1,2)(dependents:mb1)
+MovableBlock (spawnCell:5,4)
+MovableBlock (spawnCell:6,4)
+MovableBlock (spawnCell:7,4)
+MovableBlock (spawnCell:8,4)
+MovableBlock (spawnCell:9,4)
+MovableBlock (spawnCell:6,3)
+MovableBlock (spawnCell:7,2)
+MovableBlock (spawnCell:6,5)
+Spikes (id:s1)(spawnCell:4,13)(areActivated:false)
+Spikes (id:s2)(spawnCell:5,13)(areActivated:false)
+Spikes (id:s3)(spawnCell:6,13)(areActivated:false)
+Spikes (id:s4)(spawnCell:7,13)(areActivated:false)
+Spikes (id:s5)(spawnCell:8,13)(areActivated:false)
+RobotEnemy (id:re1)(spawnCell:6,20)(isAsleep:true)(activations:cd2;cd1)(dependents:re2;re3)(deactivations:s1;s2;s3;s4;s5)
+RobotEnemy (id:re2)(spawnCell:12,20)(isAsleep:true)(activations:cd2;cd1)(dependents:re1;re3)(deactivations:s1;s2;s3;s4;s5)
+RobotEnemy (id:re3)(spawnCell:9,25)(isAsleep:true)(activations:cd2;cd1)(dependents:re1;re2)(deactivations:s1;s2;s3;s4;s5)
+InvisibleSwitch (id:is1)(spawnCell:4,15)(activations:re1;re2;re3;s1;s2;s3;s4;s5)(deactivations:cd2;cd1;is1;is2;is3;is4;is5)(isActive:true)
+InvisibleSwitch (id:is2)(spawnCell:5,15)(activations:re1;re2;re3;s1;s2;s3;s4;s5)(deactivations:cd2;cd1;is1;is2;is3;is4;is5)(isActive:false)
+InvisibleSwitch (id:is3)(spawnCell:6,15)(activations:re1;re2;re3;s1;s2;s3;s4;s5)(deactivations:cd2;cd1;is1;is2;is3;is4;is5)(isActive:false)
+InvisibleSwitch (id:is4)(spawnCell:7,15)(activations:re1;re2;re3;s1;s2;s3;s4;s5)(deactivations:cd2;cd1;is1;is2;is3;is4;is5)(isActive:false)
+InvisibleSwitch (id:is5)(spawnCell:8,15)(activations:re1;re2;re3;s1;s2;s3;s4;s5)(deactivations:cd2;cd1;is1;is2;is3;is4;is5)(isActive:false)

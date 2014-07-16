@@ -1,0 +1,3 @@
+C:\Users\samsp_000\documents\visual studio 2010\Projects\Adventure\Adventure\AdventureContent\obj\x86\Debug\AdventureContent.contentprojResolveAssemblyReference.cache
+C:\Users\Sam\Dropbox\Projects\Adventure\Adventure\AdventureContent\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\samsp_000\Dropbox\Projects\Adventure\Adventure\AdventureContent\obj\x86\Debug\AdventureContent.contentprojResolveAssemblyReference.cache

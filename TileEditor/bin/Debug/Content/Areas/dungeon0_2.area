@@ -1,0 +1,80 @@
+[BackgroundTileTextures]
+dungeon_floor
+dungeon_wall_bottom
+dungeon_wall_top
+dungeon_wall_left
+dungeon_wall_right
+dungeon_wall_corner_bottomleft
+dungeon_wall_corner_bottomright
+dungeon_wall_corner_topleft
+dungeon_wall_corner_topright
+dungeon_ceiling
+dungeon_wall_corner_bottomleft_convex
+dungeon_wall_corner_bottomright_convex
+dungeon_wall_corner_topright_convex
+dungeon_wall_corner_topleft_convex
+
+[BackgroundTileLayout]
+9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 
+9 7 2 2 2 8 9 7 11 0 10 2 2 2 2 2 2 2 2 8 
+9 3 0 0 0 4 9 3 0 0 0 0 0 0 0 0 0 0 0 4 
+9 3 0 0 0 4 9 3 0 0 0 0 0 0 0 0 0 0 0 10 
+9 3 0 0 0 4 9 3 0 0 0 0 0 0 0 0 0 0 0 0 
+9 3 0 0 0 4 9 5 1 1 1 1 1 1 1 1 1 1 1 1 
+9 3 0 0 0 4 9 9 9 9 9 9 9 9 9 9 9 9 9 9 
+9 3 0 0 0 10 2 2 2 2 2 2 2 2 2 2 2 2 2 8 
+9 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 
+9 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 
+9 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 
+9 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 
+9 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 
+9 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 
+9 5 1 1 1 1 1 1 1 12 0 13 1 1 1 1 1 1 1 6 
+
+[ForegroundTileLayout]
+9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 
+9 -1 -1 -1 -1 -1 9 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+9 -1 -1 -1 -1 -1 9 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+9 -1 -1 -1 -1 -1 9 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+9 -1 -1 -1 -1 -1 9 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+9 -1 -1 -1 -1 -1 9 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+9 -1 -1 -1 -1 -1 9 9 9 9 9 9 9 9 9 9 9 9 9 9 
+9 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+9 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+9 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+9 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+9 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+9 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+9 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+9 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+
+[CollisionLayout]
+1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 
+1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 
+1 1 0 0 0 1 1 1 0 0 0 0 0 0 0 0 0 0 0 1 
+1 1 0 0 0 1 1 1 0 0 0 0 0 0 0 0 0 0 0 1 
+1 1 0 0 0 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 
+1 1 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
+1 1 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
+1 1 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
+1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 
+
+[Entities]
+BlobEnemy (id:be1)(spawnCell:7,9)(activations:c2)(dependents:be2)
+BlobEnemy (id:be2)(spawnCell:13,9)(activations:c2)(dependents:be1)
+Pot (spawnCell:8,12)
+Pot (spawnCell:8,11)
+Pot (spawnCell:12,12)
+Pot (spawnCell:12,11)
+Chest (id:c1)(spawnCell:3,3)(treasure:Pickup (spawnCell:0,0)(type:4))(isActive:false)(activations:be1,0;be2,0;be3,0)
+Chest (spawnCell:12,2)(treasure:Pickup (spawnCell:0,0)(type:2))(isActive:true)
+Chest (id:c2)(spawnCell:17,10)(treasure:Pickup (spawnCell:0,0)(type:2))(isActive:false)
+FloorSwitch (spawnCell:3,7)(activations:c1)
+ClosedDoor (id:cd1)(spawnCell:19,4)(faceDirection:2)(isOpen:false)
+
