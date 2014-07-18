@@ -9,15 +9,15 @@ namespace Adventure
 {
     public class FloorSwitch : ActivatingEntity
     {
-        private AnimatedSprite unpressedSprite;
-        private AnimatedSprite pressedSprite;
+        private Sprite unpressedSprite;
+        private Sprite pressedSprite;
 
         public FloorSwitch(GameWorld game, Area area)
             : base(game, area)
         {
             Rectangle bounds = new Rectangle(0, 0, 32, 32);
-            unpressedSprite = new AnimatedSprite(bounds);
-            pressedSprite = new AnimatedSprite(bounds);
+            unpressedSprite = new Sprite(bounds);
+            pressedSprite = new Sprite(bounds);
 
             CurrentSprite = unpressedSprite;
             IsOnGround = true;
@@ -38,8 +38,8 @@ namespace Adventure
 
         public override void LoadContent()
         {
-            unpressedSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Environment/floor_switch_unpressed");
-            pressedSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Environment/floor_switch_pressed");
+            unpressedSprite.Texture = game.Content.Load<Texture2D>("Sprites/Environment/floor_switch_unpressed");
+            pressedSprite.Texture = game.Content.Load<Texture2D>("Sprites/Environment/floor_switch_pressed");
         }
     }
 }

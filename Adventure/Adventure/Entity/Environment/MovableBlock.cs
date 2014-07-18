@@ -14,7 +14,7 @@ namespace Adventure
     {
         private const String SPRITE_IMAGE_NAME = "Tiles/dungeon_block";
 
-        private AnimatedSprite sprite;
+        private Sprite sprite;
         private SoundEffect pushSound;
 
         private Point destinationCell;
@@ -27,7 +27,7 @@ namespace Adventure
             : base(game, area)
         {
             Rectangle bounds = new Rectangle(0, 0, 32, 32);
-            sprite = new AnimatedSprite(bounds);
+            sprite = new Sprite(bounds);
 
             CurrentSprite = sprite;
             IsAffectedByWallCollisions = false;
@@ -40,7 +40,7 @@ namespace Adventure
 
         public override void LoadContent()
         {
-            sprite.Sprite = game.Content.Load<Texture2D>("Tiles/dungeon_block");
+            sprite.Texture = game.Content.Load<Texture2D>("Tiles/dungeon_block");
             pushSound = game.Content.Load<SoundEffect>("Audio/block_push");
         }
 

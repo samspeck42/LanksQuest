@@ -42,19 +42,19 @@ namespace Adventure
         private int eyeClosedTime = 0;
         private int eyeOpenTime = 0;
 
-        private AnimatedSprite forwardSprite;
-        private AnimatedSprite backwardSprite;
-        private AnimatedSprite leftSprite;
-        private AnimatedSprite rightSprite;
-        private AnimatedSprite leftEyeSprite;
-        private AnimatedSprite rightEyeSprite;
-        private AnimatedSprite forwardEyeSprite;
-        private AnimatedSprite leftEyeSpriteClosed;
-        private AnimatedSprite rightEyeSpriteClosed;
-        private AnimatedSprite forwardEyeSpriteClosed;
-        private AnimatedSprite currentEyeSprite;
-        private AnimatedSprite asleepSprite;
-        private AnimatedSprite wakingSprite;
+        private Sprite forwardSprite;
+        private Sprite backwardSprite;
+        private Sprite leftSprite;
+        private Sprite rightSprite;
+        private Sprite leftEyeSprite;
+        private Sprite rightEyeSprite;
+        private Sprite forwardEyeSprite;
+        private Sprite leftEyeSpriteClosed;
+        private Sprite rightEyeSpriteClosed;
+        private Sprite forwardEyeSpriteClosed;
+        private Sprite currentEyeSprite;
+        private Sprite asleepSprite;
+        private Sprite wakingSprite;
 
         public Rectangle EyeHitBox
         {
@@ -69,22 +69,22 @@ namespace Adventure
             : base(game, area)
         {
             Rectangle bounds = new Rectangle(5, 8, 22, 32);
-            forwardSprite = new AnimatedSprite(bounds, 4, WALK_ANIMATION_DELAY);
-            backwardSprite = new AnimatedSprite(bounds, 4, WALK_ANIMATION_DELAY);
-            leftSprite = new AnimatedSprite(bounds, 4, WALK_ANIMATION_DELAY);
-            rightSprite = new AnimatedSprite(bounds, 4, WALK_ANIMATION_DELAY);
-            asleepSprite = new AnimatedSprite(bounds);
-            wakingSprite = new AnimatedSprite(bounds, 4, WAKE_ANIMATION_DELAY, 1);
+            forwardSprite = new Sprite(bounds, 4, WALK_ANIMATION_DELAY);
+            backwardSprite = new Sprite(bounds, 4, WALK_ANIMATION_DELAY);
+            leftSprite = new Sprite(bounds, 4, WALK_ANIMATION_DELAY);
+            rightSprite = new Sprite(bounds, 4, WALK_ANIMATION_DELAY);
+            asleepSprite = new Sprite(bounds);
+            wakingSprite = new Sprite(bounds, 4, WAKE_ANIMATION_DELAY, 1);
 
             bounds = new Rectangle(0, 0, 16, 12);
-            forwardEyeSprite = new AnimatedSprite(bounds);
-            forwardEyeSpriteClosed = new AnimatedSprite(bounds);
+            forwardEyeSprite = new Sprite(bounds);
+            forwardEyeSpriteClosed = new Sprite(bounds);
 
             bounds = new Rectangle(0, 0, 9, 12);
-            leftEyeSprite = new AnimatedSprite(bounds);
-            leftEyeSpriteClosed = new AnimatedSprite(bounds);
-            rightEyeSprite = new AnimatedSprite(bounds);
-            rightEyeSpriteClosed = new AnimatedSprite(bounds);
+            leftEyeSprite = new Sprite(bounds);
+            leftEyeSpriteClosed = new Sprite(bounds);
+            rightEyeSprite = new Sprite(bounds);
+            rightEyeSpriteClosed = new Sprite(bounds);
 
             CurrentSprite = forwardSprite;
             currentEyeSprite = forwardEyeSprite;
@@ -101,18 +101,18 @@ namespace Adventure
         {
             base.LoadContent();
 
-            forwardSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Enemies/robot_enemy_forward");
-            backwardSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Enemies/robot_enemy_backward");
-            leftSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Enemies/robot_enemy_left");
-            rightSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Enemies/robot_enemy_right");
-            forwardEyeSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Enemies/robot_enemy_eye_forward");
-            leftEyeSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Enemies/robot_enemy_eye_left");
-            rightEyeSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Enemies/robot_enemy_eye_right");
-            forwardEyeSpriteClosed.Sprite = game.Content.Load<Texture2D>("Sprites/Enemies/robot_enemy_eye_forward_closed");
-            leftEyeSpriteClosed.Sprite = game.Content.Load<Texture2D>("Sprites/Enemies/robot_enemy_eye_left_closed");
-            rightEyeSpriteClosed.Sprite = game.Content.Load<Texture2D>("Sprites/Enemies/robot_enemy_eye_right_closed");
-            asleepSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Enemies/robot_enemy_asleep");
-            wakingSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Enemies/robot_enemy_waking");
+            forwardSprite.Texture = game.Content.Load<Texture2D>("Sprites/Enemies/robot_enemy_forward");
+            backwardSprite.Texture = game.Content.Load<Texture2D>("Sprites/Enemies/robot_enemy_backward");
+            leftSprite.Texture = game.Content.Load<Texture2D>("Sprites/Enemies/robot_enemy_left");
+            rightSprite.Texture = game.Content.Load<Texture2D>("Sprites/Enemies/robot_enemy_right");
+            forwardEyeSprite.Texture = game.Content.Load<Texture2D>("Sprites/Enemies/robot_enemy_eye_forward");
+            leftEyeSprite.Texture = game.Content.Load<Texture2D>("Sprites/Enemies/robot_enemy_eye_left");
+            rightEyeSprite.Texture = game.Content.Load<Texture2D>("Sprites/Enemies/robot_enemy_eye_right");
+            forwardEyeSpriteClosed.Texture = game.Content.Load<Texture2D>("Sprites/Enemies/robot_enemy_eye_forward_closed");
+            leftEyeSpriteClosed.Texture = game.Content.Load<Texture2D>("Sprites/Enemies/robot_enemy_eye_left_closed");
+            rightEyeSpriteClosed.Texture = game.Content.Load<Texture2D>("Sprites/Enemies/robot_enemy_eye_right_closed");
+            asleepSprite.Texture = game.Content.Load<Texture2D>("Sprites/Enemies/robot_enemy_asleep");
+            wakingSprite.Texture = game.Content.Load<Texture2D>("Sprites/Enemies/robot_enemy_waking");
         }
 
         protected override void processData(Dictionary<string, string> dataDict)

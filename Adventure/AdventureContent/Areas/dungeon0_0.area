@@ -50,7 +50,7 @@ track_vertical
 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 
 
 [CollisionLayout]
-1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 
+1 1 1 1 1 1 1 1 1 1 2 1 1 1 1 1 1 1 1 1 
 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 
 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 
 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 
@@ -58,12 +58,12 @@ track_vertical
 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
-0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 
 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
-1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 
+1 1 1 1 1 1 1 1 1 1 2 1 1 1 1 1 1 1 1 1 
 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 
 
 [Entities]
@@ -80,7 +80,7 @@ ArrowSwitch (spawnCell:2,7)(activations:cd2)
 BlobEnemy (id:be1)(spawnCell:10,7)(isActive:false)
 BlobEnemy (id:be2)(spawnCell:9,9)(isActive:false)
 BlobEnemy (id:be3)(spawnCell:11,9)(isActive:false)
-#MovableBlock (spawnCell:5,4)
+MovableBlock (spawnCell:6,5)(movableDirections:3)
 
 [MapTransitions]
 10,14 -1 0 15,8

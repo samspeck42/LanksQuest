@@ -12,8 +12,8 @@ namespace Adventure
     {
         const int DAMAGE = 1;
 
-        private AnimatedSprite activatedSprite;
-        private AnimatedSprite deactivatedSprite;
+        private Sprite activatedSprite;
+        private Sprite deactivatedSprite;
         private bool areActivated;
         public bool AreActivated { get { return areActivated; } }
 
@@ -21,8 +21,8 @@ namespace Adventure
             : base(game, area)
         {
             Rectangle bounds = new Rectangle(0, 0, 32, 32);
-            activatedSprite = new AnimatedSprite(bounds);
-            deactivatedSprite = new AnimatedSprite(bounds);
+            activatedSprite = new Sprite(bounds);
+            deactivatedSprite = new Sprite(bounds);
 
             CurrentSprite = activatedSprite;
             areActivated = true;
@@ -33,8 +33,8 @@ namespace Adventure
 
         public override void LoadContent()
         {
-            activatedSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Environment/spikes_activated");
-            deactivatedSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Environment/spikes_deactivated");
+            activatedSprite.Texture = game.Content.Load<Texture2D>("Sprites/Environment/spikes_activated");
+            deactivatedSprite.Texture = game.Content.Load<Texture2D>("Sprites/Environment/spikes_deactivated");
         }
 
         protected override void processData(Dictionary<string, string> dataDict)

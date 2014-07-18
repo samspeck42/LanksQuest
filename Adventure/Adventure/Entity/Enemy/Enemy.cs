@@ -36,6 +36,7 @@ namespace Adventure
         public Enemy(GameWorld game, Area area)
             : base(game, area)
         {
+            CanLeaveArea = false;
         }
 
         public override void LoadContent()

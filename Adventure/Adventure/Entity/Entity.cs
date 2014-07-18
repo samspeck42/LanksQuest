@@ -15,13 +15,12 @@ namespace Adventure
         public Vector2 Position;
         public Vector2 Velocity;
         public Vector2 Acceleration;
-
         public Directions FaceDirection;
         public bool IsOnGround = false;
         public bool IsInAir = false;
 
-        private AnimatedSprite currentSprite;
-        public AnimatedSprite CurrentSprite { 
+        private Sprite currentSprite;
+        public Sprite CurrentSprite { 
             get { return currentSprite; }
             set
             {
@@ -52,6 +51,8 @@ namespace Adventure
         public bool IsAffectedByWallCollisions = true;
         public bool IsPassable = true;
         public bool CanLeaveArea = true;
+        protected bool diesOutsideArea = false;
+        public bool DiesOutsideArea { get { return diesOutsideArea; } }
         protected bool isActive = true;
         public bool IsActive { get { return isActive; } }
         protected bool shouldBeDrawnByArea = true;
@@ -65,7 +66,14 @@ namespace Adventure
         public string Id { get { return id; } }
 
         protected GameWorld game;
+        public GameWorld Game { get { return game; } }
         protected Area area;
+        public Area Area { get { return Area; } }
+
+        private static Vector2[] directionVectors = new Vector2[] 
+        { 
+            new Vector2(0, -1), new Vector2(0, 1), new Vector2(-1, 0), new Vector2(1, 0) 
+        };
 
         public Entity(GameWorld game, Area area)
         {
@@ -79,7 +87,7 @@ namespace Adventure
             this.area = area;
         }
 
-        public Entity(AnimatedSprite sprite)
+        public Entity(Sprite sprite)
         {
             Position = new Vector2();
             Velocity = new Vector2();
@@ -87,6 +95,11 @@ namespace Adventure
             IsAffectedByWallCollisions = true;
 
             currentSprite = sprite;
+        }
+
+        public static Vector2 GetDirectionVector(Directions direction)
+        {
+            return directionVectors[(int)direction];
         }
 
         public virtual void Update()
@@ -105,10 +118,14 @@ namespace Adventure
                 else
                     Position += Velocity;
 
-                if (!CanLeaveArea && area != null)
+                if (!CanLeaveArea && game.CurrentArea != null)
                 {
-                    Position.X = MathHelper.Clamp(Position.X, 0f, area.WidthInPixels - Width);
-                    Position.Y = MathHelper.Clamp(Position.Y, 0f, area.HeightInPixels - Height);
+                    Position.X = MathHelper.Clamp(Position.X, 0f, game.CurrentArea.WidthInPixels - Width);
+                    Position.Y = MathHelper.Clamp(Position.Y, 0f, game.CurrentArea.HeightInPixels - Height);
+                }
+                if (diesOutsideArea && area != null && !area.IsEntityInside(this))
+                {
+                    isAlive = false;
                 }
             }
 
@@ -128,6 +145,10 @@ namespace Adventure
             Point curCell = new Point();
             bool collided = false;
             List<Entity> entitiesCollidedWithX = new List<Entity>();
+            List<TileCollision> impassableTileCollisions = new List<TileCollision>();
+            impassableTileCollisions.Add(TileCollision.Impassable);
+            if (!CanLeaveArea)
+                impassableTileCollisions.Add(TileCollision.Doorway);
 
             if (Velocity.X > 0 || Velocity.X < 0) //moving horizontally
             {
@@ -147,7 +168,7 @@ namespace Adventure
                     for (y = topCellY; y <= bottomCellY; y++)
                     {
                         curCell = new Point(x, y);
-                        if (game.CurrentArea.GetCollisionAtCell(curCell) == TileCollision.Impassable &&
+                        if (impassableTileCollisions.Contains(game.CurrentArea.GetCollisionAtCell(curCell)) &&
                             Math.Abs(collisionDist) < Math.Abs(Velocity.X))
                         {
                             //a collision with an impassable tile will occur 
@@ -222,7 +243,7 @@ namespace Adventure
                     for (x = leftCellX; x <= rightCellX; x++)
                     {
                         curCell = new Point(x, y);
-                        if (game.CurrentArea.GetCollisionAtCell(curCell) == TileCollision.Impassable &&
+                        if (impassableTileCollisions.Contains(game.CurrentArea.GetCollisionAtCell(curCell)) &&
                             Math.Abs(collisionDist) < Math.Abs(Velocity.Y))
                         {
                             //a collision with an impassable tile will occur

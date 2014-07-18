@@ -34,16 +34,17 @@ namespace Adventure
         private const int DAMAGE = 1;
         private const int SWORD_DAMAGE_INCREASE = 2;
 
-        private AnimatedSprite bodySprite;
-        private AnimatedSprite eyeOpenSprite;
-        private AnimatedSprite eyeOpeningSprite;
-        private AnimatedSprite eyeClosedSprite;
-        private AnimatedSprite eyeClosingSprite;
-        private AnimatedSprite eyeStunnedSprite;
-        private AnimatedSprite mouthSprite;
-        private AnimatedSprite neckSegmentSprite;
+        private Sprite bodySprite;
+        private Sprite eyeOpenSprite;
+        private Sprite eyeOpeningSprite;
+        private Sprite eyeClosedSprite;
+        private Sprite eyeClosingSprite;
+        private Sprite eyeStunnedSprite;
+        private Sprite mouthSprite;
+        private Sprite neckSegmentSprite;
+        private Sprite currentEyeSprite;
 
-        private AnimatedSprite currentEyeSprite;
+        private SoundEffect hitSound;
 
         public EyeState EyeState;
 
@@ -75,17 +76,17 @@ namespace Adventure
             : base(game, area)
         {
             Rectangle bounds = new Rectangle(16, 16, 132, 111);
-            bodySprite = new AnimatedSprite(bounds);
+            bodySprite = new Sprite(bounds);
             bounds = new Rectangle(0, 0, 88, 60);
-            eyeOpenSprite = new AnimatedSprite(bounds);
-            eyeOpeningSprite = new AnimatedSprite(bounds, 5, EYE_OPEN_ANIMATION_DELAY, 1);
-            eyeClosedSprite = new AnimatedSprite(bounds);
-            eyeClosingSprite = new AnimatedSprite(bounds, 5, EYE_CLOSE_ANIMATION_DELAY, 1);
-            eyeStunnedSprite = new AnimatedSprite(bounds, 8, EYE_STUNNED_ANIMATION_DELAY);
+            eyeOpenSprite = new Sprite(bounds);
+            eyeOpeningSprite = new Sprite(bounds, 5, EYE_OPEN_ANIMATION_DELAY, 1);
+            eyeClosedSprite = new Sprite(bounds);
+            eyeClosingSprite = new Sprite(bounds, 5, EYE_CLOSE_ANIMATION_DELAY, 1);
+            eyeStunnedSprite = new Sprite(bounds, 8, EYE_STUNNED_ANIMATION_DELAY);
             bounds = new Rectangle(0, 0, 120, 50);
-            mouthSprite = new AnimatedSprite(bounds);
+            mouthSprite = new Sprite(bounds);
             bounds = new Rectangle(0, 0, 65, 65);
-            neckSegmentSprite = new AnimatedSprite(bounds);
+            neckSegmentSprite = new Sprite(bounds);
 
             CurrentSprite = bodySprite;
             currentEyeSprite = eyeClosedSprite;
@@ -122,14 +123,15 @@ namespace Adventure
         {
             base.LoadContent();
 
-            bodySprite.Sprite = game.Content.Load<Texture2D>("Sprites/Enemies/Boss/boss_head_big");
-            eyeOpenSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Enemies/Boss/boss_eye_open_big");
-            eyeOpeningSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Enemies/Boss/boss_eye_opening_big");
-            eyeClosedSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Enemies/Boss/boss_eye_closed_big");
-            eyeClosingSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Enemies/Boss/boss_eye_closing_big");
-            eyeStunnedSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Enemies/Boss/boss_eye_stunned_big");
-            mouthSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Enemies/Boss/boss_mouth_big");
-            neckSegmentSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Enemies/Boss/boss_neck_segment");
+            bodySprite.Texture = game.Content.Load<Texture2D>("Sprites/Enemies/Boss/boss_head_big");
+            eyeOpenSprite.Texture = game.Content.Load<Texture2D>("Sprites/Enemies/Boss/boss_eye_open_big");
+            eyeOpeningSprite.Texture = game.Content.Load<Texture2D>("Sprites/Enemies/Boss/boss_eye_opening_big");
+            eyeClosedSprite.Texture = game.Content.Load<Texture2D>("Sprites/Enemies/Boss/boss_eye_closed_big");
+            eyeClosingSprite.Texture = game.Content.Load<Texture2D>("Sprites/Enemies/Boss/boss_eye_closing_big");
+            eyeStunnedSprite.Texture = game.Content.Load<Texture2D>("Sprites/Enemies/Boss/boss_eye_stunned_big");
+            mouthSprite.Texture = game.Content.Load<Texture2D>("Sprites/Enemies/Boss/boss_mouth_big");
+            neckSegmentSprite.Texture = game.Content.Load<Texture2D>("Sprites/Enemies/Boss/boss_neck_segment");
+            hitSound = game.Content.Load<SoundEffect>("Audio/boss_hit");
 
             foreach (BossHead head in heads)
                 head.LoadContent();

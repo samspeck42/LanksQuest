@@ -10,10 +10,10 @@ namespace Adventure
 {
     public class ArrowSwitch : ActivatingEntity, Activatable
     {
-        private AnimatedSprite offSprite;
-        private AnimatedSprite onSprite;
-        private AnimatedSprite trapOffSprite;
-        private AnimatedSprite trapOnSprite;
+        private Sprite offSprite;
+        private Sprite onSprite;
+        private Sprite trapOffSprite;
+        private Sprite trapOnSprite;
         private SoundEffect activateSound;
 
         private Rectangle target;
@@ -25,10 +25,10 @@ namespace Adventure
             : base(game, area)
         {
             Rectangle bounds = new Rectangle(7, 2, 18, 30);
-            offSprite = new AnimatedSprite(bounds);
-            onSprite = new AnimatedSprite(bounds);
-            trapOffSprite = new AnimatedSprite(bounds);
-            trapOnSprite = new AnimatedSprite(bounds);
+            offSprite = new Sprite(bounds);
+            onSprite = new Sprite(bounds);
+            trapOffSprite = new Sprite(bounds);
+            trapOnSprite = new Sprite(bounds);
 
             CurrentSprite = offSprite;
 
@@ -95,10 +95,10 @@ namespace Adventure
 
         public override void LoadContent()
         {
-            offSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Environment/arrow_switch_off");
-            onSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Environment/arrow_switch_on");
-            trapOffSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Environment/arrow_switch_trap_off");
-            trapOnSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Environment/arrow_switch_trap_on");
+            offSprite.Texture = game.Content.Load<Texture2D>("Sprites/Environment/arrow_switch_off");
+            onSprite.Texture = game.Content.Load<Texture2D>("Sprites/Environment/arrow_switch_on");
+            trapOffSprite.Texture = game.Content.Load<Texture2D>("Sprites/Environment/arrow_switch_trap_off");
+            trapOnSprite.Texture = game.Content.Load<Texture2D>("Sprites/Environment/arrow_switch_trap_on");
             activateSound = game.Content.Load<SoundEffect>("Audio/arrow_switch_activate");
         }
 

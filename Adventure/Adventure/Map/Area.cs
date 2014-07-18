@@ -563,6 +563,12 @@ namespace Adventure
             return activeEntities;
         }
 
+        public bool IsEntityInside(Entity entity)
+        {
+            Rectangle areaRect = new Rectangle(0, 0, this.WidthInPixels, this.HeightInPixels);
+            return areaRect.Contains(entity.HitBox) || areaRect.Intersects(entity.HitBox);
+        }
+
         public int IsUsingTexture(Texture2D texture)
         {
             if (tileTextures.Contains(texture))

@@ -22,13 +22,13 @@ namespace Adventure
         private int[] moves = new int[] { 0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3 };
         private int currentMove;
 
-        private AnimatedSprite sprite;
+        private Sprite sprite;
 
         public BlobEnemy(GameWorld game, Area area)
             : base(game, area)
         {
             Rectangle bounds = new Rectangle(2, 2, 22, 24);
-            sprite = new AnimatedSprite(bounds, 8, WALK_ANIMATION_DELAY);
+            sprite = new Sprite(bounds, 8, WALK_ANIMATION_DELAY);
 
             CurrentSprite = sprite;
 
@@ -44,7 +44,7 @@ namespace Adventure
         public override void LoadContent()
         {
             base.LoadContent();
-            sprite.Sprite = game.Content.Load<Texture2D>("Sprites/Enemies/blob_enemy");
+            sprite.Texture = game.Content.Load<Texture2D>("Sprites/Enemies/blob_enemy");
         }
 
         public override void Update()

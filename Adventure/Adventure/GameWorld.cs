@@ -72,7 +72,7 @@ namespace Adventure
             Player.LoadContent();
 
             currentMap.Load();
-            currentArea = currentMap.GetAreaByIndex(0);
+            currentArea = currentMap.GetAreaByIndex(1);
             changeColorsEffect = Content.Load<Effect>("Effects/ChangeColorsEffect");
             Font = Content.Load<SpriteFont>("Fonts/font");
             SquareTexture = Content.Load<Texture2D>("tile_border");
@@ -119,47 +119,7 @@ namespace Adventure
                         continue;
                     }
 
-                    if (entity is Enemy && Player.State == PlayerState.Attacking)
-                    {
-                        Enemy enemy = (Enemy)entity;
-
-                        if (enemy.HitBox.Contains(Player.SwordHitBox) || enemy.HitBox.Intersects(Player.SwordHitBox))
-                            enemy.ReactToSwordHit(Player);
-                    }
-
-                    if (entity is Breakable && Player.State == PlayerState.Attacking)
-                    {
-                        Breakable breakable = (Breakable)entity;
-
-                        if (entity.HitBox.Contains(Player.SwordHitBox) || entity.HitBox.Intersects(Player.SwordHitBox))
-                            breakable.StartBreaking();
-                    }
-
-                    if (entity is MovableBlock && Player.IsReadyToPush && Player.CanStartAction(PlayerState.Pushing))
-                    {
-                        MovableBlock block = (MovableBlock)entity;
-
-                        // check if player can move this block
-                        if (Player.AllignedWith(block) && block.CanBePushed(Player.FaceDirection))
-                            Player.StartPushing(block);
-                    }
-
-                    if (entity is LiftableEntity && Player.IsTryingToInteract)
-                    {
-                        LiftableEntity liftableEntity = (LiftableEntity)entity;
-
-                        // check if player can lift this entity
-                        if (Player.CanInteractWith(liftableEntity) && !liftableEntity.IsThrown)
-                            Player.StartLifting(liftableEntity);
-                    }
-
-                    if (entity is Chest && Player.IsTryingToInteract)
-                    {
-                        Chest chest = (Chest)entity;
-
-                        if (Player.CanInteractWith(chest) && !chest.IsOpened)
-                            Player.StartOpening(chest);
-                    }
+                    handlePlayerInteractions(entity);
 
                     if (Player.CollidesWith(entity))
                     {
@@ -194,7 +154,7 @@ namespace Adventure
                 {
                     if (Player.HitBox.Intersects(Area.CreateRectangleForCell(mapTransition.LocationCell)))
                     {
-                        startMapTransition(mapTransition);
+                        StartMapTransition(mapTransition);
                     }
                 }
             }
@@ -205,6 +165,59 @@ namespace Adventure
             else if (isMapTransitioning)
             {
                 doMapTransition();
+            }
+        }
+
+        private void handlePlayerInteractions(Entity entity)
+        {
+            if (entity is Enemy && Player.State == PlayerState.Attacking)
+            {
+                Enemy enemy = (Enemy)entity;
+
+                if (enemy.HitBox.Contains(Player.SwordHitBox) ||
+                    enemy.HitBox.Intersects(Player.SwordHitBox))
+                    enemy.ReactToSwordHit(Player);
+            }
+
+            if (entity is Breakable && Player.State == PlayerState.Attacking)
+            {
+                Breakable breakable = (Breakable)entity;
+
+                if (entity.HitBox.Contains(Player.SwordHitBox) ||
+                    entity.HitBox.Intersects(Player.SwordHitBox))
+                    breakable.StartBreaking();
+            }
+
+            if (entity is MovableBlock && Player.CanEnterState(PlayerState.Pushing))
+            {
+                MovableBlock block = (MovableBlock)entity;
+
+                // check if player can move this block
+                if (Player.IsReadyToPush &&
+                    Player.IsAllignedWith(block) &&
+                    block.CanBePushed(Player.FaceDirection))
+                    Player.StartPushing(block);
+            }
+
+            if (entity is CarriableEntity && Player.CanEnterState(PlayerState.Carrying))
+            {
+                CarriableEntity liftableEntity = (CarriableEntity)entity;
+
+                // check if player can lift this entity
+                if (Player.IsTryingToInteract &&
+                    Player.IsInFrontOf(liftableEntity) &&
+                    !liftableEntity.IsThrown)
+                    Player.StartLifting(liftableEntity);
+            }
+
+            if (entity is Chest && Player.CanEnterState(PlayerState.OpeningChest))
+            {
+                Chest chest = (Chest)entity;
+
+                if (Player.IsTryingToInteract &&
+                    Player.IsInFrontOf(chest) &&
+                    !chest.IsOpened)
+                    Player.StartOpening(chest);
             }
         }
 
@@ -251,7 +264,7 @@ namespace Adventure
             Player.Velocity = Vector2.Zero;
         }
 
-        private void startMapTransition(MapTransition mapTransition)
+        public void StartMapTransition(MapTransition mapTransition)
         {
             isMapTransitioning = true;
             mapTransitionTimer = 0;
@@ -345,7 +358,7 @@ namespace Adventure
             transitionArea = null;
             transitionCamera = null;
             transitionVelocity = Vector2.Zero;
-            Player.StartEntering(transitionDirection);
+            Player.StartEnteringArea(transitionDirection);
         }
 
         public void Draw(SpriteBatch spriteBatch)

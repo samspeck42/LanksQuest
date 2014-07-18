@@ -38,6 +38,6 @@ namespace TileEngine
     {
         Passable,
         Impassable,
-        Obstacle
+        Doorway
     }
 }

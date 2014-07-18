@@ -17,8 +17,8 @@ namespace Adventure
         private const int DAMAGE = 2;
         private const int WALL_INTERSECT_DISTANCE = 10;
 
-        private AnimatedSprite verticalSprite;
-        private AnimatedSprite horizontalSprite;
+        private Sprite verticalSprite;
+        private Sprite horizontalSprite;
         private bool isFired;
         public bool IsFired { get { return isFired; } }
         private bool hasHit;
@@ -47,9 +47,9 @@ namespace Adventure
         {
             IsAffectedByWallCollisions = false;
             Rectangle bounds = new Rectangle(0, 0, 8, 20);
-            verticalSprite = new AnimatedSprite(bounds);
+            verticalSprite = new Sprite(bounds);
             bounds = new Rectangle(0, 0, 20, 8);
-            horizontalSprite = new AnimatedSprite(bounds);
+            horizontalSprite = new Sprite(bounds);
 
             FaceDirection = direction;
 
@@ -78,12 +78,13 @@ namespace Adventure
             hasHit = false;
             IsInAir = true;
             Damage = DAMAGE;
+            diesOutsideArea = true;
         }
 
         public override void LoadContent()
         {
-            verticalSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Items/arrow_vertical");
-            horizontalSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Items/arrow_horizontal");
+            verticalSprite.Texture = game.Content.Load<Texture2D>("Sprites/Items/arrow_vertical");
+            horizontalSprite.Texture = game.Content.Load<Texture2D>("Sprites/Items/arrow_horizontal");
         }
 
         public override void Update()

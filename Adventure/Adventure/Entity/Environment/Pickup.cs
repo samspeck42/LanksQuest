@@ -22,11 +22,11 @@ namespace Adventure
         private const int BLINK_START_TIME = 240;
         private const int BLINK_DELAY = 2;
 
-        private AnimatedSprite bronzeCoinSprite;
-        private AnimatedSprite silverCoinSprite;
-        private AnimatedSprite goldCoinSprite;
-        private AnimatedSprite heartSprite;
-        private AnimatedSprite keySprite;
+        private Sprite bronzeCoinSprite;
+        private Sprite silverCoinSprite;
+        private Sprite goldCoinSprite;
+        private Sprite heartSprite;
+        private Sprite keySprite;
 
         private SoundEffect coinCollectSound;
         private SoundEffect heartCollectSound;
@@ -60,19 +60,19 @@ namespace Adventure
             IsAffectedByWallCollisions = false;
 
             Rectangle bounds = new Rectangle(0, 0, 14, 14);
-            bronzeCoinSprite = new AnimatedSprite(bounds, 6, ANIMATION_DELAY);
+            bronzeCoinSprite = new Sprite(bounds, 6, ANIMATION_DELAY);
 
             bounds = new Rectangle(0, 0, 14, 14);
-            silverCoinSprite = new AnimatedSprite(bounds, 6, ANIMATION_DELAY);
+            silverCoinSprite = new Sprite(bounds, 6, ANIMATION_DELAY);
 
             bounds = new Rectangle(0, 0, 14, 14);
-            goldCoinSprite = new AnimatedSprite(bounds, 6, ANIMATION_DELAY);
+            goldCoinSprite = new Sprite(bounds, 6, ANIMATION_DELAY);
 
             bounds = new Rectangle(0, 0, 14, 14);
-            heartSprite = new AnimatedSprite(bounds);
+            heartSprite = new Sprite(bounds);
 
             bounds = new Rectangle(0, 0, 14, 14);
-            keySprite = new AnimatedSprite(bounds);
+            keySprite = new Sprite(bounds);
 
             setType(type);
 
@@ -128,11 +128,11 @@ namespace Adventure
 
         public override void LoadContent()
         {
-            bronzeCoinSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Pickups/coin_bronze");
-            silverCoinSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Pickups/coin_silver");
-            goldCoinSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Pickups/coin_gold");
-            heartSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Pickups/heart");
-            keySprite.Sprite = game.Content.Load<Texture2D>("Sprites/Pickups/key");
+            bronzeCoinSprite.Texture = game.Content.Load<Texture2D>("Sprites/Pickups/coin_bronze");
+            silverCoinSprite.Texture = game.Content.Load<Texture2D>("Sprites/Pickups/coin_silver");
+            goldCoinSprite.Texture = game.Content.Load<Texture2D>("Sprites/Pickups/coin_gold");
+            heartSprite.Texture = game.Content.Load<Texture2D>("Sprites/Pickups/heart");
+            keySprite.Texture = game.Content.Load<Texture2D>("Sprites/Pickups/key");
             shadowTexture = game.Content.Load<Texture2D>("Sprites/Pickups/shadow");
             coinCollectSound = game.Content.Load<SoundEffect>("Audio/coin_collect");
             heartCollectSound = game.Content.Load<SoundEffect>("Audio/heart_collect");

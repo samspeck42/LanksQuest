@@ -36,15 +36,17 @@ namespace Adventure
         private const int STUNNED_POSITION_OFFSET_X = 32;
         private const int STUNNED_TIME = 300;
 
-        private AnimatedSprite headSprite;
-        private AnimatedSprite eyeOpenSprite;
-        private AnimatedSprite eyeOpeningSprite;
-        private AnimatedSprite eyeClosedSprite;
-        private AnimatedSprite eyeClosingSprite;
-        private AnimatedSprite eyeStunnedSprite;
-        private AnimatedSprite mouthSprite;
+        private Sprite headSprite;
+        private Sprite eyeOpenSprite;
+        private Sprite eyeOpeningSprite;
+        private Sprite eyeClosedSprite;
+        private Sprite eyeClosingSprite;
+        private Sprite eyeStunnedSprite;
+        private Sprite mouthSprite;
 
-        private AnimatedSprite currentEyeSprite;
+        private Sprite currentEyeSprite;
+
+        private SoundEffect hitSound;
 
         private Rectangle movementRegion;
         private Vector2 destinationPosition = Vector2.Zero;
@@ -77,15 +79,15 @@ namespace Adventure
             : base(game, area)
         {
             Rectangle bounds = new Rectangle(14, 16, 100, 95);
-            headSprite = new AnimatedSprite(bounds);
+            headSprite = new Sprite(bounds);
             bounds = new Rectangle(0, 0, 44, 20);
-            eyeOpenSprite = new AnimatedSprite(bounds);
-            eyeOpeningSprite = new AnimatedSprite(bounds, 5, EYE_OPEN_ANIMATION_DELAY, 1);
-            eyeClosedSprite = new AnimatedSprite(bounds);
-            eyeClosingSprite = new AnimatedSprite(bounds, 5, EYE_CLOSE_ANIMATION_DELAY, 1);
-            eyeStunnedSprite = new AnimatedSprite(bounds);
+            eyeOpenSprite = new Sprite(bounds);
+            eyeOpeningSprite = new Sprite(bounds, 5, EYE_OPEN_ANIMATION_DELAY, 1);
+            eyeClosedSprite = new Sprite(bounds);
+            eyeClosingSprite = new Sprite(bounds, 5, EYE_CLOSE_ANIMATION_DELAY, 1);
+            eyeStunnedSprite = new Sprite(bounds);
             bounds = new Rectangle(0, 0, 64, 34);
-            mouthSprite = new AnimatedSprite(bounds);
+            mouthSprite = new Sprite(bounds);
 
             CurrentSprite = headSprite;
             currentEyeSprite = eyeOpenSprite;
@@ -117,13 +119,14 @@ namespace Adventure
         {
             base.LoadContent();
 
-            headSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Enemies/Boss/boss_head");
-            eyeOpenSprite.Sprite= game.Content.Load<Texture2D>("Sprites/Enemies/Boss/boss_eye_open");
-            eyeOpeningSprite.Sprite= game.Content.Load<Texture2D>("Sprites/Enemies/Boss/boss_eye_opening");
-            eyeClosedSprite.Sprite= game.Content.Load<Texture2D>("Sprites/Enemies/Boss/boss_eye_closed");
-            eyeClosingSprite.Sprite= game.Content.Load<Texture2D>("Sprites/Enemies/Boss/boss_eye_closing");
-            eyeStunnedSprite.Sprite= game.Content.Load<Texture2D>("Sprites/Enemies/Boss/boss_eye_stunned");
-            mouthSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Enemies/Boss/boss_mouth_open");
+            headSprite.Texture = game.Content.Load<Texture2D>("Sprites/Enemies/Boss/boss_head");
+            eyeOpenSprite.Texture= game.Content.Load<Texture2D>("Sprites/Enemies/Boss/boss_eye_open");
+            eyeOpeningSprite.Texture= game.Content.Load<Texture2D>("Sprites/Enemies/Boss/boss_eye_opening");
+            eyeClosedSprite.Texture= game.Content.Load<Texture2D>("Sprites/Enemies/Boss/boss_eye_closed");
+            eyeClosingSprite.Texture= game.Content.Load<Texture2D>("Sprites/Enemies/Boss/boss_eye_closing");
+            eyeStunnedSprite.Texture= game.Content.Load<Texture2D>("Sprites/Enemies/Boss/boss_eye_stunned");
+            mouthSprite.Texture = game.Content.Load<Texture2D>("Sprites/Enemies/Boss/boss_mouth_open");
+            hitSound = game.Content.Load<SoundEffect>("Audio/boss_hit");
         }
 
         public override void Update()
@@ -319,8 +322,9 @@ namespace Adventure
 
         public override void StartDying()
         {
-            //isDying = true;
-            //isHurt = false;
+            Velocity = Vector2.Zero;
+            EyeState = EyeState.Stunned;
+            currentEyeSprite = eyeStunnedSprite;
             state = EnemyState.Dying;
         }
 

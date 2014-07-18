@@ -6,15 +6,17 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using TileEngine;
+using Microsoft.Xna.Framework.Audio;
 
 namespace Adventure
 {
-    public class Pot : LiftableEntity, Breakable, PickupDropper
+    public class Pot : CarriableEntity, Breakable, PickupDropper
     {
         private const float PICKUP_DROP_CHANCE = 0.9f;
         private const int DAMAGE = 2;
 
-        private AnimatedSprite sprite;
+        private Sprite sprite;
+        private SoundEffect breakingSound;
 
         public Pot(GameWorld game, Area area)
             : base(game, area)
@@ -23,19 +25,23 @@ namespace Adventure
             Damage = DAMAGE;
 
             Rectangle bounds = new Rectangle(0, 0, 26, 26);
-            sprite = new AnimatedSprite(bounds);
+            sprite = new Sprite(bounds);
 
             CurrentSprite = sprite;
+
+            diesOutsideArea = true;
         }
 
         public override void LoadContent()
         {
-            sprite.Sprite = game.Content.Load<Texture2D>("Sprites/Environment/pot_small");
+            sprite.Texture = game.Content.Load<Texture2D>("Sprites/Environment/pot_small");
+            breakingSound = game.Content.Load<SoundEffect>("Audio/pot_breaking");
         }
 
         public void StartBreaking()
         {
             isAlive = false;
+            breakingSound.Play(0.5f, 0, 0);
         }
 
         public float DropChance

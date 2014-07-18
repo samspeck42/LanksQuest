@@ -9,9 +9,9 @@ namespace Adventure
 {
     public class ClosedDoor : Door, Activatable
     {
-        private AnimatedSprite closedSprite;
-        private AnimatedSprite openingSprite;
-        private AnimatedSprite closingSprite;
+        private Sprite closedSprite;
+        private Sprite openingSprite;
+        private Sprite closingSprite;
         private bool isClosing = false;
 
         public ClosedDoor(GameWorld game, Area area)
@@ -33,9 +33,9 @@ namespace Adventure
         private void init()
         {
             Rectangle bounds = new Rectangle(0, 0, 32, 32);
-            closedSprite = new AnimatedSprite(bounds);
-            openingSprite = new AnimatedSprite(bounds, 8, 2, 1);
-            closingSprite = new AnimatedSprite(bounds, 8, 2, 1);
+            closedSprite = new Sprite(bounds);
+            openingSprite = new Sprite(bounds, 8, 2, 1);
+            closingSprite = new Sprite(bounds, 8, 2, 1);
 
             CurrentSprite = closedSprite;
         }
@@ -44,9 +44,9 @@ namespace Adventure
         {
             base.LoadContent();
 
-            closedSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Environment/closed_door");
-            openingSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Environment/closed_door_opening");
-            closingSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Environment/closed_door_closing");
+            closedSprite.Texture = game.Content.Load<Texture2D>("Sprites/Environment/closed_door");
+            openingSprite.Texture = game.Content.Load<Texture2D>("Sprites/Environment/closed_door_opening");
+            closingSprite.Texture = game.Content.Load<Texture2D>("Sprites/Environment/closed_door_closing");
         }
 
         public override void Update()

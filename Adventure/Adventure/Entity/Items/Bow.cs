@@ -11,10 +11,10 @@ namespace Adventure
 {
     public class Bow : Entity, EquippableItem
     {
-        private AnimatedSprite sprite;
+        private Sprite sprite;
         private SoundEffect arrowFireSound;
 
-        public Texture2D InventoryScreenIcon { get { return sprite.Sprite; } }
+        public Texture2D InventoryScreenIcon { get { return sprite.Texture; } }
         public Point InventoryScreenPoint { get { return new Point(0, 0); } }
 
         private bool isDoneBeingUsed = false;
@@ -27,7 +27,7 @@ namespace Adventure
             : base(game, null)
         {
             Rectangle bounds = new Rectangle(0, 0, 32, 16);
-            sprite = new AnimatedSprite(bounds);
+            sprite = new Sprite(bounds);
 
             CurrentSprite = sprite;
 
@@ -36,7 +36,7 @@ namespace Adventure
 
         public override void LoadContent()
         {
-            sprite.Sprite = game.Content.Load<Texture2D>("Sprites/Items/bow");
+            sprite.Texture = game.Content.Load<Texture2D>("Sprites/Items/bow");
             arrowFireSound = game.Content.Load<SoundEffect>("Audio/arrow_fire");
         }
 

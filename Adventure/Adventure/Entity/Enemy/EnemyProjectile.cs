@@ -15,8 +15,8 @@ namespace Adventure
         private const int LIFETIME = 600;
         private const int DAMAGE = 1;
 
-        private AnimatedSprite bulletSprite;
-        private AnimatedSprite fireballSprite;
+        private Sprite bulletSprite;
+        private Sprite fireballSprite;
 
         private int lifeTimer = 0;
         private EnemyProjectileType type;
@@ -28,9 +28,9 @@ namespace Adventure
             this.type = type;
 
             Rectangle bounds = new Rectangle(0, 0, 16, 16);
-            bulletSprite = new AnimatedSprite(bounds, 3, ANIMATION_DELAY);
+            bulletSprite = new Sprite(bounds, 3, ANIMATION_DELAY);
             bounds = new Rectangle(2, 2, 20, 20);
-            fireballSprite = new AnimatedSprite(bounds, 3, ANIMATION_DELAY);
+            fireballSprite = new Sprite(bounds, 3, ANIMATION_DELAY);
 
             if (type == EnemyProjectileType.Bullet)
                 CurrentSprite = bulletSprite;
@@ -44,8 +44,8 @@ namespace Adventure
 
         public override void LoadContent()
         {
-            bulletSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Enemies/bullet");
-            fireballSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Enemies/fireball");
+            bulletSprite.Texture = game.Content.Load<Texture2D>("Sprites/Enemies/bullet");
+            fireballSprite.Texture = game.Content.Load<Texture2D>("Sprites/Enemies/fireball");
         }
 
         public override void Update()

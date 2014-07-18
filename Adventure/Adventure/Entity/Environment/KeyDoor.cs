@@ -10,8 +10,8 @@ namespace Adventure
 {
     public class KeyDoor : Door
     {
-        private AnimatedSprite sprite;
-        private AnimatedSprite openingSprite;
+        private Sprite sprite;
+        private Sprite openingSprite;
 
         public KeyDoor(GameWorld game, Area area)
             : base(game, area)
@@ -30,8 +30,8 @@ namespace Adventure
         private void init()
         {
             Rectangle bounds = new Rectangle(0, 0, 32, 32);
-            sprite = new AnimatedSprite(bounds);
-            openingSprite = new AnimatedSprite(bounds, 8, 2, 1);
+            sprite = new Sprite(bounds);
+            openingSprite = new Sprite(bounds, 8, 2, 1);
 
             CurrentSprite = sprite;
         }
@@ -40,8 +40,8 @@ namespace Adventure
         {
             base.LoadContent();
 
-            sprite.Sprite = game.Content.Load<Texture2D>("Sprites/Environment/key_door");
-            openingSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Environment/key_door_opening");
+            sprite.Texture = game.Content.Load<Texture2D>("Sprites/Environment/key_door");
+            openingSprite.Texture = game.Content.Load<Texture2D>("Sprites/Environment/key_door_opening");
         }
 
         public override void Update()

@@ -12,8 +12,8 @@ namespace Adventure
     {
         private const int TREASURE_DISPLAY_TIME = 60;
 
-        private AnimatedSprite unopenedSprite;
-        private AnimatedSprite openedSprite;
+        private Sprite unopenedSprite;
+        private Sprite openedSprite;
         private SoundEffect openSound;
 
         private bool isOpened = false;
@@ -28,8 +28,8 @@ namespace Adventure
             : base(game, area)
         {
             Rectangle bounds = new Rectangle(1, 4, 30, 24);
-            unopenedSprite = new AnimatedSprite(bounds);
-            openedSprite = new AnimatedSprite(bounds);
+            unopenedSprite = new Sprite(bounds);
+            openedSprite = new Sprite(bounds);
 
             CurrentSprite = unopenedSprite;
 
@@ -42,8 +42,8 @@ namespace Adventure
 
         public override void LoadContent()
         {
-            unopenedSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Environment/chest_unopened");
-            openedSprite.Sprite = game.Content.Load<Texture2D>("Sprites/Environment/chest_opened");
+            unopenedSprite.Texture = game.Content.Load<Texture2D>("Sprites/Environment/chest_unopened");
+            openedSprite.Texture = game.Content.Load<Texture2D>("Sprites/Environment/chest_opened");
             openSound = game.Content.Load<SoundEffect>("Audio/chest_open");
         }
 
