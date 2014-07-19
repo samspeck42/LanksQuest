@@ -52,5 +52,10 @@ namespace Adventure
                     player.Inventory.CollectEquippableItem((EquippableItem)treasure);
             }
         }
+
+        public override bool CanInteract
+        {
+            get { throw new NotImplementedException(); }
+        }
     }
 }

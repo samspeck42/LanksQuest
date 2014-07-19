@@ -2,6 +2,11 @@
 -find activations, deactivations using string id
 fix getting entities in collision path
 push player around impassable entities as well as tiles
+fix robot eye hitbox
+give entities multiple hitboxes identified by string ids, they each have their own associated
+	properties, eg. damage, deflected by sheild, currently active, etc., can be used for sheilds,
+	enemy weapons, etc. entities have two hitboxes by default, one used for obstable collisions
+	and one used for getting hurt
 
 [Entities]
 Pot (spawnCell:2,2) 

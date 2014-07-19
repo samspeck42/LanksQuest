@@ -27,8 +27,12 @@ namespace Adventure
         public BlobEnemy(GameWorld game, Area area)
             : base(game, area)
         {
-            Rectangle bounds = new Rectangle(2, 2, 22, 24);
-            sprite = new Sprite(bounds, 8, WALK_ANIMATION_DELAY);
+            hitBoxOffset = Vector2.Zero;
+            hitBoxWidth = 22;
+            hitBoxHeight = 24;
+
+            Vector2 origin = new Vector2(2, 2);
+            sprite = new Sprite(origin, 8, WALK_ANIMATION_DELAY);
 
             CurrentSprite = sprite;
 

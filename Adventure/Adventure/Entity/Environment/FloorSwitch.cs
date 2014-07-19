@@ -15,9 +15,13 @@ namespace Adventure
         public FloorSwitch(GameWorld game, Area area)
             : base(game, area)
         {
-            Rectangle bounds = new Rectangle(0, 0, 32, 32);
-            unpressedSprite = new Sprite(bounds);
-            pressedSprite = new Sprite(bounds);
+            hitBoxOffset = Vector2.Zero;
+            hitBoxWidth = 32;
+            hitBoxHeight = 32;
+
+            Vector2 origin = new Vector2(0, 0);
+            unpressedSprite = new Sprite(origin);
+            pressedSprite = new Sprite(origin);
 
             CurrentSprite = unpressedSprite;
             IsOnGround = true;

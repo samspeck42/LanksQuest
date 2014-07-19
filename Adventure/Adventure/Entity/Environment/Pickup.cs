@@ -59,20 +59,20 @@ namespace Adventure
             this.isDropped = isDropped;
             IsAffectedByWallCollisions = false;
 
-            Rectangle bounds = new Rectangle(0, 0, 14, 14);
-            bronzeCoinSprite = new Sprite(bounds, 6, ANIMATION_DELAY);
+            hitBoxOffset = Vector2.Zero;
+            hitBoxWidth = 14;
+            hitBoxHeight = 14;
 
-            bounds = new Rectangle(0, 0, 14, 14);
-            silverCoinSprite = new Sprite(bounds, 6, ANIMATION_DELAY);
+            Vector2 origin = new Vector2(0, 0);
+            bronzeCoinSprite = new Sprite(origin, 6, ANIMATION_DELAY);
 
-            bounds = new Rectangle(0, 0, 14, 14);
-            goldCoinSprite = new Sprite(bounds, 6, ANIMATION_DELAY);
+            silverCoinSprite = new Sprite(origin, 6, ANIMATION_DELAY);
 
-            bounds = new Rectangle(0, 0, 14, 14);
-            heartSprite = new Sprite(bounds);
+            goldCoinSprite = new Sprite(origin, 6, ANIMATION_DELAY);
 
-            bounds = new Rectangle(0, 0, 14, 14);
-            keySprite = new Sprite(bounds);
+            heartSprite = new Sprite(origin);
+
+            keySprite = new Sprite(origin);
 
             setType(type);
 
@@ -204,7 +204,7 @@ namespace Adventure
         public override void Draw(SpriteBatch spriteBatch, Effect changeColorsEffect)
         {
             spriteBatch.Draw(shadowTexture,
-               new Vector2(Center.X - (shadowTexture.Width / 2), Position.Y + Height - (shadowTexture.Height / 2)),
+               new Vector2(Center.X - (shadowTexture.Width / 2), Origin.Y + Height - (shadowTexture.Height / 2)),
                Color.White);
 
             bool shouldDraw = true;
@@ -217,7 +217,7 @@ namespace Adventure
             if (shouldDraw)
             {
                 if (isBouncing)
-                    CurrentSprite.Draw(spriteBatch, new Vector2(Position.X, Position.Y - bounceHeight));
+                    CurrentSprite.Draw(spriteBatch, new Vector2(Origin.X, Origin.Y - bounceHeight));
                 else
                     base.Draw(spriteBatch, changeColorsEffect);
             }

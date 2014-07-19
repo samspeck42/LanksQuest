@@ -14,6 +14,7 @@ namespace Adventure
         public abstract bool CanGetHurt { get; }
         public abstract bool CanLeaveArea { get; }
         public abstract bool CanStartAttacking { get; }
+        public abstract bool CanInteract { get; }
         public abstract bool CanStartUsingEquippableItem(EquippableItem item);
 
         public PlayerStateHandler(Player player)

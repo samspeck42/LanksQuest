@@ -31,13 +31,13 @@ namespace Adventure
             get
             {
                 if (FaceDirection == Directions.Up)
-                    return new Vector2(Position.X + (Width / 2), Position.Y);
+                    return new Vector2(HitBoxPosition.X + (Width / 2), HitBoxPosition.Y);
                 else if (FaceDirection == Directions.Down)
-                    return new Vector2(Position.X + (Width / 2), Position.Y + Height);
+                    return new Vector2(HitBoxPosition.X + (Width / 2), HitBoxPosition.Y + Height);
                 else if (FaceDirection == Directions.Left)
-                    return new Vector2(Position.X, Position.Y + (Height / 2));
+                    return new Vector2(HitBoxPosition.X, HitBoxPosition.Y + (Height / 2));
                 else if (FaceDirection == Directions.Right)
-                    return new Vector2(Position.X + Width, Position.Y + (Height / 2));
+                    return new Vector2(HitBoxPosition.X + Width, HitBoxPosition.Y + (Height / 2));
                 return Vector2.Zero;
             }
         }
@@ -46,31 +46,44 @@ namespace Adventure
             : base(game, area)
         {
             IsAffectedByWallCollisions = false;
-            Rectangle bounds = new Rectangle(0, 0, 8, 20);
-            verticalSprite = new Sprite(bounds);
-            bounds = new Rectangle(0, 0, 20, 8);
-            horizontalSprite = new Sprite(bounds);
+
+            Vector2 origin = new Vector2(4, 10);
+            verticalSprite = new Sprite(origin);
+            origin = new Vector2(10, 4);
+            horizontalSprite = new Sprite(origin);
 
             FaceDirection = direction;
 
             if (FaceDirection == Directions.Up)
             {
                 CurrentSprite = verticalSprite;
+                hitBoxOffset = new Vector2(-4, -10);
+                hitBoxWidth = 8;
+                hitBoxHeight = 20;
                 CurrentSprite.Rotation = 0;
             }
             else if (FaceDirection == Directions.Down)
             {
                 CurrentSprite = verticalSprite;
+                hitBoxOffset = new Vector2(-4, -10);
+                hitBoxWidth = 8;
+                hitBoxHeight = 20;
                 CurrentSprite.Rotation = MathHelper.Pi;
             }
             else if (FaceDirection == Directions.Left)
             {
                 CurrentSprite = horizontalSprite;
+                hitBoxOffset = new Vector2(-10, -4);
+                hitBoxWidth = 20;
+                hitBoxHeight = 8;
                 CurrentSprite.Rotation = 0;
             }
             else if (FaceDirection == Directions.Right)
             {
                 CurrentSprite = horizontalSprite;
+                hitBoxOffset = new Vector2(-10, -4);
+                hitBoxWidth = 20;
+                hitBoxHeight = 8;
                 CurrentSprite.Rotation = MathHelper.Pi;
             }
 
@@ -95,7 +108,7 @@ namespace Adventure
             Point tipCell = Area.ConvertPositionToCell(TipPosition);
             Rectangle collisionRect = new Rectangle();
 
-            if (area.GetCollisionAtCell(tipCell) == TileCollision.Impassable)
+            if (area.GetCollisionAtCell(tipCell) == TileCollision.Obstacle)
             {
                 isInsideWall = true;
                 collisionRect = Area.CreateRectangleForCell(tipCell);
@@ -129,13 +142,13 @@ namespace Adventure
                     Velocity = Vector2.Zero;
 
                     if (FaceDirection == Directions.Up)
-                        Position.Y = collisionRect.Bottom - WALL_INTERSECT_DISTANCE;
+                        HitBoxPositionY = collisionRect.Bottom - WALL_INTERSECT_DISTANCE;
                     else if (FaceDirection == Directions.Down)
-                        Position.Y = collisionRect.Top + WALL_INTERSECT_DISTANCE - Height;
+                        HitBoxPositionY = collisionRect.Top + WALL_INTERSECT_DISTANCE - Height;
                     else if (FaceDirection == Directions.Left)
-                        Position.X = collisionRect.Right - WALL_INTERSECT_DISTANCE;
+                        HitBoxPositionX = collisionRect.Right - WALL_INTERSECT_DISTANCE;
                     else if (FaceDirection == Directions.Right)
-                        Position.X = collisionRect.Left + WALL_INTERSECT_DISTANCE - Width;
+                        HitBoxPositionX = collisionRect.Left + WALL_INTERSECT_DISTANCE - Width;
 
                     isFired = false;
                     hasHit = true;
@@ -153,8 +166,8 @@ namespace Adventure
 
                 if (entityHit != null)
                 {
-                    Position.X = entityHit.Position.X + entityHitPosition.X;
-                    Position.Y = entityHit.Position.Y + entityHitPosition.Y;
+                    HitBoxPositionX = entityHit.HitBoxPosition.X + entityHitPosition.X;
+                    HitBoxPositionY = entityHit.HitBoxPosition.Y + entityHitPosition.Y;
 
                     if (!entityHit.IsAlive || !entityHit.IsActive)
                         this.isAlive = false;
@@ -204,7 +217,7 @@ namespace Adventure
             Velocity = Vector2.Zero;
 
             entityHit = entity;
-            entityHitPosition = new Vector2(Position.X - entity.Position.X, Position.Y - entity.Position.Y);
+            entityHitPosition = new Vector2(HitBoxPosition.X - entity.HitBoxPosition.X, HitBoxPosition.Y - entity.HitBoxPosition.Y);
         }
 
         private bool canBeStoppedBy(Entity entity)

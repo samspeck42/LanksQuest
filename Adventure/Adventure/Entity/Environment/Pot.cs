@@ -24,8 +24,11 @@ namespace Adventure
             IsPassable = false;
             Damage = DAMAGE;
 
-            Rectangle bounds = new Rectangle(0, 0, 26, 26);
-            sprite = new Sprite(bounds);
+            hitBoxOffset = Vector2.Zero;
+            hitBoxWidth = 26;
+            hitBoxHeight = 26;
+            Vector2 origin = new Vector2(0, 0);
+            sprite = new Sprite(origin);
 
             CurrentSprite = sprite;
 

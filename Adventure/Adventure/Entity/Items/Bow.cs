@@ -26,8 +26,12 @@ namespace Adventure
         public Bow(GameWorld game, Area area)
             : base(game, null)
         {
-            Rectangle bounds = new Rectangle(0, 0, 32, 16);
-            sprite = new Sprite(bounds);
+            hitBoxOffset = new Vector2(-16, -8);
+            hitBoxWidth = 32;
+            hitBoxHeight = 16;
+
+            Vector2 origin = new Vector2(16, 8);
+            sprite = new Sprite(origin);
 
             CurrentSprite = sprite;
 
@@ -49,12 +53,12 @@ namespace Adventure
                     Center = new Vector2(Center.X, game.Player.Center.Y - 5);
                     if (FaceDirection == Directions.Left)
                     {
-                        Center = new Vector2(game.Player.Position.X - (Height / 2), Center.Y);
+                        Center = new Vector2(game.Player.HitBoxPosition.X - (Height / 2), Center.Y);
                         arrow.Center = new Vector2(Center.X - 4, Center.Y);
                     }
                     else
                     {
-                        Center = new Vector2(game.Player.Position.X + game.Player.Width + (Height / 2), Center.Y);
+                        Center = new Vector2(game.Player.HitBoxPosition.X + game.Player.Width + (Height / 2), Center.Y);
                         arrow.Center = new Vector2(Center.X + 4, Center.Y);
                     }
                 }
@@ -63,12 +67,12 @@ namespace Adventure
                     Center = new Vector2(game.Player.Center.X, Center.Y);
                     if (FaceDirection == Directions.Up)
                     {
-                        Position.Y = game.Player.Center.Y - 24;
+                        HitBoxPositionY = game.Player.Center.Y - 24;
                         arrow.Center = new Vector2(Center.X, Center.Y - 4);
                     }
                     else
                     {
-                        Position.Y = game.Player.Center.Y;
+                        HitBoxPositionY = game.Player.Center.Y;
                         arrow.Center = new Vector2(Center.X, Center.Y + 4);
                     }
                 }
@@ -124,7 +128,6 @@ namespace Adventure
         {
             base.Draw(spriteBatch, changeColorsEffect);
 
-            arrow.CurrentSprite.LayerDepth = CurrentSprite.LayerDepth - 0.1f;
             arrow.Draw(spriteBatch, changeColorsEffect);
         }
     }

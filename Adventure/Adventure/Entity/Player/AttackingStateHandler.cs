@@ -54,5 +54,10 @@ namespace Adventure
         {
             throw new NotImplementedException();
         }
+
+        public override bool CanInteract
+        {
+            get { throw new NotImplementedException(); }
+        }
     }
 }

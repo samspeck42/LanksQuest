@@ -24,8 +24,6 @@ namespace Adventure
         public void SetSpriteStill()
         {
             Sprite newSprite = spriteSetDict[STILL_SPRITES_ID].GetSprite(player.FaceDirection);
-            player.Position += new Vector2((currentSprite.Bounds.Width - newSprite.Bounds.Width) / 2,
-                (currentSprite.Bounds.Height - newSprite.Bounds.Height) / 2);
             currentSprite = newSprite;
         }
 

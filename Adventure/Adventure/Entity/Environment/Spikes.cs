@@ -20,9 +20,13 @@ namespace Adventure
         public Spikes(GameWorld game, Area area)
             : base(game, area)
         {
-            Rectangle bounds = new Rectangle(0, 0, 32, 32);
-            activatedSprite = new Sprite(bounds);
-            deactivatedSprite = new Sprite(bounds);
+            hitBoxOffset = Vector2.Zero;
+            hitBoxWidth = 32;
+            hitBoxHeight = 32;
+
+            Vector2 origin = new Vector2(0, 0);
+            activatedSprite = new Sprite(origin);
+            deactivatedSprite = new Sprite(origin);
 
             CurrentSprite = activatedSprite;
             areActivated = true;

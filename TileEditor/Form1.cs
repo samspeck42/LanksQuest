@@ -39,7 +39,7 @@ namespace TileEditor
         Dictionary<TileCollision, System.Drawing.Color> tileCollisionColorDict =
             new Dictionary<TileCollision, System.Drawing.Color>
             {
-                {TileCollision.Impassable,System.Drawing.Color.Orange}
+                {TileCollision.Obstacle,System.Drawing.Color.Orange}
             };
 
 

@@ -20,9 +20,7 @@ namespace Adventure
                 frameHeight = texture.Height;
             }
         }
-
-        private Rectangle bounds;
-        public Rectangle Bounds { get { return bounds; } }
+        private Vector2 origin;
 
         private int frameWidth;
         public int FrameWidth { get { return frameWidth; } }
@@ -34,7 +32,6 @@ namespace Adventure
         public int Delay;
         public float Rotation;
         public bool Flip;
-        public float LayerDepth = 0.5f;
 
 
         private int currentFrame;
@@ -46,10 +43,10 @@ namespace Adventure
         private int numLoops = 0;
         private int loopCounter = 0;
 
-        public Sprite(Texture2D sprite, Rectangle bounds)
+        public Sprite(Texture2D sprite, Vector2 origin)
         {
             this.texture = sprite;
-            this.bounds = bounds;
+            this.origin = origin;
             frameWidth = sprite.Width;
             frameHeight = sprite.Height;
             numFrames = 1;
@@ -62,10 +59,10 @@ namespace Adventure
 
         }
 
-        public Sprite(Texture2D sprite, Rectangle bounds, int numFrames, int delay)
+        public Sprite(Texture2D sprite, Vector2 origin, int numFrames, int delay)
         {
             this.texture = sprite;
-            this.bounds = bounds;
+            this.origin = origin;
             frameWidth = sprite.Width / numFrames;
             frameHeight = sprite.Height;
             this.numFrames = numFrames;
@@ -77,10 +74,10 @@ namespace Adventure
 
         }
 
-        public Sprite(Rectangle bounds)
+        public Sprite(Vector2 origin)
         {
             this.texture = null;
-            this.bounds = bounds;
+            this.origin = origin;
             numFrames = 1;
             Delay = 0;
             Rotation = 0f;
@@ -91,10 +88,10 @@ namespace Adventure
 
         }
 
-        public Sprite(Rectangle bounds, int numFrames, int delay)
+        public Sprite(Vector2 origin, int numFrames, int delay)
         {
             this.texture = null;
-            this.bounds = bounds;
+            this.origin = origin;
             this.numFrames = numFrames;
             Delay = delay;
             Flip = false;
@@ -104,10 +101,10 @@ namespace Adventure
 
         }
 
-        public Sprite(Rectangle bounds, int numFrames, int delay, int numLoops)
+        public Sprite(Vector2 origin, int numFrames, int delay, int numLoops)
         {
             this.texture = null;
-            this.bounds = bounds;
+            this.origin = origin;
             this.numFrames = numFrames;
             Delay = delay;
             Flip = false;
@@ -162,9 +159,9 @@ namespace Adventure
             if (texture != null)
             {
                 SpriteEffects effect = Flip ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
-                spriteBatch.Draw(texture, new Vector2((int)Math.Round(position.X) + (Bounds.Width / 2), (int)Math.Round(position.Y) + (Bounds.Height / 2)),
+                spriteBatch.Draw(texture, position,
                     new Rectangle(currentFrame * frameWidth, 0, frameWidth, frameHeight), Color.White, Rotation,
-                    new Vector2(Bounds.Center.X, Bounds.Center.Y), 1, effect, LayerDepth);
+                    this.origin, 1, effect, 0);
             }
         }
 
@@ -173,31 +170,9 @@ namespace Adventure
             if (texture != null)
             {
                 SpriteEffects effect = Flip ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
-                spriteBatch.Draw(texture, new Vector2((int)Math.Round(position.X) + (Bounds.Width / 2), (int)Math.Round(position.Y) + (Bounds.Height / 2)),
+                spriteBatch.Draw(texture, position,
                     new Rectangle(currentFrame * frameWidth, 0, frameWidth, frameHeight), color, Rotation,
-                    new Vector2(Bounds.Center.X, Bounds.Center.Y), 1, effect, LayerDepth);
-            }
-        }
-
-        public void Draw(SpriteBatch spriteBatch, Rectangle rectangle)
-        {
-            if (texture != null)
-            {
-                SpriteEffects effect = Flip ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
-                spriteBatch.Draw(texture, rectangle,
-                    new Rectangle(currentFrame * frameWidth, 0, frameWidth, frameHeight), Color.White, Rotation,
-                    Vector2.Zero, effect, LayerDepth);
-            }
-        }
-
-        public void Draw(SpriteBatch spriteBatch, Rectangle rectangle, Color color)
-        {
-            if (texture != null)
-            {
-                SpriteEffects effect = Flip ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
-                spriteBatch.Draw(texture, rectangle,
-                    new Rectangle(currentFrame * frameWidth, 0, frameWidth, frameHeight), color, Rotation,
-                    Vector2.Zero, effect, LayerDepth);
+                    this.origin, 1, effect, 0);
             }
         }
     }

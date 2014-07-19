@@ -59,6 +59,8 @@ namespace Adventure
         private int eyeTimer = 0;
         private int eyeOpenTime = 0;
         private int eyeClosedTime = 0;
+        private int eyeHitBoxWidth = 0;
+        private int eyeHitBoxHeight = 0;
         private int moveWaitTimer = 0;
         private int stunnedTimer = 0;
         private int fireBulletsWaitTime = 0;
@@ -70,24 +72,32 @@ namespace Adventure
         {
             get
             {
-                return new Rectangle((int)Math.Round(Position.X + EYE_OFFSET_X), (int)Math.Round(Position.Y + EYE_OFFSET_Y),
-                  currentEyeSprite.Bounds.Width, currentEyeSprite.Bounds.Height);
+                return new Rectangle((int)Math.Round(Origin.X + EYE_OFFSET_X), (int)Math.Round(Origin.Y + EYE_OFFSET_Y),
+                  eyeHitBoxWidth, eyeHitBoxHeight);
             }
         }
 
         public BossHead(GameWorld game, Area area, Vector2 centerPosition, Boss boss)
             : base(game, area)
         {
-            Rectangle bounds = new Rectangle(14, 16, 100, 95);
-            headSprite = new Sprite(bounds);
-            bounds = new Rectangle(0, 0, 44, 20);
-            eyeOpenSprite = new Sprite(bounds);
-            eyeOpeningSprite = new Sprite(bounds, 5, EYE_OPEN_ANIMATION_DELAY, 1);
-            eyeClosedSprite = new Sprite(bounds);
-            eyeClosingSprite = new Sprite(bounds, 5, EYE_CLOSE_ANIMATION_DELAY, 1);
-            eyeStunnedSprite = new Sprite(bounds);
-            bounds = new Rectangle(0, 0, 64, 34);
-            mouthSprite = new Sprite(bounds);
+            hitBoxOffset = new Vector2(0, 0);
+            hitBoxWidth = 100;
+            hitBoxHeight = 95;
+
+            Vector2 origin = new Vector2(14, 16);
+            headSprite = new Sprite(origin);
+
+            eyeHitBoxWidth = 44;
+            eyeHitBoxHeight = 20;
+            origin = new Vector2(0, 0);
+            eyeOpenSprite = new Sprite(origin);
+            eyeOpeningSprite = new Sprite(origin, 5, EYE_OPEN_ANIMATION_DELAY, 1);
+            eyeClosedSprite = new Sprite(origin);
+            eyeClosingSprite = new Sprite(origin, 5, EYE_CLOSE_ANIMATION_DELAY, 1);
+            eyeStunnedSprite = new Sprite(origin);
+
+            origin = new Vector2(0, 0);
+            mouthSprite = new Sprite(origin);
 
             CurrentSprite = headSprite;
             currentEyeSprite = eyeOpenSprite;
@@ -95,8 +105,8 @@ namespace Adventure
             Center = centerPosition;
             this.boss = boss;
             IsAffectedByWallCollisions = false;
-            mouthPosition.X = Position.X + MOUTH_OFFSET_X;
-            mouthPosition.Y = Position.Y + MOUTH_OFFSET_Y;
+            mouthPosition.X = Origin.X + MOUTH_OFFSET_X;
+            mouthPosition.Y = Origin.Y + MOUTH_OFFSET_Y;
             EyeState = EyeState.Open;
             MaxHealth = 1;
             Health = 1;
@@ -107,7 +117,7 @@ namespace Adventure
             knockBackSpeed = KNOCKBACK_SPEED;
             hurtTime = HURT_TIME;
             stunnedPosition = new Vector2(Center.X, Center.Y - STUNNED_POSITION_OFFSET_Y);
-            if (boss.Position.X > this.Position.X)
+            if (boss.Origin.X > this.Origin.X)
                 stunnedPosition.X -= STUNNED_POSITION_OFFSET_X;
             else
                 stunnedPosition.X += STUNNED_POSITION_OFFSET_X;
@@ -135,8 +145,8 @@ namespace Adventure
 
             base.Update();
 
-            mouthPosition.X = Position.X + MOUTH_OFFSET_X;
-            mouthPosition.Y = Position.Y + MOUTH_OFFSET_Y;
+            mouthPosition.X = Origin.X + MOUTH_OFFSET_X;
+            mouthPosition.Y = Origin.Y + MOUTH_OFFSET_Y;
         }
 
         protected override void updateAI()
@@ -216,8 +226,8 @@ namespace Adventure
 
         private void fireBullets()
         {
-            Vector2 firePosition = new Vector2(mouthPosition.X + (mouthSprite.Bounds.Width / 2),
-                mouthPosition.Y + (mouthSprite.Bounds.Height / 2) + 10);
+            Vector2 firePosition = new Vector2(mouthPosition.X + (mouthSprite.Texture.Width / 2),
+                mouthPosition.Y + (mouthSprite.Texture.Height / 2) + 10);
             float angle = MathHelper.Pi / 3.0f;
             EnemyProjectile bullet;
 
@@ -352,7 +362,7 @@ namespace Adventure
                 changeColorsEffect.Parameters["red"].SetValue(increaseRed);
                 changeColorsEffect.Parameters["blue"].SetValue(increaseBlue);
 
-                CurrentSprite.Draw(spriteBatch, Position);
+                CurrentSprite.Draw(spriteBatch, Origin);
                 currentEyeSprite.Draw(spriteBatch, new Vector2(EyeHitBox.X, EyeHitBox.Y));
                 mouthSprite.Draw(spriteBatch, mouthPosition);
 
@@ -362,7 +372,7 @@ namespace Adventure
             //else if (IsDying)
             else if (state == EnemyState.Dying)
             {
-                CurrentSprite.Draw(spriteBatch, Position);
+                CurrentSprite.Draw(spriteBatch, Origin);
                 currentEyeSprite.Draw(spriteBatch, new Vector2(EyeHitBox.X, EyeHitBox.Y));
                 mouthSprite.Draw(spriteBatch, mouthPosition);
             }

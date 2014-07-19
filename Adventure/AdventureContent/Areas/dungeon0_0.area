@@ -80,7 +80,7 @@ ArrowSwitch (spawnCell:2,7)(activations:cd2)
 BlobEnemy (id:be1)(spawnCell:10,7)(isActive:false)
 BlobEnemy (id:be2)(spawnCell:9,9)(isActive:false)
 BlobEnemy (id:be3)(spawnCell:11,9)(isActive:false)
-MovableBlock (spawnCell:6,5)(movableDirections:3)
+#MovableBlock (spawnCell:6,5)(movableDirections:3)
 
 [MapTransitions]
 10,14 -1 0 15,8

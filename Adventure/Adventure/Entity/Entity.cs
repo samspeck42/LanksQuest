@@ -12,7 +12,7 @@ namespace Adventure
 {
     public abstract class Entity: IComparable
     {
-        public Vector2 Position;
+        public Vector2 Origin;
         public Vector2 Velocity;
         public Vector2 Acceleration;
         public Directions FaceDirection;
@@ -22,26 +22,39 @@ namespace Adventure
         private Sprite currentSprite;
         public Sprite CurrentSprite { 
             get { return currentSprite; }
-            set
-            {
-                if (currentSprite != null)
-                    Position += new Vector2((currentSprite.Bounds.Width - value.Bounds.Width) / 2, (currentSprite.Bounds.Height - value.Bounds.Height) / 2);
-                currentSprite = value;
-            }
+            set { currentSprite = value; }
         }
 
-        public int Width { get { return currentSprite.Bounds.Width; } }
-        public int Height { get { return currentSprite.Bounds.Height; } }
+        protected Vector2 hitBoxOffset = Vector2.Zero;
+        protected int hitBoxWidth = 0;
+        protected int hitBoxHeight = 0;
+        public int Width { get { return hitBoxWidth; } }
+        public int Height { get { return hitBoxHeight; } }
 
         public Rectangle HitBox
         {
-            get { return new Rectangle((int)Math.Round(Position.X), (int)Math.Round(Position.Y), CurrentSprite.Bounds.Width, CurrentSprite.Bounds.Height); }
+            get { return new Rectangle((int)Math.Round(Origin.X + hitBoxOffset.X), (int)Math.Round(Origin.Y + hitBoxOffset.Y), 
+                hitBoxWidth, hitBoxHeight); }
         }
+        public Vector2 HitBoxPosition
+        {
+            get
+            {
+                return new Vector2(HitBox.X, HitBox.Y);
+            }
+            set
+            {
+                Origin.X = value.X - hitBoxOffset.X;
+                Origin.Y = value.Y - hitBoxOffset.Y;
+            }
+        }
+        public float HitBoxPositionX { set { HitBoxPosition = new Vector2(value, HitBoxPosition.Y); } }
+        public float HitBoxPositionY { set { HitBoxPosition = new Vector2(HitBoxPosition.X, value); } }
 
         public Vector2 Center
         {
-            get { return new Vector2(Position.X + (Width / 2), Position.Y + (Height / 2)); }
-            set { Position = new Vector2(value.X - (Width / 2), value.Y - (Height / 2)); }
+            get { return new Vector2(HitBox.X + (Width / 2), HitBox.Y + (Height / 2)); }
+            set { HitBoxPosition = new Vector2(value.X - (Width / 2), value.Y - (Height / 2)); }
         }
 
         protected bool isAlive = true;
@@ -77,7 +90,7 @@ namespace Adventure
 
         public Entity(GameWorld game, Area area)
         {
-            Position = new Vector2();
+            Origin = new Vector2();
             Velocity = new Vector2();
             Acceleration = new Vector2();
 
@@ -89,7 +102,7 @@ namespace Adventure
 
         public Entity(Sprite sprite)
         {
-            Position = new Vector2();
+            Origin = new Vector2();
             Velocity = new Vector2();
             Acceleration = new Vector2();
             IsAffectedByWallCollisions = true;
@@ -114,14 +127,15 @@ namespace Adventure
             if (game != null)
             {
                 if (IsAffectedByWallCollisions)
-                    handleWallCollisions();
+                    handleObstacleCollisions();
                 else
-                    Position += Velocity;
+                    Origin += Velocity;
 
                 if (!CanLeaveArea && game.CurrentArea != null)
                 {
-                    Position.X = MathHelper.Clamp(Position.X, 0f, game.CurrentArea.WidthInPixels - Width);
-                    Position.Y = MathHelper.Clamp(Position.Y, 0f, game.CurrentArea.HeightInPixels - Height);
+                    HitBoxPosition = 
+                        new Vector2(MathHelper.Clamp(HitBoxPosition.X, 0f, game.CurrentArea.WidthInPixels - Width),
+                        MathHelper.Clamp(HitBoxPosition.Y, 0f, game.CurrentArea.HeightInPixels - Height));
                 }
                 if (diesOutsideArea && area != null && !area.IsEntityInside(this))
                 {
@@ -132,7 +146,7 @@ namespace Adventure
 
         }
 
-        private void handleWallCollisions()
+        private void handleObstacleCollisions()
         {
             justCollidedWithWall = false;
 
@@ -146,7 +160,7 @@ namespace Adventure
             bool collided = false;
             List<Entity> entitiesCollidedWithX = new List<Entity>();
             List<TileCollision> impassableTileCollisions = new List<TileCollision>();
-            impassableTileCollisions.Add(TileCollision.Impassable);
+            impassableTileCollisions.Add(TileCollision.Obstacle);
             if (!CanLeaveArea)
                 impassableTileCollisions.Add(TileCollision.Doorway);
 
@@ -209,14 +223,14 @@ namespace Adventure
 
                 if (collided)
                 {
-                    Position.X += collisionDist;
+                    Origin.X += collisionDist;
                     Velocity.X = 0f;
                     Acceleration.X = 0f;
                     justCollidedWithWall = true;
                 }
             }
 
-            Position.X += Velocity.X;
+            Origin.X += Velocity.X;
 
             topCellY = HitBox.Top / Area.TILE_HEIGHT;
             bottomCellY = (HitBox.Bottom - 1) / Area.TILE_HEIGHT;
@@ -283,14 +297,14 @@ namespace Adventure
 
                 if (collided)
                 {
-                    Position.Y += collisionDist;
+                    Origin.Y += collisionDist;
                     Velocity.Y = 0f;
                     Acceleration.Y = 0f;
                     justCollidedWithWall = true;
                 }
             }
 
-            Position.Y += Velocity.Y;
+            Origin.Y += Velocity.Y;
 
             List<Entity> entitiesCollidedWith = new List<Entity>();
             entitiesCollidedWith.AddRange(entitiesCollidedWithX);
@@ -334,6 +348,7 @@ namespace Adventure
             Vector2 spawnPosition = new Vector2(
                 (spawnCell.X * Area.TILE_WIDTH) + (Area.TILE_WIDTH / 2),
                 (spawnCell.Y * Area.TILE_HEIGHT) + (Area.TILE_HEIGHT / 2));
+            //this.Origin = spawnPosition;
             this.Center = spawnPosition;
             if (dataDict.ContainsKey("id"))
             {
@@ -348,7 +363,7 @@ namespace Adventure
 
         public virtual void Draw(SpriteBatch spriteBatch, Effect changeColorsEffect)
         {
-            CurrentSprite.Draw(spriteBatch, Position);
+            CurrentSprite.Draw(spriteBatch, Origin);
         }
 
         public static Entity CreateEntityFromString(string str, GameWorld game, Area area)
@@ -431,7 +446,7 @@ namespace Adventure
                     return -1;
                 else if (this.IsInAir && !other.IsInAir)
                     return 1;
-                return (int)((this.Position.Y + this.Height) - (other.Position.Y + other.Height));
+                return (int)((this.HitBoxPosition.Y + this.Height) - (other.HitBoxPosition.Y + other.Height));
             }
             return 0;
         }

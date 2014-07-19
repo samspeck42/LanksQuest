@@ -26,8 +26,11 @@ namespace Adventure
         public MovableBlock(GameWorld game, Area area)
             : base(game, area)
         {
-            Rectangle bounds = new Rectangle(0, 0, 32, 32);
-            sprite = new Sprite(bounds);
+            hitBoxOffset = Vector2.Zero;
+            hitBoxWidth = 32;
+            hitBoxHeight = 32;
+            Vector2 origin = new Vector2(0, 0);
+            sprite = new Sprite(origin);
 
             CurrentSprite = sprite;
             IsAffectedByWallCollisions = false;
@@ -103,13 +106,13 @@ namespace Adventure
         private void doPush()
         {
             if (pushDirection == Directions.Left)
-                Position.X = game.Player.Position.X - Width;
+                Origin.X = game.Player.HitBoxPosition.X - Width;
             else if (pushDirection == Directions.Right)
-                Position.X = game.Player.Position.X + game.Player.Width;
+                Origin.X = game.Player.HitBoxPosition.X + game.Player.Width;
             else if (pushDirection == Directions.Up)
-                Position.Y = game.Player.Position.Y - Height;
+                Origin.Y = game.Player.HitBoxPosition.Y - Height;
             else if (pushDirection == Directions.Down)
-                Position.Y = game.Player.Position.Y + game.Player.Height;
+                Origin.Y = game.Player.HitBoxPosition.Y + game.Player.Height;
         }
 
         public bool ReachedPushDestination()
@@ -117,13 +120,13 @@ namespace Adventure
             float distanceToDestination = 0;
 
             if (pushDirection == Directions.Left)
-                distanceToDestination = Position.X - (destinationCell.X * Area.TILE_WIDTH);
+                distanceToDestination = Origin.X - (destinationCell.X * Area.TILE_WIDTH);
             else if (pushDirection == Directions.Right)
-                distanceToDestination = (destinationCell.X * Area.TILE_WIDTH) - Position.X;
+                distanceToDestination = (destinationCell.X * Area.TILE_WIDTH) - Origin.X;
             else if (pushDirection == Directions.Up)
-                distanceToDestination = Position.Y - (destinationCell.Y * Area.TILE_HEIGHT);
+                distanceToDestination = Origin.Y - (destinationCell.Y * Area.TILE_HEIGHT);
             else if (pushDirection == Directions.Down)
-                distanceToDestination = (destinationCell.Y * Area.TILE_HEIGHT) - Position.Y;
+                distanceToDestination = (destinationCell.Y * Area.TILE_HEIGHT) - Origin.Y;
 
             if (distanceToDestination <= 0)
                 return true;
@@ -132,7 +135,7 @@ namespace Adventure
 
         public void EndPush()
         {
-            Position = new Vector2(destinationCell.X * Area.TILE_WIDTH,
+            Origin = new Vector2(destinationCell.X * Area.TILE_WIDTH,
                 destinationCell.Y * Area.TILE_HEIGHT);
             IsPassable = false;
             isBeingPushed = false;

@@ -78,7 +78,7 @@ namespace Adventure
         {
             get
             {
-                return new Vector2(Position.X + (Width / 2), Position.Y + Height);
+                return new Vector2(HitBoxPosition.X + (Width / 2), HitBoxPosition.Y + Height);
             }
         }
 
@@ -126,29 +126,31 @@ namespace Adventure
         public Player(GameWorld game)
             : base(game, null)
         {
-            Rectangle bounds = new Rectangle(5, 15, 22, 25);
-            standingSprites[0] = new Sprite(bounds);
-            walkingSprites[0] = new Sprite(bounds, 4, WALK_ANIMATION_DELAY);
-            standingSprites[1] = new Sprite(bounds);
-            walkingSprites[1] = new Sprite(bounds, 4, WALK_ANIMATION_DELAY);
-            standingSprites[2] = new Sprite(bounds);
-            walkingSprites[2] = new Sprite(bounds, 4, WALK_ANIMATION_DELAY);
-            standingSprites[3] = new Sprite(bounds);
-            walkingSprites[3] = new Sprite(bounds, 4, WALK_ANIMATION_DELAY);
+            hitBoxOffset = new Vector2(-11, -23);
+            hitBoxWidth = 22;
+            hitBoxHeight = 25;
 
-            bounds = new Rectangle(5, 35, 22, 25);
-            attackingSprites[0] = new Sprite(bounds, 3, ATTACK_ANIMATION_DELAY);
+            Vector2 origin = new Vector2(16, 38);
+            standingSprites[0] = new Sprite(origin);
+            walkingSprites[0] = new Sprite(origin, 4, WALK_ANIMATION_DELAY);
+            standingSprites[1] = new Sprite(origin);
+            walkingSprites[1] = new Sprite(origin, 4, WALK_ANIMATION_DELAY);
+            standingSprites[2] = new Sprite(origin);
+            walkingSprites[2] = new Sprite(origin, 4, WALK_ANIMATION_DELAY);
+            standingSprites[3] = new Sprite(origin);
+            walkingSprites[3] = new Sprite(origin, 4, WALK_ANIMATION_DELAY);
 
-            bounds = new Rectangle(25, 15, 22, 25);
-            attackingSprites[1] = new Sprite(bounds, 3, ATTACK_ANIMATION_DELAY);
+            origin = new Vector2(16, 58);
+            attackingSprites[0] = new Sprite(origin, 3, ATTACK_ANIMATION_DELAY);
 
-            bounds = new Rectangle(33, 35, 22, 25);
-            attackingSprites[2] = new Sprite(bounds, 3, ATTACK_ANIMATION_DELAY);
+            origin = new Vector2(36, 38);
+            attackingSprites[1] = new Sprite(origin, 3, ATTACK_ANIMATION_DELAY);
 
-            bounds = new Rectangle(5, 35, 22, 25);
-            attackingSprites[3] = new Sprite(bounds, 3, ATTACK_ANIMATION_DELAY);
+            origin = new Vector2(44, 58);
+            attackingSprites[2] = new Sprite(origin, 3, ATTACK_ANIMATION_DELAY);
 
-            //CurrentSprite = standingSprites[0];
+            origin = new Vector2(16, 58);
+            attackingSprites[3] = new Sprite(origin, 3, ATTACK_ANIMATION_DELAY);
 
             FaceDirection = Directions.Down;
             CurrentSprite = GetStandingSprite(FaceDirection);
@@ -162,10 +164,10 @@ namespace Adventure
 
             inventory = new Inventory();
 
-            Bow bow = new Bow(game, null);
-            bow.LoadContent();
-            inventory.CollectEquippableItem(bow);
-            inventory.EquipItem(bow, Buttons.B);
+            //Bow bow = new Bow(game, null);
+            //bow.LoadContent();
+            //inventory.CollectEquippableItem(bow);
+            //inventory.EquipItem(bow, Buttons.B);
         }
 
         public Sprite GetStandingSprite(Directions direction)
@@ -223,12 +225,12 @@ namespace Adventure
             if (game.IsMapTransitioning || isEntering)
             {
                 CurrentSprite.UpdateAnimation();
-                Position += Velocity;
+                Origin += Velocity;
 
                 if (isEntering)
                 {
-                    if ((Velocity.X != 0 && (Math.Abs(Position.X - enterPosition.X) > ENTER_DISTANCE)) ||
-                        (Velocity.Y != 0 && (Math.Abs(Position.Y - enterPosition.Y) > ENTER_DISTANCE)))
+                    if ((Velocity.X != 0 && (Math.Abs(Origin.X - enterPosition.X) > ENTER_DISTANCE)) ||
+                        (Velocity.Y != 0 && (Math.Abs(Origin.Y - enterPosition.Y) > ENTER_DISTANCE)))
                     {
                         isEntering = false;
                         Velocity = Vector2.Zero;
@@ -373,9 +375,9 @@ namespace Adventure
 
             if (Velocity.X > 0 && Velocity.Y == 0)
             {
-                expectedPosition1 = new Vector2(Position.X + Width + 1, Position.Y);
-                expectedPosition2 = new Vector2(Position.X + Width + 1, Center.Y);
-                expectedPosition3 = new Vector2(Position.X + Width + 1, Position.Y + Height - 1);
+                expectedPosition1 = new Vector2(HitBoxPosition.X + Width + 1, HitBoxPosition.Y);
+                expectedPosition2 = new Vector2(HitBoxPosition.X + Width + 1, Center.Y);
+                expectedPosition3 = new Vector2(HitBoxPosition.X + Width + 1, HitBoxPosition.Y + Height - 1);
                 pushVel1 = new Vector2(0, 2);
                 pushVel2 = new Vector2(0, -2);
                 entitiesToCheck.AddRange(game.CurrentArea.GetImpassableEntitiesInCollisionPathX(this));
@@ -383,9 +385,9 @@ namespace Adventure
             }
             else if (Velocity.X < 0 && Velocity.Y == 0)
             {
-                expectedPosition1 = new Vector2(Position.X - 1, Position.Y);
-                expectedPosition2 = new Vector2(Position.X - 1, Center.Y);
-                expectedPosition3 = new Vector2(Position.X - 1, Position.Y + Height - 1);
+                expectedPosition1 = new Vector2(HitBoxPosition.X - 1, HitBoxPosition.Y);
+                expectedPosition2 = new Vector2(HitBoxPosition.X - 1, Center.Y);
+                expectedPosition3 = new Vector2(HitBoxPosition.X - 1, HitBoxPosition.Y + Height - 1);
                 pushVel1 = new Vector2(0, 2);
                 pushVel2 = new Vector2(0, -2);
                 entitiesToCheck.AddRange(game.CurrentArea.GetImpassableEntitiesInCollisionPathX(this));
@@ -393,9 +395,9 @@ namespace Adventure
             }
             else if (Velocity.X == 0 && Velocity.Y > 0)
             {
-                expectedPosition1 = new Vector2(Position.X, Position.Y + Height + 1);
-                expectedPosition2 = new Vector2(Center.X, Position.Y + Height + 1);
-                expectedPosition3 = new Vector2(Position.X + Width - 1, Position.Y + Height + 1);
+                expectedPosition1 = new Vector2(HitBoxPosition.X, HitBoxPosition.Y + Height + 1);
+                expectedPosition2 = new Vector2(Center.X, HitBoxPosition.Y + Height + 1);
+                expectedPosition3 = new Vector2(HitBoxPosition.X + Width - 1, HitBoxPosition.Y + Height + 1);
                 pushVel1 = new Vector2(2, 0);
                 pushVel2 = new Vector2(-2, 0);
                 entitiesToCheck.AddRange(game.CurrentArea.GetImpassableEntitiesInCollisionPathY(this));
@@ -403,9 +405,9 @@ namespace Adventure
             }
             else if (Velocity.X == 0 && Velocity.Y < 0)
             {
-                expectedPosition1 = new Vector2(Position.X, Position.Y - 1);
-                expectedPosition2 = new Vector2(Center.X, Position.Y - 1);
-                expectedPosition3 = new Vector2(Position.X + Width - 1, Position.Y - 1);
+                expectedPosition1 = new Vector2(HitBoxPosition.X, HitBoxPosition.Y - 1);
+                expectedPosition2 = new Vector2(Center.X, HitBoxPosition.Y - 1);
+                expectedPosition3 = new Vector2(HitBoxPosition.X + Width - 1, HitBoxPosition.Y - 1);
                 pushVel1 = new Vector2(2, 0);
                 pushVel2 = new Vector2(-2, 0);
                 entitiesToCheck.AddRange(game.CurrentArea.GetImpassableEntitiesInCollisionPathY(this));
@@ -413,9 +415,9 @@ namespace Adventure
             }
             if (needToCheck)
             {
-                expectedPosition1Collides = game.CurrentArea.GetCollisionAtCell(Area.ConvertPositionToCell(expectedPosition1)) == TileCollision.Impassable;
-                expectedPosition2Collides = game.CurrentArea.GetCollisionAtCell(Area.ConvertPositionToCell(expectedPosition2)) == TileCollision.Impassable;
-                expectedPosition3Collides = game.CurrentArea.GetCollisionAtCell(Area.ConvertPositionToCell(expectedPosition3)) == TileCollision.Impassable;
+                expectedPosition1Collides = game.CurrentArea.GetCollisionAtCell(Area.ConvertPositionToCell(expectedPosition1)) == TileCollision.Obstacle;
+                expectedPosition2Collides = game.CurrentArea.GetCollisionAtCell(Area.ConvertPositionToCell(expectedPosition2)) == TileCollision.Obstacle;
+                expectedPosition3Collides = game.CurrentArea.GetCollisionAtCell(Area.ConvertPositionToCell(expectedPosition3)) == TileCollision.Obstacle;
 
                 foreach (Entity entity in entitiesToCheck)
                 {
@@ -625,13 +627,13 @@ namespace Adventure
             blockBeingPushed.EndPush();
 
             if (FaceDirection == Directions.Left)
-                Position.X = blockBeingPushed.Position.X + blockBeingPushed.Width;
+                HitBoxPositionX = blockBeingPushed.HitBoxPosition.X + blockBeingPushed.Width;
             else if (FaceDirection == Directions.Right)
-                Position.X = blockBeingPushed.Position.X - Width;
+                HitBoxPositionX = blockBeingPushed.HitBoxPosition.X - Width;
             else if (FaceDirection == Directions.Up)
-                Position.Y = blockBeingPushed.Position.Y + blockBeingPushed.Height;
+                HitBoxPositionY = blockBeingPushed.HitBoxPosition.Y + blockBeingPushed.Height;
             else if (FaceDirection == Directions.Down)
-                Position.Y = blockBeingPushed.Position.Y - Height;
+                HitBoxPositionY = blockBeingPushed.HitBoxPosition.Y - Height;
 
             Velocity = Vector2.Zero;
             startToPushTimer = 0;
@@ -648,19 +650,19 @@ namespace Adventure
 
             if (FaceDirection == Directions.Down)
             {
-                swordHitPoint = new Vector2(Position.X + forwardSwordOrigin.X - SWORD_LENGTH, Position.Y + forwardSwordOrigin.Y);
+                swordHitPoint = new Vector2(HitBoxPosition.X + forwardSwordOrigin.X - SWORD_LENGTH, HitBoxPosition.Y + forwardSwordOrigin.Y);
             }
             else if (FaceDirection == Directions.Up)
             {
-                swordHitPoint = new Vector2(Position.X + backwardSwordOrigin.X + SWORD_LENGTH, Position.Y + backwardSwordOrigin.Y);
+                swordHitPoint = new Vector2(HitBoxPosition.X + backwardSwordOrigin.X + SWORD_LENGTH, HitBoxPosition.Y + backwardSwordOrigin.Y);
             }
             else if (FaceDirection == Directions.Left)
             {
-                swordHitPoint = new Vector2(Position.X + leftSwordOrigin.X, Position.Y + leftSwordOrigin.Y - SWORD_LENGTH);
+                swordHitPoint = new Vector2(HitBoxPosition.X + leftSwordOrigin.X, HitBoxPosition.Y + leftSwordOrigin.Y - SWORD_LENGTH);
             }
             else if (FaceDirection == Directions.Right)
             {
-                swordHitPoint = new Vector2(Position.X + rightSwordOrigin.X, Position.Y + leftSwordOrigin.Y - SWORD_LENGTH);
+                swordHitPoint = new Vector2(HitBoxPosition.X + rightSwordOrigin.X, HitBoxPosition.Y + leftSwordOrigin.Y - SWORD_LENGTH);
             }
 
             CurrentSprite = GetAttackingSprite(FaceDirection);
@@ -686,19 +688,19 @@ namespace Adventure
                 
                 if (FaceDirection == Directions.Down)
                 {
-                    swordHitPoint = new Vector2(Position.X + forwardSwordOrigin.X - x, Position.Y + forwardSwordOrigin.Y + y);
+                    swordHitPoint = new Vector2(HitBoxPosition.X + forwardSwordOrigin.X - x, HitBoxPosition.Y + forwardSwordOrigin.Y + y);
                 }
                 else if (FaceDirection == Directions.Up)
                 {
-                    swordHitPoint = new Vector2(Position.X + backwardSwordOrigin.X + x, Position.Y + backwardSwordOrigin.Y - y);
+                    swordHitPoint = new Vector2(HitBoxPosition.X + backwardSwordOrigin.X + x, HitBoxPosition.Y + backwardSwordOrigin.Y - y);
                 }
                 else if (FaceDirection == Directions.Left)
                 {
-                    swordHitPoint = new Vector2(Position.X + leftSwordOrigin.X - x, Position.Y + leftSwordOrigin.Y - y);
+                    swordHitPoint = new Vector2(HitBoxPosition.X + leftSwordOrigin.X - x, HitBoxPosition.Y + leftSwordOrigin.Y - y);
                 }
                 else if (FaceDirection == Directions.Right)
                 {
-                    swordHitPoint = new Vector2(Position.X + rightSwordOrigin.X + x, Position.Y + leftSwordOrigin.Y - y);
+                    swordHitPoint = new Vector2(HitBoxPosition.X + rightSwordOrigin.X + x, HitBoxPosition.Y + leftSwordOrigin.Y - y);
                 }
 
             }
@@ -724,7 +726,7 @@ namespace Adventure
         public void StartEnteringArea(Directions direction)
         {
             isEntering = true;
-            enterPosition = new Vector2(Position.X, Position.Y);
+            enterPosition = new Vector2(Origin.X, Origin.Y);
 
             Velocity = Vector2.Zero;
             if (direction == Directions.Up)
@@ -869,23 +871,23 @@ namespace Adventure
 
             if (FaceDirection == Directions.Left)
             {
-                expectedPosition1 = new Vector2(Position.X - 1, Position.Y);
-                expectedPosition2 = new Vector2(Position.X - 1, Position.Y + Height - 1);
+                expectedPosition1 = new Vector2(HitBoxPosition.X - 1, HitBoxPosition.Y);
+                expectedPosition2 = new Vector2(HitBoxPosition.X - 1, HitBoxPosition.Y + Height - 1);
             }
             else if (FaceDirection == Directions.Right)
             {
-                expectedPosition1 = new Vector2(Position.X + Width, Position.Y);
-                expectedPosition2 = new Vector2(Position.X + Width, Position.Y + Height - 1);
+                expectedPosition1 = new Vector2(HitBoxPosition.X + Width, HitBoxPosition.Y);
+                expectedPosition2 = new Vector2(HitBoxPosition.X + Width, HitBoxPosition.Y + Height - 1);
             }
             else if (FaceDirection == Directions.Up)
             {
-                expectedPosition1 = new Vector2(Position.X, Position.Y - 1);
-                expectedPosition2 = new Vector2(Position.X + Width - 1, Position.Y - 1);
+                expectedPosition1 = new Vector2(HitBoxPosition.X, HitBoxPosition.Y - 1);
+                expectedPosition2 = new Vector2(HitBoxPosition.X + Width - 1, HitBoxPosition.Y - 1);
             }
             else if (FaceDirection == Directions.Down)
             {
-                expectedPosition1 = new Vector2(Position.X, Position.Y + Height);
-                expectedPosition2 = new Vector2(Position.X + Width - 1, Position.Y + Height);
+                expectedPosition1 = new Vector2(HitBoxPosition.X, HitBoxPosition.Y + Height);
+                expectedPosition2 = new Vector2(HitBoxPosition.X + Width - 1, HitBoxPosition.Y + Height);
             }
 
             return entity.HitBox.Contains(new Point((int)Math.Round(expectedPosition1.X), (int)Math.Round(expectedPosition1.Y))) &&

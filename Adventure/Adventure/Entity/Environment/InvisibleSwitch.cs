@@ -11,7 +11,11 @@ namespace Adventure
         public InvisibleSwitch(GameWorld game, Area area)
             : base(game, area)
         {
-            CurrentSprite = new Sprite(new Rectangle(0, 0, 32, 32));
+            hitBoxOffset = Vector2.Zero;
+            hitBoxWidth = 32;
+            hitBoxHeight = 32;
+
+            CurrentSprite = new Sprite(new Vector2(0, 0));
         }
 
         protected override void processData(Dictionary<string, string> dataDict)

@@ -50,6 +50,8 @@ namespace Adventure
 
         private BossHead[] heads  = new BossHead[2];
         private int eyeOpenTimer = 0;
+        private int eyeHitBoxWidth = 0;
+        private int eyeHitBoxHeight = 0;
         private int stunnedTimer = 0;
         private int dyingTimer = 0;
         private Vector2 mouthPosition = Vector2.Zero;
@@ -67,26 +69,35 @@ namespace Adventure
         {
             get
             {
-                return new Rectangle((int)Math.Round(Position.X + EYE_OFFSET_X), (int)Math.Round(Position.Y + EYE_OFFSET_Y),
-                  currentEyeSprite.Bounds.Width, currentEyeSprite.Bounds.Height);
+                return new Rectangle((int)Math.Round(Origin.X + EYE_OFFSET_X), (int)Math.Round(Origin.Y + EYE_OFFSET_Y),
+                  eyeHitBoxWidth, eyeHitBoxHeight);
             }
         }
 
         public Boss(GameWorld game, Area area)
             : base(game, area)
         {
-            Rectangle bounds = new Rectangle(16, 16, 132, 111);
-            bodySprite = new Sprite(bounds);
-            bounds = new Rectangle(0, 0, 88, 60);
-            eyeOpenSprite = new Sprite(bounds);
-            eyeOpeningSprite = new Sprite(bounds, 5, EYE_OPEN_ANIMATION_DELAY, 1);
-            eyeClosedSprite = new Sprite(bounds);
-            eyeClosingSprite = new Sprite(bounds, 5, EYE_CLOSE_ANIMATION_DELAY, 1);
-            eyeStunnedSprite = new Sprite(bounds, 8, EYE_STUNNED_ANIMATION_DELAY);
-            bounds = new Rectangle(0, 0, 120, 50);
-            mouthSprite = new Sprite(bounds);
-            bounds = new Rectangle(0, 0, 65, 65);
-            neckSegmentSprite = new Sprite(bounds);
+            hitBoxOffset = new Vector2(0, 0);
+            hitBoxWidth = 132;
+            hitBoxHeight = 111;
+
+            Vector2 origin = new Vector2(16, 16);
+            bodySprite = new Sprite(origin);
+
+            eyeHitBoxWidth = 88;
+            eyeHitBoxHeight = 60;
+            origin = new Vector2(0, 0);
+            eyeOpenSprite = new Sprite(origin);
+            eyeOpeningSprite = new Sprite(origin, 5, EYE_OPEN_ANIMATION_DELAY, 1);
+            eyeClosedSprite = new Sprite(origin);
+            eyeClosingSprite = new Sprite(origin, 5, EYE_CLOSE_ANIMATION_DELAY, 1);
+            eyeStunnedSprite = new Sprite(origin, 8, EYE_STUNNED_ANIMATION_DELAY);
+
+            origin = new Vector2(0, 0);
+            mouthSprite = new Sprite(origin);
+
+            origin = new Vector2(0, 0);
+            neckSegmentSprite = new Sprite(origin);
 
             CurrentSprite = bodySprite;
             currentEyeSprite = eyeClosedSprite;
@@ -104,7 +115,7 @@ namespace Adventure
 
             initHeads();
 
-            mouthPosition = new Vector2(Center.X - (mouthSprite.Bounds.Width / 2), Position.Y + MOUTH_OFFSET_Y);
+            mouthPosition = new Vector2(Center.X - (60), Origin.Y + MOUTH_OFFSET_Y);
             minMouthYPosition = mouthPosition.Y;
             maxMouthYPosition = mouthPosition.Y + MOUTH_MOVE_DISTANCE;
         }
@@ -252,8 +263,8 @@ namespace Adventure
 
         private void fireFireball()
         {
-            Vector2 firePosition = new Vector2(mouthPosition.X + (mouthSprite.Bounds.Width / 2) - 16,
-                mouthPosition.Y + (mouthSprite.Bounds.Height / 2));
+            Vector2 firePosition = new Vector2(mouthPosition.X + (mouthSprite.Texture.Width / 2) - 16,
+                mouthPosition.Y + (mouthSprite.Texture.Height / 2));
             EnemyProjectile fireball = new EnemyProjectile(game, area, EnemyProjectileType.Fireball);
             fireball.LoadContent();
             fireball.Center = firePosition;
@@ -468,7 +479,7 @@ namespace Adventure
         private void drawBody(SpriteBatch spriteBatch)
         {
             mouthSprite.Draw(spriteBatch, mouthPosition);
-            CurrentSprite.Draw(spriteBatch, Position);
+            CurrentSprite.Draw(spriteBatch, Origin);
             currentEyeSprite.Draw(spriteBatch, new Vector2(EyeHitBox.X, EyeHitBox.Y));
         }
 
@@ -477,8 +488,8 @@ namespace Adventure
             updateNeckSegmentPositions();
             foreach (Vector2 pos in neckSegmentPositions)
             {
-                neckSegmentSprite.Draw(spriteBatch, new Vector2(pos.X - (neckSegmentSprite.Bounds.Width / 2),
-                    pos.Y - (neckSegmentSprite.Bounds.Height / 2)));
+                neckSegmentSprite.Draw(spriteBatch, new Vector2(pos.X - (neckSegmentSprite.Texture.Width / 2),
+                    pos.Y - (neckSegmentSprite.Texture.Height / 2)));
             }
         }
     }

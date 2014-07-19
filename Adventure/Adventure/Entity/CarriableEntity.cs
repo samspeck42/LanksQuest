@@ -44,16 +44,16 @@ namespace Adventure
 
         public void StartBeingLifted()
         {
-            Position.X = game.Player.Center.X - (Width / 2);
-            Position.Y = game.Player.Position.Y - Height;
+            Origin.X = game.Player.Center.X - (Width / 2);
+            Origin.Y = game.Player.HitBoxPosition.Y - Height;
             isBeingCarried = true;
             IsPassable = true;
         }
 
         private void doCarry()
         {
-            Position.X = game.Player.Center.X - (Width / 2);
-            Position.Y = game.Player.Position.Y - Height;
+            Origin.X = game.Player.Center.X - (Width / 2);
+            Origin.Y = game.Player.HitBoxPosition.Y - Height;
         }
 
         public void StartBeingThrown(Directions direction)
@@ -92,16 +92,16 @@ namespace Adventure
 
             Vector2 collisionPos = new Vector2();
             if (throwDirection == Directions.Up)
-                collisionPos = new Vector2(Position.X + (Width / 2), Position.Y);
+                collisionPos = new Vector2(Origin.X + (Width / 2), Origin.Y);
             else if (throwDirection == Directions.Down)
-                collisionPos = new Vector2(Position.X + (Width / 2), Position.Y + Height);
+                collisionPos = new Vector2(Origin.X + (Width / 2), Origin.Y + Height);
             else if (throwDirection == Directions.Left)
-                collisionPos = new Vector2(Position.X, Position.Y + Height);
+                collisionPos = new Vector2(Origin.X, Origin.Y + Height);
             else if (throwDirection == Directions.Right)
-                collisionPos = new Vector2(Position.X + Width, Position.Y + Height);
+                collisionPos = new Vector2(Origin.X + Width, Origin.Y + Height);
 
             List<TileCollision> impassableTileCollisions = 
-                new List<TileCollision> { TileCollision.Impassable, TileCollision.Doorway };
+                new List<TileCollision> { TileCollision.Obstacle, TileCollision.Doorway };
             if (impassableTileCollisions.Contains(area.GetCollisionAtCell(Area.ConvertPositionToCell(collisionPos))))
             {
                 Rectangle cellRectangle = Area.CreateRectangleForCell(Area.ConvertPositionToCell(collisionPos));
@@ -119,13 +119,13 @@ namespace Adventure
                 if (intersectDistance >= 3)
                 {
                     if (throwDirection == Directions.Up)
-                        Position.Y = cellRectangle.Bottom - 3;
+                        Origin.Y = cellRectangle.Bottom - 3;
                     else if (throwDirection == Directions.Down)
-                        Position.Y = cellRectangle.Top + 3 - Height;
+                        Origin.Y = cellRectangle.Top + 3 - Height;
                     else if (throwDirection == Directions.Left)
-                        Position.X = cellRectangle.Right - 3;
+                        Origin.X = cellRectangle.Right - 3;
                     else if (throwDirection == Directions.Right)
-                        Position.X = cellRectangle.Left + 3 - Width;
+                        Origin.X = cellRectangle.Left + 3 - Width;
 
                     endThrow();
                 }

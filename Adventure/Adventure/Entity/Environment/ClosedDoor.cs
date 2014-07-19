@@ -32,10 +32,14 @@ namespace Adventure
 
         private void init()
         {
-            Rectangle bounds = new Rectangle(0, 0, 32, 32);
-            closedSprite = new Sprite(bounds);
-            openingSprite = new Sprite(bounds, 8, 2, 1);
-            closingSprite = new Sprite(bounds, 8, 2, 1);
+            hitBoxOffset = new Vector2(-16, -16);
+            hitBoxWidth = 32;
+            hitBoxHeight = 32;
+
+            Vector2 origin = new Vector2(16, 16);
+            closedSprite = new Sprite(origin);
+            openingSprite = new Sprite(origin, 8, 2, 1);
+            closingSprite = new Sprite(origin, 8, 2, 1);
 
             CurrentSprite = closedSprite;
         }

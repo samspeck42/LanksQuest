@@ -27,16 +27,24 @@ namespace Adventure
         {
             this.type = type;
 
-            Rectangle bounds = new Rectangle(0, 0, 16, 16);
-            bulletSprite = new Sprite(bounds, 3, ANIMATION_DELAY);
-            bounds = new Rectangle(2, 2, 20, 20);
-            fireballSprite = new Sprite(bounds, 3, ANIMATION_DELAY);
+            Vector2 origin = new Vector2(0, 0);
+            bulletSprite = new Sprite(origin, 3, ANIMATION_DELAY);
+            origin = new Vector2(12, 12);
+            fireballSprite = new Sprite(origin, 3, ANIMATION_DELAY);
 
             if (type == EnemyProjectileType.Bullet)
+            {
                 CurrentSprite = bulletSprite;
+                hitBoxWidth = 16;
+                hitBoxHeight = 16;
+            }
             else if (type == EnemyProjectileType.Fireball)
+            {
+                hitBoxOffset = new Vector2(-10, -10);
                 CurrentSprite = fireballSprite;
-
+                hitBoxWidth = 20;
+                hitBoxHeight = 20;
+            }
             Damage = DAMAGE;
             IsAffectedByWallCollisions = true;
             IsInAir = true;

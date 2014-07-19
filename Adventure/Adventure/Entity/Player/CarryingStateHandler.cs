@@ -71,5 +71,10 @@ namespace Adventure
             carriable.Area.Entities.Add(carriable);
             carriable = null;
         }
+
+        public override bool CanInteract
+        {
+            get { throw new NotImplementedException(); }
+        }
     }
 }

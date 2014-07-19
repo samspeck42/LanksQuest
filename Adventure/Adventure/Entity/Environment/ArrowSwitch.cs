@@ -24,11 +24,15 @@ namespace Adventure
         public ArrowSwitch(GameWorld game, Area area)
             : base(game, area)
         {
-            Rectangle bounds = new Rectangle(7, 2, 18, 30);
-            offSprite = new Sprite(bounds);
-            onSprite = new Sprite(bounds);
-            trapOffSprite = new Sprite(bounds);
-            trapOnSprite = new Sprite(bounds);
+            hitBoxOffset = Vector2.Zero;
+            hitBoxWidth = 18;
+            hitBoxHeight = 30;
+
+            Vector2 origin = new Vector2(7, 2);
+            offSprite = new Sprite(origin);
+            onSprite = new Sprite(origin);
+            trapOffSprite = new Sprite(origin);
+            trapOnSprite = new Sprite(origin);
 
             CurrentSprite = offSprite;
 

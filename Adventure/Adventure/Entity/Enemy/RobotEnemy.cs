@@ -60,31 +60,35 @@ namespace Adventure
         {
             get
             {
-                return new Rectangle((int)Math.Round(Position.X + currentEyeOffset.X), (int)Math.Round(Position.Y + currentEyeOffset.Y),
-                  currentEyeSprite.Bounds.Width, currentEyeSprite.Bounds.Height);
+                return new Rectangle((int)Math.Round(Origin.X + currentEyeOffset.X), (int)Math.Round(Origin.Y + currentEyeOffset.Y),
+                  currentEyeSprite.Texture.Width, currentEyeSprite.Texture.Height);
             }
         }
 
         public RobotEnemy(GameWorld game, Area area)
             : base(game, area)
         {
-            Rectangle bounds = new Rectangle(5, 8, 22, 32);
-            forwardSprite = new Sprite(bounds, 4, WALK_ANIMATION_DELAY);
-            backwardSprite = new Sprite(bounds, 4, WALK_ANIMATION_DELAY);
-            leftSprite = new Sprite(bounds, 4, WALK_ANIMATION_DELAY);
-            rightSprite = new Sprite(bounds, 4, WALK_ANIMATION_DELAY);
-            asleepSprite = new Sprite(bounds);
-            wakingSprite = new Sprite(bounds, 4, WAKE_ANIMATION_DELAY, 1);
+            hitBoxOffset = Vector2.Zero;
+            hitBoxWidth = 22;
+            hitBoxHeight = 32;
 
-            bounds = new Rectangle(0, 0, 16, 12);
-            forwardEyeSprite = new Sprite(bounds);
-            forwardEyeSpriteClosed = new Sprite(bounds);
+            Vector2 origin = new Vector2(5, 8);
+            forwardSprite = new Sprite(origin, 4, WALK_ANIMATION_DELAY);
+            backwardSprite = new Sprite(origin, 4, WALK_ANIMATION_DELAY);
+            leftSprite = new Sprite(origin, 4, WALK_ANIMATION_DELAY);
+            rightSprite = new Sprite(origin, 4, WALK_ANIMATION_DELAY);
+            asleepSprite = new Sprite(origin);
+            wakingSprite = new Sprite(origin, 4, WAKE_ANIMATION_DELAY, 1);
 
-            bounds = new Rectangle(0, 0, 9, 12);
-            leftEyeSprite = new Sprite(bounds);
-            leftEyeSpriteClosed = new Sprite(bounds);
-            rightEyeSprite = new Sprite(bounds);
-            rightEyeSpriteClosed = new Sprite(bounds);
+            origin = new Vector2(0, 0);
+            forwardEyeSprite = new Sprite(origin);
+            forwardEyeSpriteClosed = new Sprite(origin);
+
+            origin = new Vector2(0, 0);
+            leftEyeSprite = new Sprite(origin);
+            leftEyeSpriteClosed = new Sprite(origin);
+            rightEyeSprite = new Sprite(origin);
+            rightEyeSpriteClosed = new Sprite(origin);
 
             CurrentSprite = forwardSprite;
             currentEyeSprite = forwardEyeSprite;
@@ -352,7 +356,7 @@ namespace Adventure
             base.Draw(spriteBatch, changeColorsEffect);
 
             if (!isAsleep && FaceDirection != Directions.Up)
-                currentEyeSprite.Draw(spriteBatch, EyeHitBox);
+                currentEyeSprite.Draw(spriteBatch, new Vector2(EyeHitBox.X, EyeHitBox.Y));
         }
     }
 }

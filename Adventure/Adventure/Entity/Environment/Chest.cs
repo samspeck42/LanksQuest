@@ -27,9 +27,13 @@ namespace Adventure
         public Chest(GameWorld game, Area area)
             : base(game, area)
         {
-            Rectangle bounds = new Rectangle(1, 4, 30, 24);
-            unopenedSprite = new Sprite(bounds);
-            openedSprite = new Sprite(bounds);
+            hitBoxOffset = Vector2.Zero;
+            hitBoxWidth = 30;
+            hitBoxHeight = 24;
+
+            Vector2 origin = new Vector2(1, 4);
+            unopenedSprite = new Sprite(origin);
+            openedSprite = new Sprite(origin);
 
             CurrentSprite = unopenedSprite;
 
@@ -72,7 +76,7 @@ namespace Adventure
                 treasureDisplayTimer++;
 
                 if (treasureDisplayTimer <= (TREASURE_DISPLAY_TIME / 3))
-                    treasure.Position.Y -= 0.8f;
+                    treasure.Origin.Y -= 0.8f;
                 if (treasureDisplayTimer >= TREASURE_DISPLAY_TIME)
                     isDisplayingTreasure = false;
             }
@@ -100,7 +104,7 @@ namespace Adventure
             base.Draw(spriteBatch, changeColorsEffect);
 
             if (isDisplayingTreasure)
-                treasure.CurrentSprite.Draw(spriteBatch, treasure.Position);
+                treasure.CurrentSprite.Draw(spriteBatch, treasure.Origin);
         }
 
         public void Activate()
