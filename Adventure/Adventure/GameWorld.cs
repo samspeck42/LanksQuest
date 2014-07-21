@@ -199,7 +199,7 @@ namespace Adventure
                     Player.StartPushing(block);
             }
 
-            if (entity is CarriableEntity && Player.CanEnterState(PlayerState.Carrying))
+            if (entity is CarriableEntity && Player.StateHandler.CanInteract)
             {
                 CarriableEntity liftableEntity = (CarriableEntity)entity;
 
@@ -284,29 +284,29 @@ namespace Adventure
             if (transitionVelocity.X < 0 && transitionCamera.Position.X <= (transitionArea.WidthInPixels - Adventure.SCREEN_WIDTH))
             {
                 transitionCamera.Position.X = transitionArea.WidthInPixels - Adventure.SCREEN_WIDTH;
-                Player.Origin.X += transitionArea.WidthInPixels;
-                Player.Origin.Y += (currentArea.CellCoordinates.Y - transitionArea.CellCoordinates.Y) * Map.MAP_CELL_HEIGHT;
+                Player.Position.X += transitionArea.WidthInPixels;
+                Player.Position.Y += (currentArea.CellCoordinates.Y - transitionArea.CellCoordinates.Y) * Map.MAP_CELL_HEIGHT;
                 finishAreaTransition();
             }
             else if (transitionVelocity.X > 0 && transitionCamera.Position.X >= 0)
             {
                 transitionCamera.Position.X = 0;
-                Player.Origin.X -= currentArea.WidthInPixels;
-                Player.Origin.Y += (currentArea.CellCoordinates.Y - transitionArea.CellCoordinates.Y) * Map.MAP_CELL_HEIGHT;
+                Player.Position.X -= currentArea.WidthInPixels;
+                Player.Position.Y += (currentArea.CellCoordinates.Y - transitionArea.CellCoordinates.Y) * Map.MAP_CELL_HEIGHT;
                 finishAreaTransition();
             }
             else if (transitionVelocity.Y < 0 && transitionCamera.Position.Y <= (transitionArea.HeightInPixels - Adventure.SCREEN_HEIGHT))
             {
                 transitionCamera.Position.Y = transitionArea.HeightInPixels - Adventure.SCREEN_HEIGHT;
-                Player.Origin.X += (currentArea.CellCoordinates.X - transitionArea.CellCoordinates.X) * Map.MAP_CELL_WIDTH;
-                Player.Origin.Y += transitionArea.HeightInPixels;
+                Player.Position.X += (currentArea.CellCoordinates.X - transitionArea.CellCoordinates.X) * Map.MAP_CELL_WIDTH;
+                Player.Position.Y += transitionArea.HeightInPixels;
                 finishAreaTransition();
             }
             else if (transitionVelocity.Y > 0 && transitionCamera.Position.Y >= 0)
             {
                 transitionCamera.Position.Y = 0;
-                Player.Origin.X += (currentArea.CellCoordinates.X - transitionArea.CellCoordinates.X) * Map.MAP_CELL_WIDTH;
-                Player.Origin.Y -= currentArea.HeightInPixels;
+                Player.Position.X += (currentArea.CellCoordinates.X - transitionArea.CellCoordinates.X) * Map.MAP_CELL_WIDTH;
+                Player.Position.Y -= currentArea.HeightInPixels;
                 finishAreaTransition();
             }
         }

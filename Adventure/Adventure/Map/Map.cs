@@ -34,7 +34,7 @@ namespace Adventure
                 {
                     string line = reader.ReadLine();
 
-                    if (string.IsNullOrEmpty(line))
+                    if (string.IsNullOrEmpty(line) || line.StartsWith("#"))
                         continue;
 
                     else if (line.Contains("[Layout]"))

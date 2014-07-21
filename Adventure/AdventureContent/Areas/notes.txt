@@ -5,9 +5,16 @@ push player around impassable entities as well as tiles
 fix robot eye hitbox
 give entities multiple hitboxes identified by string ids, they each have their own associated
 	properties, eg. damage, deflected by sheild, currently active, etc., can be used for sheilds,
-	enemy weapons, etc. entities have two hitboxes by default, one used for obstable collisions
-	and one used for getting hurt
-
+	enemy weapons, etc. entities have two hitboxes by default, one used for obstacle collisions
+	and one used for getting hurt, moving the primary collision box moves the actual entity,
+	moving the others just moves them relative to the entities position
+use bitfield to determine which types of tile collisions block entities, entities have a property
+	that returns this value so base entity class knows which collisions to treat as obstacles
+use game time for updates
+create input handler
+movement handlers to move around hitboxes, each entity has at least one movement handler that moves
+	around primary collision box and handles obstacle collisions
+	
 [Entities]
 Pot (spawnCell:2,2) 
 Pot (spawnCell:2,3)

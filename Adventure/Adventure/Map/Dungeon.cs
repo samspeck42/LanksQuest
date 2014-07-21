@@ -129,7 +129,8 @@ namespace Adventure
         {
             Point playerCell = GetCurrentCell();
 
-            if (playerCell.X < layout.GetLength(1) && playerCell.Y < layout.GetLength(0))
+            if (playerCell.X < layout.GetLength(1) && playerCell.Y < layout.GetLength(0) &&
+                playerCell.X >= 0 && playerCell.Y >= 0)
             {
                 int index = layout[playerCell.Y, playerCell.X];
                 if (index >= 0 && index < areas.Count)
