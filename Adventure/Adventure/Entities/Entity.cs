@@ -15,7 +15,7 @@ namespace Adventure
         public Vector2 Position;
         public Vector2 Velocity;
         public Vector2 Acceleration;
-        public Directions FaceDirection;
+        public Directions4 FaceDirection;
         public bool IsOnGround = false;
         public bool IsInAir = false;
 
@@ -25,44 +25,51 @@ namespace Adventure
             set { currentSprite = value; }
         }
 
-        protected Vector2 hitBoxOffset = Vector2.Zero;
-        protected int hitBoxWidth = 0;
-        protected int hitBoxHeight = 0;
-        public int Width { get { return hitBoxWidth; } }
-        public int Height { get { return hitBoxHeight; } }
+        //protected Vector2 hitBoxOffset = Vector2.Zero;
+        //protected int hitBoxWidth = 0;
+        //protected int hitBoxHeight = 0;
+        public int Width { get { return BoundingBox.Width; } }
+        public int Height { get { return BoundingBox.Height; } }
 
-        public Rectangle HitBox
-        {
-            get { return new Rectangle((int)Math.Round(Position.X + hitBoxOffset.X), (int)Math.Round(Position.Y + hitBoxOffset.Y), 
-                hitBoxWidth, hitBoxHeight); }
-        }
-        public Vector2 HitBoxPosition
-        {
-            get
-            {
-                return new Vector2(HitBox.X, HitBox.Y);
-            }
-            set
-            {
-                Position.X = value.X - hitBoxOffset.X;
-                Position.Y = value.Y - hitBoxOffset.Y;
-            }
-        }
-        public float HitBoxPositionX { set { HitBoxPosition = new Vector2(value, HitBoxPosition.Y); } }
-        public float HitBoxPositionY { set { HitBoxPosition = new Vector2(HitBoxPosition.X, value); } }
+        //public Rectangle HitBox2
+        //{
+        //    get
+        //    {
+        //        return new Rectangle((int)Math.Round(Position.X + hitBoxOffset.X), (int)Math.Round(Position.Y + hitBoxOffset.Y),
+        //            hitBoxWidth, hitBoxHeight);
+        //    }
+        //}
+        //public Vector2 HitBoxPosition
+        //{
+        //    get
+        //    {
+        //        return new Vector2(Position.X + hitBoxOffset.X, Position.Y + hitBoxOffset.Y);
+        //    }
+        //    set
+        //    {
+        //        Position.X = value.X - hitBoxOffset.X;
+        //        Position.Y = value.Y - hitBoxOffset.Y;
+        //    }
+        //}
+        //public float HitBoxPositionX { set { HitBoxPosition = new Vector2(value, HitBoxPosition.Y); } }
+        //public float HitBoxPositionY { set { HitBoxPosition = new Vector2(HitBoxPosition.X, value); } }
 
         public Vector2 Center
         {
-            get { return new Vector2(HitBox.X + (Width / 2), HitBox.Y + (Height / 2)); }
-            set { HitBoxPosition = new Vector2(value.X - (Width / 2), value.Y - (Height / 2)); }
+            get { return new Vector2(BoundingBox.ActualX + (Width / 2), BoundingBox.ActualY + (Height / 2)); }
+            set
+            {
+                BoundingBox.ActualX = value.X - (Width / 2);
+                BoundingBox.ActualY = value.Y - (Height / 2);
+            }
         }
 
         protected bool isAlive = true;
-        public bool IsAlive {get{return isAlive;}}
+        public bool IsAlive { get { return isAlive; } }
         private bool justCollidedWithWall = false;
         public bool JustCollidedWithWall { get { return justCollidedWithWall; } }
-        public bool IsAffectedByWallCollisions = true;
-        public bool IsPassable = true;
+        public virtual bool IsBlockedByObstacleEntities { get { return false; } }
+        public virtual bool IsObstacle { get { return false; } }
         public bool CanLeaveArea = true;
         protected bool diesOutsideArea = false;
         public bool DiesOutsideArea { get { return diesOutsideArea; } }
@@ -83,10 +90,14 @@ namespace Adventure
         protected Area area;
         public Area Area { get { return area; } }
 
-        private static Vector2[] directionVectors = new Vector2[] 
-        { 
-            new Vector2(0, -1), new Vector2(0, 1), new Vector2(-1, 0), new Vector2(1, 0) 
-        };
+
+
+        private HitBox boundingBox;
+        public HitBox BoundingBox { get { return boundingBox; } }
+        private List<HitBox> hitBoxes;
+        public List<HitBox> HitBoxes { get { return hitBoxes; } }
+
+
 
         public Entity(GameWorld game, Area area)
         {
@@ -98,26 +109,18 @@ namespace Adventure
 
             this.game = game;
             this.area = area;
+
+
+            boundingBox = new HitBox(this, HitBox.BOUNDING_BOX_ID);
+            boundingBox.IsActive = true;
+            hitBoxes = new List<HitBox>();
+            hitBoxes.Add(boundingBox);
         }
 
-        public Entity(Sprite sprite)
+        public virtual void Update(GameTime gameTime)
         {
-            Position = new Vector2();
-            Velocity = new Vector2();
-            Acceleration = new Vector2();
-            IsAffectedByWallCollisions = true;
-
-            currentSprite = sprite;
-        }
-
-        public static Vector2 GetDirectionVector(Directions direction)
-        {
-            return directionVectors[(int)direction];
-        }
-
-        public virtual void Update()
-        {
-            CurrentSprite.UpdateAnimation();
+            if (CurrentSprite != null)
+                CurrentSprite.Update(gameTime);
 
             if (Health > MaxHealth)
                 Health = MaxHealth;
@@ -126,17 +129,17 @@ namespace Adventure
 
             if (game != null)
             {
-                if (IsAffectedByWallCollisions)
+                if (IsBlockedByObstacleEntities)
                     handleObstacleCollisions();
                 else
                     Position += Velocity;
 
-                if (!CanLeaveArea && game.CurrentArea != null)
-                {
-                    HitBoxPosition = 
-                        new Vector2(MathHelper.Clamp(HitBoxPosition.X, 0f, game.CurrentArea.WidthInPixels - Width),
-                        MathHelper.Clamp(HitBoxPosition.Y, 0f, game.CurrentArea.HeightInPixels - Height));
-                }
+                //if (!CanLeaveArea && game.CurrentArea != null)
+                //{
+                //    HitBoxPosition = 
+                //        new Vector2(MathHelper.Clamp(HitBoxPosition.X, 0f, game.CurrentArea.WidthInPixels - Width),
+                //        MathHelper.Clamp(HitBoxPosition.Y, 0f, game.CurrentArea.HeightInPixels - Height));
+                //}
                 if (diesOutsideArea && area != null && !area.IsEntityInside(this))
                 {
                     isAlive = false;
@@ -150,12 +153,12 @@ namespace Adventure
         {
             justCollidedWithWall = false;
 
-            int topCellY = HitBox.Top / Area.TILE_HEIGHT;
-            int bottomCellY = (HitBox.Bottom - 1) / Area.TILE_HEIGHT;
-            int leftCellX = HitBox.Left / Area.TILE_WIDTH;
-            int rightCellX = (HitBox.Right - 1) / Area.TILE_WIDTH;
+            int topCellY = (int)Math.Round(BoundingBox.Top) / Area.TILE_HEIGHT;
+            int bottomCellY = (int)Math.Round(BoundingBox.Bottom - 1) / Area.TILE_HEIGHT;
+            int leftCellX = (int)Math.Round(BoundingBox.Left) / Area.TILE_WIDTH;
+            int rightCellX = (int)Math.Round(BoundingBox.Right - 1) / Area.TILE_WIDTH;
             int x = 0, y = 0;
-            int collisionDist = 0;
+            float collisionDist = 0;
             Point curCell = new Point();
             bool collided = false;
             List<Entity> entitiesCollidedWithX = new List<Entity>();
@@ -172,12 +175,12 @@ namespace Adventure
                     if (Velocity.X > 0) //moving right
                     {
                         x = rightCellX + 1 + c;
-                        collisionDist = (x * Area.TILE_WIDTH) - HitBox.Right;
+                        collisionDist = (x * Area.TILE_WIDTH) - BoundingBox.Right;
                     }
                     else //moving left
                     {
                         x = leftCellX - 1 - c;
-                        collisionDist = ((x + 1) * Area.TILE_WIDTH) - HitBox.Left;
+                        collisionDist = ((x + 1) * Area.TILE_WIDTH) - BoundingBox.Left;
                     }
                     for (y = topCellY; y <= bottomCellY; y++)
                     {
@@ -196,10 +199,10 @@ namespace Adventure
                 }
 
                 // check impassable entity collisions
-                List<Entity> entitiesInPath = game.CurrentArea.GetImpassableEntitiesInCollisionPathX(this);
+                List<Entity> entitiesInPath = game.CurrentArea.GetObstacleEntitiesInCollisionPathX(this);
                 foreach (Entity entity in entitiesInPath)
                 {
-                    int dist = Velocity.X > 0 ? entity.HitBox.Left - this.HitBox.Right : entity.HitBox.Right - this.HitBox.Left;
+                    float dist = Velocity.X > 0 ? entity.BoundingBox.Left - this.BoundingBox.Right : entity.BoundingBox.Right - this.BoundingBox.Left;
                     if (Math.Abs(dist) < Math.Abs(Velocity.X))
                     {
                         if (collided && (dist <= collisionDist))
@@ -232,10 +235,11 @@ namespace Adventure
 
             Position.X += Velocity.X;
 
-            topCellY = HitBox.Top / Area.TILE_HEIGHT;
-            bottomCellY = (HitBox.Bottom - 1) / Area.TILE_HEIGHT;
-            leftCellX = HitBox.Left / Area.TILE_WIDTH;
-            rightCellX = (HitBox.Right - 1) / Area.TILE_WIDTH;
+
+            topCellY = (int)Math.Round(BoundingBox.Top) / Area.TILE_HEIGHT;
+            bottomCellY = (int)Math.Round(BoundingBox.Bottom - 1) / Area.TILE_HEIGHT;
+            leftCellX = (int)Math.Round(BoundingBox.Left) / Area.TILE_WIDTH;
+            rightCellX = (int)Math.Round(BoundingBox.Right - 1) / Area.TILE_WIDTH;
             collisionDist = 0;
             collided = false;
             List<Entity> entitiesCollidedWithY = new List<Entity>();
@@ -247,12 +251,12 @@ namespace Adventure
                     if (Velocity.Y > 0) //moving down
                     {
                         y = bottomCellY + 1 + r;
-                        collisionDist = (y * Area.TILE_HEIGHT) - HitBox.Bottom;
+                        collisionDist = (y * Area.TILE_HEIGHT) - BoundingBox.Bottom;
                     }
                     else //moving up
                     {
                         y = topCellY - 1 - r;
-                        collisionDist = ((y + 1) * Area.TILE_HEIGHT) - HitBox.Top;
+                        collisionDist = ((y + 1) * Area.TILE_HEIGHT) - BoundingBox.Top;
                     }
                     for (x = leftCellX; x <= rightCellX; x++)
                     {
@@ -271,10 +275,10 @@ namespace Adventure
                 }
 
                 // check impassable entity collisions
-                List<Entity> entitiesInPath = game.CurrentArea.GetImpassableEntitiesInCollisionPathY(this);
+                List<Entity> entitiesInPath = game.CurrentArea.GetObstacleEntitiesInCollisionPathY(this);
                 foreach (Entity entity in entitiesInPath)
                 {
-                    int dist = Velocity.Y > 0 ? entity.HitBox.Top - this.HitBox.Bottom : entity.HitBox.Bottom - this.HitBox.Top;
+                    float dist = Velocity.Y > 0 ? entity.BoundingBox.Top - this.BoundingBox.Bottom : entity.BoundingBox.Bottom - this.BoundingBox.Top;
                     if (Math.Abs(dist) < Math.Abs(Velocity.Y))
                     {
                         if (collided && (dist <= collisionDist))
@@ -311,19 +315,19 @@ namespace Adventure
             entitiesCollidedWith.AddRange(entitiesCollidedWithY);
             foreach (Entity e in entitiesCollidedWith)
             {
-                this.OnEntityCollision(e);
-                e.OnEntityCollision(this);
+                this.OnEntityCollision(e, this.BoundingBox, e.BoundingBox);
+                e.OnEntityCollision(this, e.BoundingBox, this.BoundingBox);
             }
         }
 
         public bool CollidesWith(Entity other)
         {
-            return this.HitBox.Intersects(other.HitBox) || this.HitBox.Contains(other.HitBox) || other.HitBox.Contains(this.HitBox);
+            return this.BoundingBox.CollidesWith(other.BoundingBox);
         }
 
         public bool Contains(Vector2 position)
         {
-            return this.HitBox.Contains(new Point((int)Math.Round(position.X), (int)Math.Round(position.Y)));
+            return this.BoundingBox.Contains(position);
         }
 
         public static bool RectangleContains(Rectangle rectangle, Vector2 point)
@@ -331,7 +335,7 @@ namespace Adventure
             return rectangle.Contains(new Point((int)Math.Round(point.X), (int)Math.Round(point.Y)));
         }
 
-        public abstract void OnEntityCollision(Entity other);
+        public abstract void OnEntityCollision(Entity other, HitBox thisHitBox, HitBox otherHitBox);
 
         public abstract void LoadContent();
 
@@ -431,7 +435,36 @@ namespace Adventure
             return dataDict;
         }
 
+        /// <summary>
+        /// Returns a hit box this entity owns with the given id.
+        /// </summary>
+        /// <param name="id">The id of the hit box to be returned</param>
+        /// <returns></returns>
+        public HitBox GetHitBoxById(string id)
+        {
+            foreach (HitBox hitBox in HitBoxes)
+            {
+                if (hitBox.IsId(id))
+                    return hitBox;
+            }
+            return null;
+        }
 
+        /// <summary>
+        /// Returns a list of active hit boxes (i.e. hit boxes that will be used in entity collision detection)
+        /// that this entity owns.
+        /// </summary>
+        /// <returns></returns>
+        public List<HitBox> GetActiveHitBoxes()
+        {
+            List<HitBox> activeHitBoxes = new List<HitBox>();
+            foreach (HitBox hitBox in HitBoxes)
+            {
+                if (hitBox.IsActive)
+                    activeHitBoxes.Add(hitBox);
+            }
+            return activeHitBoxes;
+        }
 
         public int CompareTo(object obj)
         {
@@ -446,17 +479,11 @@ namespace Adventure
                     return -1;
                 else if (this.IsInAir && !other.IsInAir)
                     return 1;
-                return (int)((this.HitBoxPosition.Y + this.Height) - (other.HitBoxPosition.Y + other.Height));
+                return (int)((this.BoundingBox.Bottom) - (other.BoundingBox.Bottom));
             }
             return 0;
         }
     }
 
-    public enum Directions
-    {
-        Up,
-        Down,
-        Left,
-        Right
-    }
+    
 }

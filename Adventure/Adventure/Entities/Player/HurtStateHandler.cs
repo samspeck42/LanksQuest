@@ -61,7 +61,7 @@ namespace Adventure
             player.StartInvincibility();
         }
 
-        public override void Update(GamePadState gamepadState, GamePadState previousGamepadState)
+        public override void Update(GameTime gameTime)
         {
             if (!player.IsKnockedBack)
                 player.EnterState(new NormalStateHandler(player));

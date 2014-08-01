@@ -134,9 +134,9 @@ namespace Adventure
             }
         }
 
-        public override void Update()
+        public override void Update(GameTime gameTime)
         {
-            base.Update();
+            base.Update(gameTime);
             
         }
 
@@ -150,19 +150,19 @@ namespace Adventure
                     moveTimer = 0;
                     Velocity = Vector2.Zero;
 
-                    Directions dir = Directions.Down;
+                    Directions4 dir = Directions4.Down;
 
                     float playerDistanceX = game.Player.Center.X - this.Center.X;
                     float playerDistanceY = game.Player.Center.Y - this.Center.Y;
 
                     if ((Math.Abs(playerDistanceX) >= Math.Abs(playerDistanceY)) && playerDistanceX >= 0)
-                        dir = Directions.Right;
+                        dir = Directions4.Right;
                     else if ((Math.Abs(playerDistanceX) >= Math.Abs(playerDistanceY)) && playerDistanceX < 0)
-                        dir = Directions.Left;
+                        dir = Directions4.Left;
                     else if ((Math.Abs(playerDistanceX) < Math.Abs(playerDistanceY)) && playerDistanceY >= 0)
-                        dir = Directions.Down;
+                        dir = Directions4.Down;
                     else if ((Math.Abs(playerDistanceX) < Math.Abs(playerDistanceY)) && playerDistanceY < 0)
-                        dir = Directions.Up;
+                        dir = Directions4.Up;
 
                     changeDirection(dir);
                 }
@@ -201,13 +201,13 @@ namespace Adventure
             CurrentSprite.ResetAnimation();
         }
 
-        private void changeDirection(Directions direction)
+        private void changeDirection(Directions4 direction)
         {
             FaceDirection = direction;
 
             switch (direction)
             {
-                case Directions.Down:
+                case Directions4.Down:
                     Velocity.Y += WALK_SPEED;
                     CurrentSprite = forwardSprite;
                     if (isEyeOpened)
@@ -216,7 +216,7 @@ namespace Adventure
                         currentEyeSprite = forwardEyeSpriteClosed;
                     currentEyeOffset = new Vector2(FORWARD_EYE_OFFSET_X, FORWARD_EYE_OFFSET_Y);
                     break;
-                case Directions.Up:
+                case Directions4.Up:
                     Velocity.Y -= WALK_SPEED;
                     CurrentSprite = backwardSprite;
                     if (isEyeOpened)
@@ -225,7 +225,7 @@ namespace Adventure
                         currentEyeSprite = forwardEyeSpriteClosed;
                     currentEyeOffset = new Vector2(BACKWARD_EYE_OFFSET_X, BACKWARD_EYE_OFFSET_Y);
                     break;
-                case Directions.Right:
+                case Directions4.Right:
                     Velocity.X += WALK_SPEED;
                     CurrentSprite = rightSprite;
                     if (isEyeOpened)
@@ -234,7 +234,7 @@ namespace Adventure
                         currentEyeSprite = rightEyeSpriteClosed;
                     currentEyeOffset = new Vector2(RIGHT_EYE_OFFSET_X, RIGHT_EYE_OFFSET_Y);
                     break;
-                case Directions.Left:
+                case Directions4.Left:
                     Velocity.X -= WALK_SPEED;
                     CurrentSprite = leftSprite;
                     if (isEyeOpened)
@@ -254,11 +254,11 @@ namespace Adventure
             eyeTimer = 0;
             eyeOpenTime = GameWorld.Random.Next(MIN_EYE_OPEN_TIME, MAX_EYE_OPEN_TIME);
 
-            if (FaceDirection == Directions.Up || FaceDirection == Directions.Down)
+            if (FaceDirection == Directions4.Up || FaceDirection == Directions4.Down)
                 currentEyeSprite = forwardEyeSprite;
-            else if (FaceDirection == Directions.Left)
+            else if (FaceDirection == Directions4.Left)
                 currentEyeSprite = leftEyeSprite;
-            else if (FaceDirection == Directions.Right)
+            else if (FaceDirection == Directions4.Right)
                 currentEyeSprite = rightEyeSprite;
         }
 
@@ -268,11 +268,11 @@ namespace Adventure
             eyeTimer = 0;
             eyeClosedTime = GameWorld.Random.Next(MIN_EYE_CLOSED_TIME, MAX_EYE_CLOSED_TIME);
 
-            if (FaceDirection == Directions.Up || FaceDirection == Directions.Down)
+            if (FaceDirection == Directions4.Up || FaceDirection == Directions4.Down)
                 currentEyeSprite = forwardEyeSpriteClosed;
-            else if (FaceDirection == Directions.Left)
+            else if (FaceDirection == Directions4.Left)
                 currentEyeSprite = leftEyeSpriteClosed;
-            else if (FaceDirection == Directions.Right)
+            else if (FaceDirection == Directions4.Right)
                 currentEyeSprite = rightEyeSpriteClosed;
         }
 
@@ -290,7 +290,7 @@ namespace Adventure
         {
             isAsleep = false;
             CurrentSprite = forwardSprite;
-            FaceDirection = Directions.Down;
+            FaceDirection = Directions4.Down;
             openEye();
             IsPassable = true;
             doesDamageOnContact = true;
@@ -318,10 +318,10 @@ namespace Adventure
             if (other is Arrow)
             {
                 Arrow arrow = (Arrow)other;
-                if ((arrow.FaceDirection == Directions.Up && this.FaceDirection == Directions.Down) ||
-                    (arrow.FaceDirection == Directions.Down && this.FaceDirection == Directions.Up) ||
-                    (arrow.FaceDirection == Directions.Left && this.FaceDirection == Directions.Right) ||
-                    (arrow.FaceDirection == Directions.Right && this.FaceDirection == Directions.Left))
+                if ((arrow.FaceDirection == Directions4.Up && this.FaceDirection == Directions4.Down) ||
+                    (arrow.FaceDirection == Directions4.Down && this.FaceDirection == Directions4.Up) ||
+                    (arrow.FaceDirection == Directions4.Left && this.FaceDirection == Directions4.Right) ||
+                    (arrow.FaceDirection == Directions4.Right && this.FaceDirection == Directions4.Left))
                 {
                     //if (!IsHurt 
                     if (state == EnemyState.Normal && arrow.IsFired && eyeHitBoxContains(arrow.TipPosition))
@@ -355,7 +355,7 @@ namespace Adventure
         {
             base.Draw(spriteBatch, changeColorsEffect);
 
-            if (!isAsleep && FaceDirection != Directions.Up)
+            if (!isAsleep && FaceDirection != Directions4.Up)
                 currentEyeSprite.Draw(spriteBatch, new Vector2(EyeHitBox.X, EyeHitBox.Y));
         }
     }

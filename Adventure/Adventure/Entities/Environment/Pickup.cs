@@ -11,7 +11,7 @@ namespace Adventure
 {
     public class Pickup : Entity
     {
-        private const int ANIMATION_DELAY = 4;
+        private const int ANIMATION_DELAY = 65;
         private const int BRONZE_COIN_VALUE = 1;
         private const int SILVER_COIN_VALUE = 5;
         private const int GOLD_COIN_VALUE = 10;
@@ -146,9 +146,9 @@ namespace Adventure
             isBouncing = true;
         }
 
-        public override void Update()
+        public override void Update(GameTime gameTime)
         {
-            base.Update();
+            base.Update(gameTime);
 
             if (isBouncing)
             {

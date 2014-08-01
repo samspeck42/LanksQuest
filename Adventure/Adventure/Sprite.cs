@@ -4,78 +4,78 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Content;
 
 namespace Adventure
 {
     public class Sprite
     {
-        private Texture2D texture;
         public Texture2D Texture
         {
             get { return texture; }
-            set
-            {
-                texture = value;
-                frameWidth = texture.Width / numFrames;
-                frameHeight = texture.Height;
-            }
         }
-        private Vector2 origin;
-
-        private int frameWidth;
-        public int FrameWidth { get { return frameWidth; } }
-        private int frameHeight;
-        public int FrameHeight { get { return frameHeight; } }
-        private int numFrames;
-        public int NumFrames { get { return numFrames; } }
 
         public int Delay;
         public float Rotation;
         public bool Flip;
+        public bool IsDoneAnimating { get { return isDoneAnimating; } }
+        public int FrameWidth { get { return frameWidth; } }
+        public int FrameHeight { get { return frameHeight; } }
+        public int NumFrames { get { return numFrames; } }
 
 
         private int currentFrame;
         private int currentDelay;
 
+        private Texture2D texture;
+        private string textureName;
+        private Vector2 origin;
         private bool isDoneAnimating = false;
-        public bool IsDoneAnimating { get { return isDoneAnimating; } }
+        private int frameWidth;
+        private int frameHeight;
+        private int numFrames;
         private bool loopsContinuously = true;
         private int numLoops = 0;
         private int loopCounter = 0;
+        private Entity owner;
+        private Dictionary<string, Rectangle>[] hitBoxTextureData;
+        private Dictionary<string, string> hitBoxTextureNameDict;
 
-        public Sprite(Texture2D sprite, Vector2 origin)
+        //public Sprite(Texture2D sprite, Vector2 origin)
+        //{
+        //    this.texture = sprite;
+        //    this.origin = origin;
+        //    frameWidth = sprite.Width;
+        //    frameHeight = sprite.Height;
+        //    numFrames = 1;
+        //    Delay = 0;
+        //    Rotation = 0f;
+        //    Flip = false;
+
+        //    currentFrame = 0;
+        //    currentDelay = 0;
+
+        //}
+
+        //public Sprite(Texture2D sprite, Vector2 origin, int numFrames, int delay)
+        //{
+        //    this.texture = sprite;
+        //    this.origin = origin;
+        //    frameWidth = sprite.Width / numFrames;
+        //    frameHeight = sprite.Height;
+        //    this.numFrames = numFrames;
+        //    Delay = delay;
+        //    Flip = false;
+
+        //    currentFrame = 0;
+        //    currentDelay = 0;
+
+        //}
+
+        public Sprite(string textureName, Entity owner, Vector2 origin)
         {
-            this.texture = sprite;
-            this.origin = origin;
-            frameWidth = sprite.Width;
-            frameHeight = sprite.Height;
-            numFrames = 1;
-            Delay = 0;
-            Rotation = 0f;
-            Flip = false;
-
-            currentFrame = 0;
-            currentDelay = 0;
-
-        }
-
-        public Sprite(Texture2D sprite, Vector2 origin, int numFrames, int delay)
-        {
-            this.texture = sprite;
-            this.origin = origin;
-            frameWidth = sprite.Width / numFrames;
-            frameHeight = sprite.Height;
-            this.numFrames = numFrames;
-            Delay = delay;
-            Flip = false;
-
-            currentFrame = 0;
-            currentDelay = 0;
-
-        }
-
-        public Sprite(Vector2 origin)
-        {
+            this.textureName = textureName;
+            this.owner = owner;
             this.texture = null;
             this.origin = origin;
             numFrames = 1;
@@ -86,10 +86,14 @@ namespace Adventure
             currentFrame = 0;
             currentDelay = 0;
 
+            hitBoxTextureData = new Dictionary<string, Rectangle>[numFrames];
+            hitBoxTextureNameDict = new Dictionary<string, string>();
         }
 
-        public Sprite(Vector2 origin, int numFrames, int delay)
+        public Sprite(string textureName, Entity owner, Vector2 origin, int numFrames, int delay)
         {
+            this.textureName = textureName;
+            this.owner = owner;
             this.texture = null;
             this.origin = origin;
             this.numFrames = numFrames;
@@ -99,10 +103,14 @@ namespace Adventure
             currentFrame = 0;
             currentDelay = 0;
 
+            hitBoxTextureData = new Dictionary<string, Rectangle>[numFrames];
+            hitBoxTextureNameDict = new Dictionary<string, string>();
         }
 
-        public Sprite(Vector2 origin, int numFrames, int delay, int numLoops)
+        public Sprite(string textureName, Entity owner, Vector2 origin, int numFrames, int delay, int numLoops)
         {
+            this.textureName = textureName;
+            this.owner = owner;
             this.texture = null;
             this.origin = origin;
             this.numFrames = numFrames;
@@ -114,32 +122,156 @@ namespace Adventure
 
             this.numLoops = numLoops;
             loopsContinuously = false;
+
+            hitBoxTextureData = new Dictionary<string, Rectangle>[numFrames];
+            hitBoxTextureNameDict = new Dictionary<string, string>();
         }
 
-        public void UpdateAnimation()
+        public void Load(ContentManager content)
         {
-            if (!isDoneAnimating)
+            texture = content.Load<Texture2D>(textureName);
+            loadHitBoxTextures(content);
+        }
+
+        /// <summary>
+        /// Add a texture that defines a hit box's relative position and size for each frame of animation
+        /// of this sprite.
+        /// </summary>
+        /// <param name="hitBoxTextureName">The name of the texture that defines the hit box for each frame. The texture is
+        /// expected to be the same size as the sprite texture, and each frame should have a single non-white
+        /// rectangle that defines the hit box's size and location.</param>
+        /// <param name="hitBoxId">The string id of the hit box this texture modifies.</param>
+        public void AddHitBoxTexture(string hitBoxTextureName, string hitBoxId)
+        {
+            hitBoxTextureNameDict.Add(hitBoxTextureName, hitBoxId);
+        }
+
+        private void loadHitBoxTextures(ContentManager content)
+        {
+            foreach (string hitBoxTextureName in hitBoxTextureNameDict.Keys)
+            {
+                Texture2D hitBoxTexture = content.Load<Texture2D>(hitBoxTextureName);
+                string hitBoxId = hitBoxTextureNameDict[hitBoxTextureName];
+
+                Color[] colorData = new Color[hitBoxTexture.Width * hitBoxTexture.Height];
+                hitBoxTexture.GetData<Color>(colorData);
+                int frameWidth = hitBoxTexture.Width / numFrames;
+                int frameHeight = hitBoxTexture.Height;
+
+                Color[][,] frameColorData = new Color[numFrames][,];
+                for (int row = 0; row < hitBoxTexture.Height; row++)
+                {
+                    for (int x = 0; x < hitBoxTexture.Width; x++)
+                    {
+                        int frameNum = x / frameWidth;
+                        int col = x % frameWidth;
+
+                        if (frameColorData[frameNum] == null)
+                            frameColorData[frameNum] = new Color[frameHeight, frameWidth];
+
+                        frameColorData[frameNum][row, col] = colorData[(row * hitBoxTexture.Width) + x];
+                    }
+                }
+
+                for (int frameNum = 0; frameNum < numFrames; frameNum++)
+                {
+                    if (hitBoxTextureData[frameNum] == null)
+                        hitBoxTextureData[frameNum] = new Dictionary<string, Rectangle>();
+
+                    Rectangle hitBoxRect = new Rectangle();
+                    Color[,] colorMap = frameColorData[frameNum];
+
+                    // find the hit box's position in the frame
+                    bool positionFound = false;
+                    for (int y = 0; y < colorMap.GetLength(0); y++)
+                    {
+                        for (int x = 0; x < colorMap.GetLength(1); x++)
+                        {
+                            if (!colorMap[y, x].Equals(Color.White))
+                            {
+                                hitBoxRect.X = x;
+                                hitBoxRect.Y = y;
+                                positionFound = true;
+                                break;
+                            }
+                        }
+                        if (positionFound)
+                            break;
+                    }
+
+                    // find the hit box's width
+                    for (int x = hitBoxRect.X; x < colorMap.GetLength(1); x++)
+                    {
+                        if (colorMap[hitBoxRect.Y, x].Equals(Color.White))
+                            break;
+                        hitBoxRect.Width++;
+                    }
+
+                    // find the hit box's height
+                    for (int y = hitBoxRect.Y; y < colorMap.GetLength(0); y++)
+                    {
+                        if (colorMap[y, hitBoxRect.X].Equals(Color.White))
+                            break;
+                        hitBoxRect.Height++;
+                    }
+
+                    // adjust hit box position so it's relative to the origin
+                    hitBoxRect.X -= (int)Math.Round(this.origin.X);
+                    hitBoxRect.Y -= (int)Math.Round(this.origin.Y);
+
+                    hitBoxTextureData[frameNum].Add(hitBoxId, hitBoxRect);
+                }
+            }
+        }
+
+        private void updateHitBoxes()
+        {
+            Dictionary<string, Rectangle> hitBoxDict = hitBoxTextureData[currentFrame];
+
+            if (hitBoxDict != null)
+            {
+                foreach (string id in hitBoxDict.Keys)
+                {
+                    HitBox hitBox = owner.GetHitBoxById(id);
+
+                    if (hitBox != null)
+                        hitBox.SetFromRectangle(hitBoxDict[id]);
+                }
+            }
+        }
+
+        public void Update(GameTime gameTime)
+        {
+            if (!isDoneAnimating && numFrames > 1)
             {
                 if (currentDelay >= Delay)
                 {
-                    currentFrame++;
-                    currentDelay = 0;
+                    currentFrame += currentDelay / Delay;
+                    currentDelay = currentDelay % Delay;
                     if (currentFrame >= numFrames)
                     {
-                        currentFrame = 0;
-
                         if (!loopsContinuously)
                         {
-                            loopCounter++;
+                            loopCounter += currentFrame / numFrames;
                             if (loopCounter >= numLoops)
+                            {
                                 isDoneAnimating = true;
-                            currentFrame = numFrames - 1;
+                                currentFrame = numFrames - 1;
+                            }
+                        }
+                        if (!isDoneAnimating)
+                        {
+                            currentFrame = currentFrame % numFrames;
                         }
                     }
                 }
                 else
-                    currentDelay++;
+                {
+                    currentDelay += gameTime.ElapsedGameTime.Milliseconds;
+                }
             }
+
+            updateHitBoxes();
         }
 
         public void ResetAnimation()
@@ -152,6 +284,8 @@ namespace Adventure
                 isDoneAnimating = false;
                 loopCounter = 0;
             }
+
+            updateHitBoxes();
         }
 
         public void Draw(SpriteBatch spriteBatch, Vector2 position)

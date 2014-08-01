@@ -75,10 +75,10 @@ namespace Adventure
             currentArea = currentMap.GetAreaByIndex(0);
             changeColorsEffect = Content.Load<Effect>("Effects/ChangeColorsEffect");
             Font = Content.Load<SpriteFont>("Fonts/font");
-            SquareTexture = Content.Load<Texture2D>("tile_border");
+            SquareTexture = Content.Load<Texture2D>("square");
         }
 
-        public void Update()
+        public void Update(GameTime gameTime)
         {
             if (enteredNewMap)
             {
@@ -89,10 +89,10 @@ namespace Adventure
             {
                 CurrentMap.Update();
                 Point previousMapCell = CurrentMap.GetCurrentCell();
-                Player.Update();
+                Player.Update(gameTime);
                 Point currentMapCell = CurrentMap.GetCurrentCell();
 
-                List<Pickup> pickupsToAdd = new List<Pickup>();
+                //List<Pickup> pickupsToAdd = new List<Pickup>();
                 List<Entity> entitiesToRemove = new List<Entity>();
 
                 foreach (Entity entity in currentArea.GetActiveEntities())
@@ -100,7 +100,7 @@ namespace Adventure
                     if (entity is Player)
                         continue;
 
-                    entity.Update();
+                    entity.Update(gameTime);
 
                     if (!entity.IsAlive)
                     {
@@ -111,37 +111,48 @@ namespace Adventure
                             float n = (float)Random.NextDouble();
                             if (n < pickupDropper.DropChance)
                             {
-                                Pickup pickup = pickupDropper.SpawnPickup();
-                                pickup.LoadContent();
-                                pickupsToAdd.Add(pickup);
+                                //Pickup pickup = pickupDropper.SpawnPickup();
+                                //pickup.LoadContent();
+                                //pickupsToAdd.Add(pickup);
                             }
                         }
                         continue;
                     }
 
                     handlePlayerInteractions(entity);
-
-                    if (Player.CollidesWith(entity))
-                    {
-                        Player.OnEntityCollision(entity);
-                        entity.OnEntityCollision(Player);
-                    }
-
-                    foreach (Entity en in currentArea.GetActiveEntities())
-                    {
-                        if (en != entity && entity.CollidesWith(en))
-                            entity.OnEntityCollision(en);
-                    }
                 }
 
                 if (entitiesToRemove.Count > 0)
                     currentArea.Entities = currentArea.Entities.Except(entitiesToRemove).ToList();
-                if (pickupsToAdd.Count > 0)
-                    currentArea.Entities.AddRange(pickupsToAdd);
+                //if (pickupsToAdd.Count > 0)
+                //    currentArea.Entities.AddRange(pickupsToAdd);
+
+                // check collisions between active hit boxes
+                List<Entity> entitiesToCheck = new List<Entity>();
+                entitiesToCheck.Add(Player);
+                entitiesToCheck.AddRange(currentArea.GetActiveEntities());
+                while (entitiesToCheck.Count > 1)
+                {
+                    Entity entity = entitiesToCheck[0];
+                    entitiesToCheck.RemoveAt(0);
+                    foreach (Entity other in entitiesToCheck)
+                    {
+                        foreach (HitBox hitBox in entity.GetActiveHitBoxes())
+                        {
+                            foreach (HitBox otherHitBox in other.GetActiveHitBoxes())
+                            {
+                                if (hitBox.CollidesWith(otherHitBox))
+                                {
+                                    entity.OnEntityCollision(other, hitBox, otherHitBox);
+                                    other.OnEntityCollision(entity, otherHitBox, hitBox);
+                                }
+                            }
+                        }
+                    }
+                }
 
                 // update camera
                 updateCamera();
-
 
                 // check if player has left area
                 if (currentArea != CurrentMap.GetPlayerArea() && CurrentMap.GetPlayerArea() != null)
@@ -152,7 +163,7 @@ namespace Adventure
                 // check if player is leaving map
                 foreach (MapTransition mapTransition in currentArea.MapTransitions)
                 {
-                    if (Player.HitBox.Intersects(Area.CreateRectangleForCell(mapTransition.LocationCell)))
+                    if (Player.BoundingBox.CollidesWith(Area.CreateRectangleForCell(mapTransition.LocationCell)))
                     {
                         StartMapTransition(mapTransition);
                     }
@@ -164,72 +175,72 @@ namespace Adventure
             }
             else if (isMapTransitioning)
             {
-                doMapTransition();
+                doMapTransition(gameTime);
             }
         }
 
         private void handlePlayerInteractions(Entity entity)
         {
-            if (entity is Enemy && Player.State == PlayerState.Attacking)
-            {
-                Enemy enemy = (Enemy)entity;
+            //if (entity is Enemy && Player.State == PlayerState.Attacking)
+            //{
+            //    Enemy enemy = (Enemy)entity;
 
-                if (enemy.HitBox.Contains(Player.SwordHitBox) ||
-                    enemy.HitBox.Intersects(Player.SwordHitBox))
-                    enemy.ReactToSwordHit(Player);
-            }
+            //    if (enemy.HitBox2.Contains(Player.SwordHitBox) ||
+            //        enemy.HitBox2.Intersects(Player.SwordHitBox))
+            //        enemy.ReactToSwordHit(Player);
+            //}
 
-            if (entity is Breakable && Player.State == PlayerState.Attacking)
-            {
-                Breakable breakable = (Breakable)entity;
+            //if (entity is Breakable && Player.State == PlayerState.Attacking)
+            //{
+            //    Breakable breakable = (Breakable)entity;
 
-                if (entity.HitBox.Contains(Player.SwordHitBox) ||
-                    entity.HitBox.Intersects(Player.SwordHitBox))
-                    breakable.StartBreaking();
-            }
+            //    if (entity.HitBox2.Contains(Player.SwordHitBox) ||
+            //        entity.HitBox2.Intersects(Player.SwordHitBox))
+            //        breakable.StartBreaking();
+            //}
 
-            if (entity is MovableBlock && Player.CanEnterState(PlayerState.Pushing))
-            {
-                MovableBlock block = (MovableBlock)entity;
+            //if (entity is MovableBlock && Player.CanEnterState(PlayerState.Pushing))
+            //{
+            //    MovableBlock block = (MovableBlock)entity;
 
-                // check if player can move this block
-                if (Player.IsReadyToPush &&
-                    Player.IsAllignedWith(block) &&
-                    block.CanBePushed(Player.FaceDirection))
-                    Player.StartPushing(block);
-            }
+            //    // check if player can move this block
+            //    if (Player.IsReadyToPush &&
+            //        Player.IsAllignedWith(block) &&
+            //        block.CanBePushed(Player.FaceDirection))
+            //        Player.StartPushing(block);
+            //}
 
-            if (entity is CarriableEntity && Player.StateHandler.CanInteract)
-            {
-                CarriableEntity liftableEntity = (CarriableEntity)entity;
+            //if (entity is CarriableEntity && Player.StateHandler.CanInteract)
+            //{
+            //    CarriableEntity liftableEntity = (CarriableEntity)entity;
 
-                // check if player can lift this entity
-                if (Player.IsTryingToInteract &&
-                    Player.IsInFrontOf(liftableEntity) &&
-                    !liftableEntity.IsThrown)
-                    Player.StartLifting(liftableEntity);
-            }
+            //    // check if player can lift this entity
+            //    if (Player.IsTryingToInteract &&
+            //        Player.IsInFrontOf(liftableEntity) &&
+            //        !liftableEntity.IsThrown)
+            //        Player.StartLifting(liftableEntity);
+            //}
 
-            if (entity is Chest && Player.CanEnterState(PlayerState.OpeningChest))
-            {
-                Chest chest = (Chest)entity;
+            //if (entity is Chest && Player.CanEnterState(PlayerState.OpeningChest))
+            //{
+            //    Chest chest = (Chest)entity;
 
-                if (Player.IsTryingToInteract &&
-                    Player.IsInFrontOf(chest) &&
-                    !chest.IsOpened)
-                    Player.StartOpening(chest);
-            }
+            //    if (Player.IsTryingToInteract &&
+            //        Player.IsInFrontOf(chest) &&
+            //        !chest.IsOpened)
+            //        Player.StartOpening(chest);
+            //}
         }
 
         private void updateCamera()
         {
-            camera.LockToTarget(Player.HitBox, Adventure.SCREEN_WIDTH, Adventure.SCREEN_HEIGHT);
+            camera.LockToTarget(Player.BoundingBox.ToRectangle(), Adventure.SCREEN_WIDTH, Adventure.SCREEN_HEIGHT);
             camera.ClampToArea(currentArea.WidthInPixels - Adventure.SCREEN_WIDTH, currentArea.HeightInPixels - Adventure.SCREEN_HEIGHT);
         }
 
-        private void doMapTransition()
+        private void doMapTransition(GameTime gameTime)
         {
-            Player.Update();
+            Player.Update(gameTime);
             mapTransitionTimer++;
             screenFade = MathHelper.Clamp(Math.Abs((float)(mapTransitionTimer - (MAP_TRANSITION_TIME / 2)) / (MAP_TRANSITION_TIME / 2)),
                 0f, 1f);
@@ -374,7 +385,7 @@ namespace Adventure
                 spriteBatch.End();
             }
 
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, null, null, null, changeColorsEffect, camera.TransformMatrix);
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, null, null, null, null, camera.TransformMatrix);
             currentArea.DrawBackground(spriteBatch);
             currentArea.DrawEntities(spriteBatch, changeColorsEffect);
             Player.Draw(spriteBatch, changeColorsEffect);

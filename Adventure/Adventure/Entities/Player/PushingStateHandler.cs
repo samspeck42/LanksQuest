@@ -58,25 +58,25 @@ namespace Adventure
         public override void Start(Entity associatedEntity)
         {
             movableEntity = (MovableBlock)associatedEntity;
-            player.Velocity = Entity.GetDirectionVector(player.FaceDirection) * Player.PUSH_SPEED;
+            player.Velocity = DirectionsHelper.GetDirectionVector(player.FaceDirection) * Player.PUSH_SPEED;
             player.IsReadyToPush = false;
             movableEntity.StartBeingPushed(player.FaceDirection);
         }
 
-        public override void Update(GamePadState gamepadState, GamePadState previousGamepadState)
+        public override void Update(GameTime gameTime)
         {
             if (movableEntity.ReachedPushDestination())
             {
                 movableEntity.EndPush();
 
-                if (player.FaceDirection == Directions.Left)
-                    player.HitBoxPositionX = movableEntity.HitBoxPosition.X + movableEntity.Width;
-                else if (player.FaceDirection == Directions.Right)
-                    player.HitBoxPositionX = movableEntity.HitBoxPosition.X - player.Width;
-                else if (player.FaceDirection == Directions.Up)
-                    player.HitBoxPositionY = movableEntity.HitBoxPosition.Y + movableEntity.Height;
-                else if (player.FaceDirection == Directions.Down)
-                    player.HitBoxPositionY = movableEntity.HitBoxPosition.Y - player.Height;
+                if (player.FaceDirection == Directions4.Left)
+                    player.BoundingBox.ActualX = movableEntity.BoundingBox.ActualX + movableEntity.Width;
+                else if (player.FaceDirection == Directions4.Right)
+                    player.BoundingBox.ActualX = movableEntity.BoundingBox.ActualX - player.Width;
+                else if (player.FaceDirection == Directions4.Up)
+                    player.BoundingBox.ActualY = movableEntity.BoundingBox.ActualY + movableEntity.Height;
+                else if (player.FaceDirection == Directions4.Down)
+                    player.BoundingBox.ActualY = movableEntity.BoundingBox.ActualY - player.Height;
 
                 player.Velocity = Vector2.Zero;
                 player.StartToPushTimer = 0;

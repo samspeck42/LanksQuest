@@ -31,7 +31,7 @@ namespace Adventure
         {
             base.processData(dataDict);
 
-            setFaceDirection((Directions)int.Parse(dataDict["faceDirection"]));
+            setFaceDirection((Directions4)int.Parse(dataDict["faceDirection"]));
             isOpen = bool.Parse(dataDict["isOpen"]);
 
             if (isOpen)
@@ -43,17 +43,17 @@ namespace Adventure
             return "(" + base.ToString() + ")(" + ((int)FaceDirection).ToString() + ")(" + isOpen.ToString() + ")";
         }
 
-        protected void setFaceDirection(Directions faceDirection)
+        protected void setFaceDirection(Directions4 faceDirection)
         {
             this.FaceDirection = faceDirection;
 
-            if (FaceDirection == Directions.Up)
+            if (FaceDirection == Directions4.Up)
                 CurrentSprite.Rotation = MathHelper.Pi;
-            else if (FaceDirection == Directions.Down)
+            else if (FaceDirection == Directions4.Down)
                 CurrentSprite.Rotation = 0f;
-            else if (FaceDirection == Directions.Left)
+            else if (FaceDirection == Directions4.Left)
                 CurrentSprite.Rotation = MathHelper.PiOver2;
-            else if (FaceDirection == Directions.Right)
+            else if (FaceDirection == Directions4.Right)
                 CurrentSprite.Rotation = 3f * MathHelper.PiOver2;
         }
 

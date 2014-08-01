@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework;
 
 namespace Adventure
 {
@@ -60,20 +61,21 @@ namespace Adventure
             carriableEntity.Area.Entities.Remove(carriableEntity);
         }
 
-        public override void Update(GamePadState gamepadState, GamePadState previousGamepadState)
+        public override void Update(GameTime gameTime)
         {
-            carriableEntity.Update();
-            if (gamepadState.IsButtonDown(Buttons.A) && previousGamepadState.IsButtonUp(Buttons.A))
-            {
-                startThrowing();
-                player.EnterState(new NormalStateHandler(player));
-            }
+            carriableEntity.Update(gameTime);
         }
 
         public override void End(PlayerState newState)
         {
             if (carriableEntity != null)
                 startThrowing();
+        }
+
+        public override void OnInteractButtonPressed()
+        {
+            startThrowing();
+            player.EnterState(new NormalStateHandler(player));
         }
 
         private void startThrowing()

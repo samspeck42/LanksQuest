@@ -66,13 +66,13 @@ namespace Adventure
             return "(" + base.ToString() + ")(" + treasureTypeName + " " + treasure.ToString() + ")(" + isActive.ToString() + ")";
         }
 
-        public override void Update()
+        public override void Update(GameTime gameTime)
         {
-            base.Update();
+            base.Update(gameTime);
 
             if (isDisplayingTreasure)
             {
-                treasure.CurrentSprite.UpdateAnimation();
+                treasure.CurrentSprite.UpdateAnimation(gameTime);
                 treasureDisplayTimer++;
 
                 if (treasureDisplayTimer <= (TREASURE_DISPLAY_TIME / 3))

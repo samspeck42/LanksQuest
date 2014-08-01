@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.Xna.Framework.Content;
 
 namespace Adventure
 {
@@ -9,22 +10,33 @@ namespace Adventure
     {
         private Sprite[] sprites = new Sprite[4];
 
-        public SpriteSet(Sprite upSprite, Sprite downSprite, Sprite leftSprite, Sprite rightSprite)
+        public void SetSprite(Directions4 direction, Sprite sprite)
         {
-            sprites[0] = upSprite;
-            sprites[1] = downSprite;
-            sprites[2] = leftSprite;
-            sprites[3] = rightSprite;
+            int index = (int)direction;
+            if (index >= 0 && index < sprites.Length)
+                sprites[index] = sprite;
         }
 
-        public Sprite GetSprite(Directions direction)
+        public Sprite GetSprite(Directions4 direction)
         {
-            return sprites[(int)direction];
+            int index = (int)direction;
+            if (index < 0)
+                index = 0;
+            return sprites[index];
         }
 
         public bool ContainsSprite(Sprite sprite)
         {
             return sprites.Contains(sprite);
+        }
+
+        public void Load(ContentManager content)
+        {
+            foreach (Sprite sprite in sprites)
+            {
+                if (sprite != null)
+                    sprite.Load(content);
+            }
         }
     }
 }

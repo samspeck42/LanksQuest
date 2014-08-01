@@ -39,11 +39,11 @@ namespace Adventure
             target = new Rectangle(0, 0, 18, 18);
         }
 
-        public override void Update()
+        public override void Update(GameTime gameTime)
         {
             Vector2 prevVelocity = new Vector2(Velocity.X, Velocity.Y);
 
-            base.Update();
+            base.Update(gameTime);
 
             if (JustCollidedWithWall)
             {
@@ -51,8 +51,8 @@ namespace Adventure
                 Velocity.Y = -prevVelocity.Y;
             }
 
-            target.X = HitBox.X;
-            target.Y = HitBox.Y;
+            target.X = HitBox2.X;
+            target.Y = HitBox2.Y;
         }
 
         public override void OnEntityCollision(Entity other)

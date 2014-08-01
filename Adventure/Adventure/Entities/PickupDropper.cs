@@ -12,6 +12,6 @@ namespace Adventure
             get;
         }
 
-        Pickup SpawnPickup();
+        //Pickup SpawnPickup();
     }
 }

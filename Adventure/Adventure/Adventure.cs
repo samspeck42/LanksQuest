@@ -121,7 +121,7 @@ namespace Adventure
 
             if (gameState == GameState.Playing)
             {
-                gameWorld.Update();
+                gameWorld.Update(gameTime);
 
                 if (gamepadState.IsButtonDown(Buttons.Start) && previousGamepadState.IsButtonUp(Buttons.Start))
                 {
@@ -208,14 +208,14 @@ namespace Adventure
                     Color.White);
 
             EquippableItem item = null;
-            if ((item = gameWorld.Player.Inventory.GetEquippedItemForButton(Buttons.Y)) != null)
+            if ((item = gameWorld.Player.Inventory.EquippedItemAtIndex(0)) != null)
             {
-                spriteBatch.Draw(item.InventoryScreenIcon,
-                    new Vector2(550 - (item.InventoryScreenIcon.Width / 2),
-                        30 - (item.InventoryScreenIcon.Height / 2)),
-                    Color.White);
+                //spriteBatch.Draw(item.InventoryScreenIcon,
+                //    new Vector2(550 - (item.InventoryScreenIcon.Width / 2),
+                //        30 - (item.InventoryScreenIcon.Height / 2)),
+                //    Color.White);
             }
-            if ((item = gameWorld.Player.Inventory.GetEquippedItemForButton(Buttons.B)) != null)
+            if ((item = gameWorld.Player.Inventory.EquippedItemAtIndex(1)) != null)
             {
                 spriteBatch.Draw(item.InventoryScreenIcon,
                     new Vector2(600 - (item.InventoryScreenIcon.Width / 2),

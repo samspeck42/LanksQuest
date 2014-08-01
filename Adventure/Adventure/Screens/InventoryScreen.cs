@@ -73,17 +73,17 @@ namespace Adventure
             selectedItemPoint.X = (int)MathHelper.Clamp(selectedItemPoint.X, 0, NUM_COLUMNS - 1);
             selectedItemPoint.Y = (int)MathHelper.Clamp(selectedItemPoint.Y, 0, NUM_ROWS - 1);
 
-            foreach (Buttons button in Inventory.EQUIPPED_ITEM_BUTTONS)
-            {
-                if (gamepadState.IsButtonDown(button) && previousGamepadState.IsButtonUp(button))
-                {
-                    EquippableItem item;
-                    if ((item = inventory.GetEquippableItemAtPoint(selectedItemPoint)) != null)
-                    {
-                        inventory.EquipItem(item, button);
-                    }
-                }
-            }
+            //foreach (Buttons button in Inventory.EQUIPPED_ITEM_BUTTONS)
+            //{
+            //    if (gamepadState.IsButtonDown(button) && previousGamepadState.IsButtonUp(button))
+            //    {
+            //        EquippableItem item;
+            //        if ((item = inventory.GetEquippableItemAtPoint(selectedItemPoint)) != null)
+            //        {
+            //            inventory.EquipItem(item, button);
+            //        }
+            //    }
+            //}
 
             previousGamepadState = gamepadState;
         }

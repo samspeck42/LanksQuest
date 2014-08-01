@@ -442,9 +442,7 @@ namespace Adventure
 
             foreach (Entity entity in GetActiveEntities())
             {
-                if (cellRectangle.Intersects(entity.HitBox) || 
-                    cellRectangle.Contains(entity.HitBox) ||
-                    entity.HitBox.Contains(cellRectangle))
+                if (entity.BoundingBox.CollidesWith(cellRectangle))
                     entityList.Add(entity);
             }
             return entityList;
@@ -520,12 +518,12 @@ namespace Adventure
             }
         }
 
-        public List<Entity> GetImpassableEntitiesInCollisionPathX(Entity entity)
+        public List<Entity> GetObstacleEntitiesInCollisionPathX(Entity entity)
         {
             List<Entity> entitiesInCollisionPathX = new List<Entity>();
             foreach (Entity e in GetActiveEntities())
             {
-                if (!e.IsPassable && e.HitBox.Bottom > entity.HitBox.Top && e.HitBox.Top < entity.HitBox.Bottom)
+                if (e.IsObstacle && e.BoundingBox.Bottom > entity.BoundingBox.Top && e.BoundingBox.Top < entity.BoundingBox.Bottom)
                 {
                     if ((entity.Velocity.X > 0 && e.Center.X > entity.Center.X) ||
                         (entity.Velocity.X < 0 && e.Center.X < entity.Center.X))
@@ -535,12 +533,12 @@ namespace Adventure
             return entitiesInCollisionPathX;
         }
 
-        public List<Entity> GetImpassableEntitiesInCollisionPathY(Entity entity)
+        public List<Entity> GetObstacleEntitiesInCollisionPathY(Entity entity)
         {
             List<Entity> entitiesInCollisionPathY = new List<Entity>();
             foreach (Entity e in GetActiveEntities())
             {
-                if (!e.IsPassable && e.HitBox.Right > entity.HitBox.Left && e.HitBox.Left < entity.HitBox.Right)
+                if (e.IsObstacle && e.BoundingBox.Right > entity.BoundingBox.Left && e.BoundingBox.Left < entity.BoundingBox.Right)
                 {
                     if ((entity.Velocity.Y > 0 && e.Center.Y > entity.Center.Y) ||
                         (entity.Velocity.Y < 0 && e.Center.Y < entity.Center.Y))
@@ -566,7 +564,7 @@ namespace Adventure
         public bool IsEntityInside(Entity entity)
         {
             Rectangle areaRect = new Rectangle(0, 0, this.WidthInPixels, this.HeightInPixels);
-            return areaRect.Contains(entity.HitBox) || areaRect.Intersects(entity.HitBox);
+            return entity.BoundingBox.CollidesWith(areaRect);
         }
 
         public int IsUsingTexture(Texture2D texture)

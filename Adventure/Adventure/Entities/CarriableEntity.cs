@@ -17,7 +17,7 @@ namespace Adventure
         protected bool isThrown;
         public bool IsThrown { get { return isThrown; } }
 
-        protected Directions throwDirection;
+        protected Directions4 throwDirection;
         protected int throwTimer;
 
         public CarriableEntity(GameWorld game, Area area)
@@ -25,15 +25,14 @@ namespace Adventure
         {
             isBeingCarried = false;
             isThrown = false;
-            throwDirection = Directions.Up;
+            throwDirection = Directions4.Up;
             throwTimer = 0;
-            IsAffectedByWallCollisions = false;
             CanLeaveArea = false;
         }
 
-        public override void Update()
+        public override void Update(GameTime gameTime)
         {
-            base.Update();
+            base.Update(gameTime);
 
             if (isBeingCarried)
                 doCarry();
@@ -45,33 +44,32 @@ namespace Adventure
         public void StartBeingLifted()
         {
             Position.X = game.Player.Center.X - (Width / 2);
-            Position.Y = game.Player.HitBoxPosition.Y - Height;
+            Position.Y = game.Player.BoundingBox.ActualY - Height;
             isBeingCarried = true;
-            IsPassable = true;
         }
 
         private void doCarry()
         {
             Position.X = game.Player.Center.X - (Width / 2);
-            Position.Y = game.Player.HitBoxPosition.Y - Height;
+            Position.Y = game.Player.BoundingBox.ActualY - Height;
         }
 
-        public void StartBeingThrown(Directions direction)
+        public void StartBeingThrown(Directions4 direction)
         {
-            if (direction == Directions.Up)
+            if (direction == Directions4.Up)
             {
                 Velocity.Y = -THROW_SPEED;
             }
-            else if (direction == Directions.Down)
+            else if (direction == Directions4.Down)
             {
                 Velocity.Y = THROW_SPEED;
             }
-            else if (direction == Directions.Left)
+            else if (direction == Directions4.Left)
             {
                 Velocity.X = -THROW_SPEED;
                 Velocity.Y = FALL_SPEED;
             }
-            else if (direction == Directions.Right)
+            else if (direction == Directions4.Right)
             {
                 Velocity.X = THROW_SPEED;
                 Velocity.Y = FALL_SPEED;
@@ -91,13 +89,13 @@ namespace Adventure
                 endThrow();
 
             Vector2 collisionPos = new Vector2();
-            if (throwDirection == Directions.Up)
+            if (throwDirection == Directions4.Up)
                 collisionPos = new Vector2(Position.X + (Width / 2), Position.Y);
-            else if (throwDirection == Directions.Down)
+            else if (throwDirection == Directions4.Down)
                 collisionPos = new Vector2(Position.X + (Width / 2), Position.Y + Height);
-            else if (throwDirection == Directions.Left)
+            else if (throwDirection == Directions4.Left)
                 collisionPos = new Vector2(Position.X, Position.Y + Height);
-            else if (throwDirection == Directions.Right)
+            else if (throwDirection == Directions4.Right)
                 collisionPos = new Vector2(Position.X + Width, Position.Y + Height);
 
             List<TileCollision> impassableTileCollisions = 
@@ -107,24 +105,24 @@ namespace Adventure
                 Rectangle cellRectangle = Area.CreateRectangleForCell(Area.ConvertPositionToCell(collisionPos));
 
                 float intersectDistance = 0f;
-                if (throwDirection == Directions.Up)
+                if (throwDirection == Directions4.Up)
                     intersectDistance = cellRectangle.Bottom - collisionPos.Y;
-                else if (throwDirection == Directions.Down)
+                else if (throwDirection == Directions4.Down)
                     intersectDistance = collisionPos.Y - cellRectangle.Top;
-                else if (throwDirection == Directions.Left)
+                else if (throwDirection == Directions4.Left)
                     intersectDistance = cellRectangle.Right - collisionPos.X;
-                else if (throwDirection == Directions.Right)
+                else if (throwDirection == Directions4.Right)
                     intersectDistance = collisionPos.X - cellRectangle.Left;
 
                 if (intersectDistance >= 3)
                 {
-                    if (throwDirection == Directions.Up)
+                    if (throwDirection == Directions4.Up)
                         Position.Y = cellRectangle.Bottom - 3;
-                    else if (throwDirection == Directions.Down)
+                    else if (throwDirection == Directions4.Down)
                         Position.Y = cellRectangle.Top + 3 - Height;
-                    else if (throwDirection == Directions.Left)
+                    else if (throwDirection == Directions4.Left)
                         Position.X = cellRectangle.Right - 3;
-                    else if (throwDirection == Directions.Right)
+                    else if (throwDirection == Directions4.Right)
                         Position.X = cellRectangle.Left + 3 - Width;
 
                     endThrow();

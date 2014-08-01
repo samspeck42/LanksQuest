@@ -67,7 +67,7 @@ namespace Adventure
             return new KeyValuePair<int, string>(areaNum, id);
         }
 
-        public override void Update()
+        public override void Update(GameTime gameTime)
         {
             if (!addedActivatableEntites)
             {
@@ -113,7 +113,7 @@ namespace Adventure
                 addedActivatableEntites = true;
             }
 
-            base.Update();
+            base.Update(gameTime);
         }
 
         protected void tryToTriggerActivations()
@@ -143,8 +143,9 @@ namespace Adventure
             hasTriggeredActivations = true;
         }
 
-        public override void OnEntityCollision(Entity other)
+        public override void OnEntityCollision(Entity other, HitBox thisHitBox, HitBox otherHitBox)
         {
+            
         }
 
         public override void LoadContent()

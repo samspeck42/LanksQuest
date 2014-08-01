@@ -56,9 +56,9 @@ namespace Adventure
             }
         }
 
-        public override void Update()
+        public override void Update(GameTime gameTime)
         {
-            base.Update();
+            base.Update(gameTime);
 
             //if (IsHurt && !IsDying)
             if(state == EnemyState.Hurt)
@@ -134,13 +134,13 @@ namespace Adventure
             float angle = 0f;
             if (entity is Arrow)
             {
-                if (entity.FaceDirection == Directions.Up)
+                if (entity.FaceDirection == Directions4.Up)
                     angle = 3f * MathHelper.PiOver2;
-                else if (entity.FaceDirection == Directions.Down)
+                else if (entity.FaceDirection == Directions4.Down)
                     angle = MathHelper.PiOver2;
-                else if (entity.FaceDirection == Directions.Left)
+                else if (entity.FaceDirection == Directions4.Left)
                     angle = MathHelper.Pi;
-                else if (entity.FaceDirection == Directions.Right)
+                else if (entity.FaceDirection == Directions4.Right)
                     angle = 0f;
             }
             else

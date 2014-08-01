@@ -49,75 +49,80 @@ namespace Adventure
             return false;
         }
 
-        private int attackTimer = 0;
-
         public AttackingStateHandler(Player player)
             : base(player) { }
 
         public override void Start(Entity associatedEntity)
         {
-            attackTimer = 0;
+            //attackTimer = 0;
             player.Velocity = Vector2.Zero;
 
-            if (player.FaceDirection == Directions.Down)
-            {
-                player.SwordHitPoint = new Vector2(player.HitBoxPosition.X + player.ForwardSwordOrigin.X - Player.SWORD_LENGTH, player.HitBoxPosition.Y + player.ForwardSwordOrigin.Y);
-            }
-            else if (player.FaceDirection == Directions.Up)
-            {
-                player.SwordHitPoint = new Vector2(player.HitBoxPosition.X + player.BackwardSwordOrigin.X + Player.SWORD_LENGTH, player.HitBoxPosition.Y + player.BackwardSwordOrigin.Y);
-            }
-            else if (player.FaceDirection == Directions.Left)
-            {
-                player.SwordHitPoint = new Vector2(player.HitBoxPosition.X + player.LeftSwordOrigin.X, player.HitBoxPosition.Y + player.LeftSwordOrigin.Y - Player.SWORD_LENGTH);
-            }
-            else if (player.FaceDirection == Directions.Right)
-            {
-                player.SwordHitPoint = new Vector2(player.HitBoxPosition.X + player.RightSwordOrigin.X, player.HitBoxPosition.Y + player.LeftSwordOrigin.Y - Player.SWORD_LENGTH);
-            }
+            //if (player.FaceDirection == Directions4.Down)
+            //{
+            //    player.SwordHitPoint = new Vector2(player.BoundingBox.ActualX + player.ForwardSwordOrigin.X - Player.SWORD_LENGTH, player.BoundingBox.ActualY + player.ForwardSwordOrigin.Y);
+            //}
+            //else if (player.FaceDirection == Directions4.Up)
+            //{
+            //    player.SwordHitPoint = new Vector2(player.BoundingBox.ActualX + player.BackwardSwordOrigin.X + Player.SWORD_LENGTH, player.BoundingBox.ActualY + player.BackwardSwordOrigin.Y);
+            //}
+            //else if (player.FaceDirection == Directions4.Left)
+            //{
+            //    player.SwordHitPoint = new Vector2(player.BoundingBox.ActualX + player.LeftSwordOrigin.X, player.BoundingBox.ActualY + player.LeftSwordOrigin.Y - Player.SWORD_LENGTH);
+            //}
+            //else if (player.FaceDirection == Directions4.Right)
+            //{
+            //    player.SwordHitPoint = new Vector2(player.BoundingBox.ActualX + player.RightSwordOrigin.X, player.BoundingBox.ActualY + player.LeftSwordOrigin.Y - Player.SWORD_LENGTH);
+            //}
 
-            player.CurrentSprite = player.GetAttackingSprite(player.FaceDirection);
-
-            player.CurrentSprite.ResetAnimation();
+            player.SpriteHandler.SetSpriteAttacking();
+            player.GetHitBoxById(Player.SWORD_HITBOX_ID).IsActive = true;
             player.SwordSwingSound.Play(0.75f, 0f, 0f);
         }
 
-        public override void Update(GamePadState gamepadState, GamePadState previousGamepadState)
+        public override void Update(GameTime gameTime)
         {
-            attackTimer++;
-            if (attackTimer >= Player.ATTACK_TIME)
+            //attackTimer++;
+            //if (attackTimer >= Player.ATTACK_TIME)
+            if (player.SpriteHandler.IsCurrentSpriteAttacking() && player.SpriteHandler.IsCurrentSpriteDoneAnimating())
             {
-                attackTimer = 0;
-                player.SwordHitPoint = Vector2.Zero;
-                player.CurrentSprite = player.GetStandingSprite(player.FaceDirection);
+                //attackTimer = 0;
+                //player.SwordHitPoint = Vector2.Zero;
+                player.SpriteHandler.SetSpriteStill();
+                player.GetHitBoxById(Player.SWORD_HITBOX_ID).IsActive = false;
                 player.EnterState(new NormalStateHandler(player));
             }
-            else
-            {
-                float angle = ((float)attackTimer / (float)(Player.ATTACK_TIME - 1)) * MathHelper.PiOver2;
-                if (player.FaceDirection == Directions.Left || player.FaceDirection == Directions.Right)
-                    angle = MathHelper.PiOver2 - angle;
-                int x = (int)(Math.Cos(angle) * Player.SWORD_LENGTH);
-                int y = (int)(Math.Sin(angle) * Player.SWORD_LENGTH);
+            //else
+            //{
+            //    float angle = ((float)attackTimer / (float)(Player.ATTACK_TIME - 1)) * MathHelper.PiOver2;
+            //    if (player.FaceDirection == Directions4.Left || player.FaceDirection == Directions4.Right)
+            //        angle = MathHelper.PiOver2 - angle;
+            //    int x = (int)(Math.Cos(angle) * Player.SWORD_LENGTH);
+            //    int y = (int)(Math.Sin(angle) * Player.SWORD_LENGTH);
 
-                if (player.FaceDirection == Directions.Down)
-                {
-                    player.SwordHitPoint = new Vector2(player.HitBoxPosition.X + player.ForwardSwordOrigin.X - x, player.HitBoxPosition.Y + player.ForwardSwordOrigin.Y + y);
-                }
-                else if (player.FaceDirection == Directions.Up)
-                {
-                    player.SwordHitPoint = new Vector2(player.HitBoxPosition.X + player.BackwardSwordOrigin.X + x, player.HitBoxPosition.Y + player.BackwardSwordOrigin.Y - y);
-                }
-                else if (player.FaceDirection == Directions.Left)
-                {
-                    player.SwordHitPoint = new Vector2(player.HitBoxPosition.X + player.LeftSwordOrigin.X - x, player.HitBoxPosition.Y + player.LeftSwordOrigin.Y - y);
-                }
-                else if (player.FaceDirection == Directions.Right)
-                {
-                    player.SwordHitPoint = new Vector2(player.HitBoxPosition.X + player.RightSwordOrigin.X + x, player.HitBoxPosition.Y + player.LeftSwordOrigin.Y - y);
-                }
+            //    if (player.FaceDirection == Directions4.Down)
+            //    {
+            //        player.SwordHitPoint = new Vector2(player.BoundingBox.ActualX + player.ForwardSwordOrigin.X - x, player.BoundingBox.ActualY + player.ForwardSwordOrigin.Y + y);
+            //    }
+            //    else if (player.FaceDirection == Directions4.Up)
+            //    {
+            //        player.SwordHitPoint = new Vector2(player.BoundingBox.ActualX + player.BackwardSwordOrigin.X + x, player.BoundingBox.ActualY + player.BackwardSwordOrigin.Y - y);
+            //    }
+            //    else if (player.FaceDirection == Directions4.Left)
+            //    {
+            //        player.SwordHitPoint = new Vector2(player.BoundingBox.ActualX + player.LeftSwordOrigin.X - x, player.BoundingBox.ActualY + player.LeftSwordOrigin.Y - y);
+            //    }
+            //    else if (player.FaceDirection == Directions4.Right)
+            //    {
+            //        player.SwordHitPoint = new Vector2(player.BoundingBox.ActualX + player.RightSwordOrigin.X + x, player.BoundingBox.ActualY + player.LeftSwordOrigin.Y - y);
+            //    }
 
-            }
+            //}
+        }
+
+        public override void End(PlayerState newState)
+        {
+            if (player.GetHitBoxById(Player.SWORD_HITBOX_ID).IsActive)
+                player.GetHitBoxById(Player.SWORD_HITBOX_ID).IsActive = false;
         }
     }
 }

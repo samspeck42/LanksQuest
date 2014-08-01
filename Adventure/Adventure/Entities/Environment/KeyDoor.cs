@@ -19,7 +19,7 @@ namespace Adventure
             init();
         }
 
-        public KeyDoor(GameWorld game, Area area, Directions faceDirection)
+        public KeyDoor(GameWorld game, Area area, Directions4 faceDirection)
             : base(game, area)
         {
             init();
@@ -48,9 +48,9 @@ namespace Adventure
             openingSprite.Texture = game.Content.Load<Texture2D>("Sprites/Environment/key_door_opening");
         }
 
-        public override void Update()
+        public override void Update(GameTime gameTime)
         {
-            base.Update();
+            base.Update(gameTime);
 
             if (isOpening && CurrentSprite.IsDoneAnimating)
             {

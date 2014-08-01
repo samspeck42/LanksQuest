@@ -19,15 +19,15 @@ track_vertical
 9 9 9 9 7 2 2 2 2 10 0 11 2 2 2 2 8 9 9 9 
 9 9 9 9 3 0 0 0 0 0 0 0 0 0 0 0 4 9 9 9 
 9 9 9 9 3 0 0 0 0 0 0 0 0 0 0 0 4 9 9 9 
-9 7 2 2 10 0 0 0 0 0 9 0 0 0 0 0 11 2 2 8 
-9 3 0 0 0 0 0 0 0 9 9 0 0 0 0 0 0 0 0 4 
-9 3 0 0 0 0 0 0 0 0 9 0 0 0 0 0 0 0 0 4 
-9 3 0 0 0 0 0 0 0 0 9 0 0 0 0 0 0 0 0 4 
-9 10 0 0 0 0 0 0 0 0 9 0 0 0 0 0 0 0 0 11 
-9 0 0 0 0 0 0 0 0 0 9 0 0 0 0 0 0 0 0 0 
-9 12 0 0 0 0 0 0 0 0 9 0 0 0 0 0 0 0 0 13 
-9 3 0 0 0 0 0 0 0 0 9 0 0 0 0 0 0 0 0 4 
-9 3 0 0 0 0 0 0 0 9 9 9 0 0 0 0 0 0 0 4 
+9 7 2 2 10 0 0 0 0 0 0 0 0 0 0 0 11 2 2 8 
+9 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 
+9 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 
+9 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 
+9 10 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 11 
+9 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+9 12 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 13 
+9 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 
+9 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 
 9 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 
 9 5 1 1 1 1 1 1 1 12 0 13 1 1 1 1 1 1 1 6 
 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 
@@ -68,19 +68,19 @@ track_vertical
 
 [Entities]
 [Entities]
-KeyDoor (spawnCell:19,8)(faceDirection:2)(isOpen:False)
-ClosedDoor (id:cd1)(spawnCell:10,0)(faceDirection:1)(isOpen:false)
-ClosedDoor (id:cd2)(spawnCell:1,8)(faceDirection:3)(isOpen:false)
-Pot (spawnCell:6,7) 
-Pot (spawnCell:7,7)
-Pot (spawnCell:6,6)
-Pot (spawnCell:7,6)
-FloorSwitch (spawnCell:13,7)(activations:cd1)
-ArrowSwitch (spawnCell:2,7)(activations:cd2)
-BlobEnemy (id:be1)(spawnCell:10,7)(isActive:false)
-BlobEnemy (id:be2)(spawnCell:9,9)(isActive:false)
-BlobEnemy (id:be3)(spawnCell:11,9)(isActive:false)
+#KeyDoor (spawnCell:19,8)(faceDirection:2)(isOpen:False)
+#ClosedDoor (id:cd1)(spawnCell:10,0)(faceDirection:1)(isOpen:false)
+#ClosedDoor (id:cd2)(spawnCell:1,8)(faceDirection:3)(isOpen:false)
+#Pot (spawnCell:6,7) 
+#Pot (spawnCell:7,7)
+#Pot (spawnCell:6,6)
+#Pot (spawnCell:7,6)
+#FloorSwitch (spawnCell:13,7)(activations:cd1)
+#ArrowSwitch (spawnCell:2,7)(activations:cd2)
+#BlobEnemy (id:be1)(spawnCell:10,7)(isActive:false)
+#BlobEnemy (id:be2)(spawnCell:9,9)(isActive:false)
+#BlobEnemy (id:be3)(spawnCell:11,9)(isActive:false)
 #MovableBlock (spawnCell:6,5)(movableDirections:3)
 
-[MapTransitions]
-10,14 -1 0 15,8
+#[MapTransitions]
+#10,14 -1 0 15,8

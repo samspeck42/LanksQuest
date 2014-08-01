@@ -56,7 +56,7 @@ namespace Adventure
         {
         }
 
-        public override void Update(GamePadState gamepadState, GamePadState previousGamepadState)
+        public override void Update(GameTime gameTime)
         {
             // update startToPushTimer if player is pushing against wall and check if player is ready to push
             if (player.JustCollidedWithWall)

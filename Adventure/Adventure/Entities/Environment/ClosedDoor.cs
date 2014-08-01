@@ -22,7 +22,7 @@ namespace Adventure
             CurrentSprite = closedSprite;
         }
 
-        public ClosedDoor(GameWorld game, Area area, Directions faceDirection)
+        public ClosedDoor(GameWorld game, Area area, Directions4 faceDirection)
             : base(game, area)
         {
             init();
@@ -53,9 +53,9 @@ namespace Adventure
             closingSprite.Texture = game.Content.Load<Texture2D>("Sprites/Environment/closed_door_closing");
         }
 
-        public override void Update()
+        public override void Update(GameTime gameTime)
         {
-            base.Update();
+            base.Update(gameTime);
 
             if (isOpening && CurrentSprite.IsDoneAnimating)
             {

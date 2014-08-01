@@ -148,11 +148,11 @@ namespace Adventure
                 head.LoadContent();
         }
 
-        public override void Update()
+        public override void Update(GameTime gameTime)
         {
-            currentEyeSprite.UpdateAnimation();
+            currentEyeSprite.UpdateAnimation(gameTime);
 
-            base.Update();
+            base.Update(gameTime);
 
             //if (!IsDying)
             if (state != EnemyState.Dying)
@@ -320,7 +320,7 @@ namespace Adventure
                     Arrow arrow = (Arrow)other;
                     if (arrow.IsFired && this.Contains(arrow.TipPosition))
                     {
-                        if (arrow.FaceDirection == Directions.Up)
+                        if (arrow.FaceDirection == Directions4.Up)
                         {
                             //if (!IsHurt &&
                             if (state == EnemyState.Normal &&

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework;
 
 namespace Adventure
 {
@@ -38,7 +39,7 @@ namespace Adventure
             chest.StartOpening();
         }
 
-        public override void Update(GamePadState gamepadState, GamePadState previousGamepadState)
+        public override void Update(GameTime gameTime)
         {
             if (chest.IsOpened)
             {
@@ -46,9 +47,9 @@ namespace Adventure
                 {
                     Entity treasure = chest.Treasure;
 
-                    if (treasure is Pickup)
-                        player.Inventory.CollectPickup((Pickup)treasure);
-                    else if (treasure is EquippableItem)
+                    //if (treasure is Pickup)
+                    //    player.Inventory.CollectPickup((Pickup)treasure);
+                    if (treasure is EquippableItem)
                         player.Inventory.CollectEquippableItem((EquippableItem)treasure);
                 }
 

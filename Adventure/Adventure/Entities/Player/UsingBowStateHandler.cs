@@ -61,9 +61,9 @@ namespace Adventure
             player.IsAiming = true;
         }
 
-        public override void Update(GamePadState gamepadState, GamePadState previousGamepadState)
+        public override void Update(GameTime gameTime)
         {
-            bow.Update();
+            bow.Update(gameTime);
 
             if (bow.IsDoneBeingUsed)
             {
