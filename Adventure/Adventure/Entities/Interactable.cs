@@ -7,6 +7,10 @@ namespace Adventure
 {
     public interface Interactable
     {
-        bool StartInteraction();
+        bool CanStartInteraction { get; }
+
+        bool MustBeAllignedWithToInteract { get; }
+
+        void StartInteraction();
     }
 }

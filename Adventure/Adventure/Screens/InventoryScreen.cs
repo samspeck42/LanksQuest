@@ -17,10 +17,30 @@ namespace Adventure
         private const int MARGIN_LENGTH = 5;
         private const int ITEM_BOX_OFFSET_X = 9;
         private const int ITEM_BOX_OFFSET_Y = 9;
+        private static string[] equippableItemIds = new string[] { 
+            "bow",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+        };
 
         private Inventory inventory;
-        private Vector2 position;
-        private Point selectedItemPoint;
+        private Vector2 position = Vector2.Zero;
+        private Point selectedItemPoint = new Point();
         private bool isDisplaying = false;
         public bool IsDisplaying { get { return isDisplaying; } }
         private GamePadState gamepadState;
@@ -28,12 +48,11 @@ namespace Adventure
 
         private Texture2D background;
         private Texture2D selectedItemOutline;
+        private Dictionary<string, Texture2D> equippableItemIconDict = new Dictionary<string,Texture2D>();
 
         public InventoryScreen(Inventory inventory)
         {
             this.inventory = inventory;
-            position = Vector2.Zero;
-            selectedItemPoint = new Point();
             gamepadState = GamePad.GetState(PlayerIndex.One);
             previousGamepadState = gamepadState;
         }
@@ -42,6 +61,17 @@ namespace Adventure
         {
             background = content.Load<Texture2D>("Screens/item_screen_background");
             selectedItemOutline = content.Load<Texture2D>("Screens/selected_item_outline");
+
+            foreach (string id in equippableItemIds)
+            {
+                if (!string.IsNullOrEmpty(id))
+                    equippableItemIconDict.Add(id, content.Load<Texture2D>("Screens/Icons/" + id));
+            }
+        }
+
+        public Texture2D GetEquippableItemIcon(string id)
+        {
+            return equippableItemIconDict[id];
         }
 
         public void StartDisplaying()
@@ -73,17 +103,24 @@ namespace Adventure
             selectedItemPoint.X = (int)MathHelper.Clamp(selectedItemPoint.X, 0, NUM_COLUMNS - 1);
             selectedItemPoint.Y = (int)MathHelper.Clamp(selectedItemPoint.Y, 0, NUM_ROWS - 1);
 
-            //foreach (Buttons button in Inventory.EQUIPPED_ITEM_BUTTONS)
-            //{
-            //    if (gamepadState.IsButtonDown(button) && previousGamepadState.IsButtonUp(button))
-            //    {
-            //        EquippableItem item;
-            //        if ((item = inventory.GetEquippableItemAtPoint(selectedItemPoint)) != null)
-            //        {
-            //            inventory.EquipItem(item, button);
-            //        }
-            //    }
-            //}
+            PlayerButtons itemButtonPressed = PlayerButtons.None;
+            if (gamepadState.IsButtonDown(PlayerInput.PlayerButtonsToButtons(PlayerButtons.EquippedItem1)) &&
+                previousGamepadState.IsButtonUp(PlayerInput.PlayerButtonsToButtons(PlayerButtons.EquippedItem1)))
+                itemButtonPressed = PlayerButtons.EquippedItem1;
+            else if (gamepadState.IsButtonDown(PlayerInput.PlayerButtonsToButtons(PlayerButtons.EquippedItem2)) &&
+                previousGamepadState.IsButtonUp(PlayerInput.PlayerButtonsToButtons(PlayerButtons.EquippedItem2)))
+                itemButtonPressed = PlayerButtons.EquippedItem2;
+
+            if (itemButtonPressed != PlayerButtons.None)
+            {
+                string id = equippableItemIds[selectedItemPoint.Y * NUM_COLUMNS + selectedItemPoint.X];
+                EquippableItem item;
+                if ((item = inventory.GetOwnedEquippableItemByInventoryScreenId(id)) != null)
+                {
+                    int index = itemButtonPressed == PlayerButtons.EquippedItem1 ? 0 : 1;
+                    inventory.EquipItem(item, index);
+                }
+            }
 
             previousGamepadState = gamepadState;
         }
@@ -98,21 +135,40 @@ namespace Adventure
             selectedItemOutlinePos.Y += selectedItemPoint.Y * (ITEM_BOX_LENGTH + MARGIN_LENGTH);
             spriteBatch.Draw(selectedItemOutline, selectedItemOutlinePos, Color.White);
 
-            for (int x = 0; x < NUM_COLUMNS; x++)
+            //for (int x = 0; x < NUM_COLUMNS; x++)
+            //{
+            //    for (int y = 0; y < NUM_ROWS; y++)
+            //    {
+            //        EquippableItem item;
+            //        if ((item = inventory.GetEquippableItemAtPoint(new Point(x, y))) != null)
+            //        {
+            //            Vector2 centerPos = new Vector2(position.X + ITEM_BOX_OFFSET_X, position.Y + ITEM_BOX_OFFSET_Y);
+            //            centerPos.X += (x * (ITEM_BOX_LENGTH + MARGIN_LENGTH)) + (ITEM_BOX_LENGTH / 2);
+            //            centerPos.Y += y * (ITEM_BOX_LENGTH + MARGIN_LENGTH) + (ITEM_BOX_LENGTH / 2);
+            //            //spriteBatch.Draw(item.InventoryScreenIcon,
+            //            //    new Vector2(centerPos.X - (item.InventoryScreenIcon.Width / 2),
+            //            //        centerPos.Y - (item.InventoryScreenIcon.Height / 2)),
+            //            //        Color.White);
+            //        }
+            //    }
+            //}
+
+            foreach (string id in equippableItemIds)
             {
-                for (int y = 0; y < NUM_ROWS; y++)
+                if (inventory.IsEquippableItemOwned(id))
                 {
-                    EquippableItem item;
-                    if ((item = inventory.GetEquippableItemAtPoint(new Point(x, y))) != null)
-                    {
-                        Vector2 centerPos = new Vector2(position.X + ITEM_BOX_OFFSET_X, position.Y + ITEM_BOX_OFFSET_Y);
-                        centerPos.X += (x * (ITEM_BOX_LENGTH + MARGIN_LENGTH)) + (ITEM_BOX_LENGTH / 2);
-                        centerPos.Y += y * (ITEM_BOX_LENGTH + MARGIN_LENGTH) + (ITEM_BOX_LENGTH / 2);
-                        spriteBatch.Draw(item.InventoryScreenIcon,
-                            new Vector2(centerPos.X - (item.InventoryScreenIcon.Width / 2),
-                                centerPos.Y - (item.InventoryScreenIcon.Height / 2)),
-                                Color.White);
-                    }
+                    int index = Array.IndexOf(equippableItemIds, id);
+                    int x = index % NUM_COLUMNS;
+                    int y = index / NUM_COLUMNS;
+                    Texture2D icon = equippableItemIconDict[id];
+
+                    Vector2 centerPos = new Vector2(position.X + ITEM_BOX_OFFSET_X, position.Y + ITEM_BOX_OFFSET_Y);
+                    centerPos.X += (x * (ITEM_BOX_LENGTH + MARGIN_LENGTH)) + (ITEM_BOX_LENGTH / 2);
+                    centerPos.Y += y * (ITEM_BOX_LENGTH + MARGIN_LENGTH) + (ITEM_BOX_LENGTH / 2);
+                    spriteBatch.Draw(icon,
+                        new Vector2(centerPos.X - (icon.Width / 2),
+                            centerPos.Y - (icon.Height / 2)),
+                            Color.White);
                 }
             }
 

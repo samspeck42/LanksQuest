@@ -5,19 +5,40 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
+using TileEngine;
 
 namespace Adventure
 {
-    public class RobotEnemy : Enemy, PickupDropper, Activatable
+    public class RobotEnemy : Enemy, Triggerable
     {
-        private const float PICKUP_DROP_CHANCE = 0.75f;
+        private const string ASLEEP_SPRITE_ID = "asleep_sprite";
+        private const string WAKING_SPRITE_ID = "waking_sprite";
+        private const string AWAKE_SPRITES_ID = "awake_sprites";
+        private const string OBSTACLE_COLLISION_BOX_ID = "obstacle_collision_box";
+        private const string EYE_HIT_BOX_ID = "eye_hit_box";
+        private const int JUMP_WAIT_TIME = 500;
 
-        const float WALK_SPEED = 1f;
-        const int WALK_ANIMATION_DELAY = 6;
-        const int WAKE_ANIMATION_DELAY = 7;
+        public override HitBox ObstacleCollisionBox { get { return GetHitBoxById(OBSTACLE_COLLISION_BOX_ID); } }
+        public override int Damage { get { return 1; } }
+        public override int MaxHealth { get { return 4; } }
+        public override bool IsBlockedByObstacleEntities { get { return true; } }
+        public override TileCollision ObstacleTileCollisions
+        {
+            get
+            {
+                return TileCollision.Wall | TileCollision.Doorway;
+            }
+        }
+        public override bool IsObstacle
+        {
+            get
+            {
+                return robotEnemyState == RobotEnemyState.Asleep;
+            }
+        }
+
+        const int WAKE_ANIMATION_DELAY = 112;
         const int MOVE_TIME = 50;
-        const int MAX_HEALTH = 6;
-        const int DAMAGE = 1;
         const int FORWARD_EYE_OFFSET_X = 3;
         const int FORWARD_EYE_OFFSET_Y = 3;
         const int LEFT_EYE_OFFSET_X = 0;
@@ -32,331 +53,390 @@ namespace Adventure
         const int MIN_EYE_CLOSED_TIME = 70;
         const int ALERT_RADIUS = 100;
 
-        private int moveTimer = MOVE_TIME;
-        private Vector2 currentEyeOffset;
-        private bool isEyeOpened = false;
-        private int eyeTimer = 0;
-        private bool isAsleep = false;
+        private bool isJumping { get { return movementHandler is BounceMovementHandler; } }
+        private int jumpWaitTimer = 0;
+        //private Vector2 currentEyeOffset;
+        //private bool isEyeOpened = false;
+        //private int eyeTimer = 0;
+        //private bool isAsleep = false;
         private bool isAlert = false;
-        private bool isWaking = false;
-        private int eyeClosedTime = 0;
-        private int eyeOpenTime = 0;
+        private RobotEnemyState robotEnemyState = RobotEnemyState.Asleep;
+        //private bool isWaking = false;
+        //private int eyeClosedTime = 0;
+        //private int eyeOpenTime = 0;
 
-        private Sprite forwardSprite;
-        private Sprite backwardSprite;
-        private Sprite leftSprite;
-        private Sprite rightSprite;
-        private Sprite leftEyeSprite;
-        private Sprite rightEyeSprite;
-        private Sprite forwardEyeSprite;
-        private Sprite leftEyeSpriteClosed;
-        private Sprite rightEyeSpriteClosed;
-        private Sprite forwardEyeSpriteClosed;
-        private Sprite currentEyeSprite;
-        private Sprite asleepSprite;
-        private Sprite wakingSprite;
+        //private Sprite forwardSprite;
+        //private Sprite backwardSprite;
+        //private Sprite leftSprite;
+        //private Sprite rightSprite;
+        //private Sprite leftEyeSprite;
+        //private Sprite rightEyeSprite;
+        //private Sprite forwardEyeSprite;
+        //private Sprite leftEyeSpriteClosed;
+        //private Sprite rightEyeSpriteClosed;
+        //private Sprite forwardEyeSpriteClosed;
+        //private Sprite currentEyeSprite;
+        //private Sprite asleepSprite;
+        //private Sprite wakingSprite;
 
-        public Rectangle EyeHitBox
-        {
-            get
-            {
-                return new Rectangle((int)Math.Round(Position.X + currentEyeOffset.X), (int)Math.Round(Position.Y + currentEyeOffset.Y),
-                  currentEyeSprite.Texture.Width, currentEyeSprite.Texture.Height);
-            }
-        }
+        //public Rectangle EyeHitBox
+        //{
+        //    get
+        //    {
+        //        return new Rectangle((int)Math.Round(Position.X + currentEyeOffset.X), (int)Math.Round(Position.Y + currentEyeOffset.Y),
+        //          currentEyeSprite.Texture.Width, currentEyeSprite.Texture.Height);
+        //    }
+        //}
 
         public RobotEnemy(GameWorld game, Area area)
             : base(game, area)
         {
-            hitBoxOffset = Vector2.Zero;
-            hitBoxWidth = 22;
-            hitBoxHeight = 32;
+            BoundingBox.RelativeX = -11;
+            BoundingBox.RelativeY = -28;
+            BoundingBox.Width = 22;
+            BoundingBox.Height = 32;
 
-            Vector2 origin = new Vector2(5, 8);
-            forwardSprite = new Sprite(origin, 4, WALK_ANIMATION_DELAY);
-            backwardSprite = new Sprite(origin, 4, WALK_ANIMATION_DELAY);
-            leftSprite = new Sprite(origin, 4, WALK_ANIMATION_DELAY);
-            rightSprite = new Sprite(origin, 4, WALK_ANIMATION_DELAY);
-            asleepSprite = new Sprite(origin);
-            wakingSprite = new Sprite(origin, 4, WAKE_ANIMATION_DELAY, 1);
+            HitBox obstacleCollisionBox = new HitBox(this, OBSTACLE_COLLISION_BOX_ID);
+            obstacleCollisionBox.RelativeX = -11;
+            obstacleCollisionBox.RelativeY = -18;
+            obstacleCollisionBox.Width = 22;
+            obstacleCollisionBox.Height = 22;
+            obstacleCollisionBox.IsActive = true;
+            HitBoxes.Add(obstacleCollisionBox);
 
-            origin = new Vector2(0, 0);
-            forwardEyeSprite = new Sprite(origin);
-            forwardEyeSpriteClosed = new Sprite(origin);
+            HitBox eyeHitBox = new HitBox(this, EYE_HIT_BOX_ID);
+            eyeHitBox.RelativeX = -9;
+            eyeHitBox.RelativeY = -19;
+            eyeHitBox.Width = 18;
+            eyeHitBox.Height = 12;
+            eyeHitBox.IsActive = false;
+            HitBoxes.Add(eyeHitBox);
 
-            origin = new Vector2(0, 0);
-            leftEyeSprite = new Sprite(origin);
-            leftEyeSpriteClosed = new Sprite(origin);
-            rightEyeSprite = new Sprite(origin);
-            rightEyeSpriteClosed = new Sprite(origin);
+            Vector2 origin = new Vector2(16, 28);
+            Sprite sprite = new Sprite("Sprites/Enemies/robot_enemy_asleep", this, origin);
+            spriteHandler.AddSprite(ASLEEP_SPRITE_ID, sprite);
 
-            CurrentSprite = forwardSprite;
-            currentEyeSprite = forwardEyeSprite;
-            currentEyeOffset = new Vector2(FORWARD_EYE_OFFSET_X, FORWARD_EYE_OFFSET_Y);
+            sprite = new Sprite("Sprites/Enemies/robot_enemy_waking", this, origin, 4, WAKE_ANIMATION_DELAY, 1);
+            spriteHandler.AddSprite(WAKING_SPRITE_ID, sprite);
 
-            MaxHealth = MAX_HEALTH;
-            Health = MaxHealth;
-            Damage = DAMAGE;
+            SpriteSet spriteSet = new SpriteSet();
+            sprite = new Sprite("Sprites/Enemies/robot_enemy_backward2", this, origin);
+            spriteSet.SetSprite(Directions4.Up, sprite);
+            sprite = new Sprite("Sprites/Enemies/robot_enemy_forward2", this, origin);
+            spriteSet.SetSprite(Directions4.Down, sprite);
+            sprite = new Sprite("Sprites/Enemies/robot_enemy_left2", this, origin);
+            spriteSet.SetSprite(Directions4.Left, sprite);
+            sprite = new Sprite("Sprites/Enemies/robot_enemy_right2", this, origin);
+            spriteSet.SetSprite(Directions4.Right, sprite);
+            spriteHandler.AddSpriteSet(AWAKE_SPRITES_ID, spriteSet);
 
-            CanLeaveArea = false;
+            spriteHandler.SetSprite(ASLEEP_SPRITE_ID);
         }
 
-        public override void LoadContent()
+        protected override void processAttributeData(Dictionary<string, string> dataDict)
         {
-            base.LoadContent();
+            base.processAttributeData(dataDict);
 
-            forwardSprite.Texture = game.Content.Load<Texture2D>("Sprites/Enemies/robot_enemy_forward");
-            backwardSprite.Texture = game.Content.Load<Texture2D>("Sprites/Enemies/robot_enemy_backward");
-            leftSprite.Texture = game.Content.Load<Texture2D>("Sprites/Enemies/robot_enemy_left");
-            rightSprite.Texture = game.Content.Load<Texture2D>("Sprites/Enemies/robot_enemy_right");
-            forwardEyeSprite.Texture = game.Content.Load<Texture2D>("Sprites/Enemies/robot_enemy_eye_forward");
-            leftEyeSprite.Texture = game.Content.Load<Texture2D>("Sprites/Enemies/robot_enemy_eye_left");
-            rightEyeSprite.Texture = game.Content.Load<Texture2D>("Sprites/Enemies/robot_enemy_eye_right");
-            forwardEyeSpriteClosed.Texture = game.Content.Load<Texture2D>("Sprites/Enemies/robot_enemy_eye_forward_closed");
-            leftEyeSpriteClosed.Texture = game.Content.Load<Texture2D>("Sprites/Enemies/robot_enemy_eye_left_closed");
-            rightEyeSpriteClosed.Texture = game.Content.Load<Texture2D>("Sprites/Enemies/robot_enemy_eye_right_closed");
-            asleepSprite.Texture = game.Content.Load<Texture2D>("Sprites/Enemies/robot_enemy_asleep");
-            wakingSprite.Texture = game.Content.Load<Texture2D>("Sprites/Enemies/robot_enemy_waking");
+            if (dataDict.ContainsKey("isAlert"))
+                isAlert = bool.Parse(dataDict["isAlert"]);
         }
 
-        protected override void processData(Dictionary<string, string> dataDict)
+        public override bool DamagesPlayer(HitBox thisHitBox, out KnockBackType knockBackType)
         {
-            base.processData(dataDict);
+            knockBackType = KnockBackType.HitAngle;
+            return robotEnemyState == RobotEnemyState.Awake && 
+                enemyState == EnemyState.Normal &&
+                thisHitBox.IsId(BOUNDING_BOX_ID);
+        }
 
-            if (dataDict.ContainsKey("isAsleep"))
-                isAsleep = bool.Parse(dataDict["isAsleep"]);
+        public override bool TakesDamageFromArrow(HitBox thisHitBox)
+        {
+            return robotEnemyState == RobotEnemyState.Awake && thisHitBox.IsId(EYE_HIT_BOX_ID);
+        }
 
-            if (isAsleep)
+        public override bool TakesDamageFromPlayerSword(HitBox thisHitBox)
+        {
+            return robotEnemyState == RobotEnemyState.Awake && thisHitBox.IsId(EYE_HIT_BOX_ID);
+        }
+
+        public override bool TakesDamageFromPot(HitBox thisHitBox)
+        {
+            return robotEnemyState == RobotEnemyState.Awake && thisHitBox.IsId(EYE_HIT_BOX_ID);
+        }
+
+        protected override void updateAI(GameTime gameTime)
+        {
+            if (robotEnemyState == RobotEnemyState.Asleep)
             {
-                CurrentSprite = asleepSprite;
-                IsPassable = false;
-                doesDamageOnContact = false;
-            }
-        }
-
-        public override void Update(GameTime gameTime)
-        {
-            base.Update(gameTime);
-            
-        }
-
-        protected override void updateAI()
-        {
-            if (!isAsleep)
-            {
-                moveTimer++;
-                if (moveTimer >= MOVE_TIME)
+                if (isAlert)
                 {
-                    moveTimer = 0;
-                    Velocity = Vector2.Zero;
+                    float playerDistance = Vector2.Distance(game.Player.Center, this.Center);
 
-                    Directions4 dir = Directions4.Down;
-
-                    float playerDistanceX = game.Player.Center.X - this.Center.X;
-                    float playerDistanceY = game.Player.Center.Y - this.Center.Y;
-
-                    if ((Math.Abs(playerDistanceX) >= Math.Abs(playerDistanceY)) && playerDistanceX >= 0)
-                        dir = Directions4.Right;
-                    else if ((Math.Abs(playerDistanceX) >= Math.Abs(playerDistanceY)) && playerDistanceX < 0)
-                        dir = Directions4.Left;
-                    else if ((Math.Abs(playerDistanceX) < Math.Abs(playerDistanceY)) && playerDistanceY >= 0)
-                        dir = Directions4.Down;
-                    else if ((Math.Abs(playerDistanceX) < Math.Abs(playerDistanceY)) && playerDistanceY < 0)
-                        dir = Directions4.Up;
-
-                    changeDirection(dir);
-                }
-
-                eyeTimer++;
-                if (isEyeOpened && eyeTimer >= eyeOpenTime)
-                    closeEye();
-                else if (!isEyeOpened && eyeTimer >= eyeClosedTime)
-                    openEye();
-            }
-
-            else if (isAlert)
-            {
-                float playerDistance = Vector2.Distance(game.Player.Center, this.Center);
-
-                if (playerDistance <= ALERT_RADIUS)
-                {
-                    isAlert = false;
-                    startWaking();
+                    if (playerDistance <= ALERT_RADIUS)
+                    {
+                        robotEnemyState = RobotEnemyState.Waking;
+                        spriteHandler.SetSprite(WAKING_SPRITE_ID);
+                    }
                 }
             }
-            else if (isWaking)
+            else if (robotEnemyState == RobotEnemyState.Waking)
             {
-                if (CurrentSprite.IsDoneAnimating)
+                if (spriteHandler.IsCurrentSpriteDoneAnimating)
                 {
-                    isWaking = false;
-                    wake();
+                    robotEnemyState = RobotEnemyState.Awake;
+                    spriteHandler.SetSprite(AWAKE_SPRITES_ID);
+                    GetHitBoxById(EYE_HIT_BOX_ID).IsActive = true;
                 }
             }
-        }
-
-        private void startWaking()
-        {
-            isWaking = true;
-            CurrentSprite = wakingSprite;
-            CurrentSprite.ResetAnimation();
-        }
-
-        private void changeDirection(Directions4 direction)
-        {
-            FaceDirection = direction;
-
-            switch (direction)
+            else if (robotEnemyState == RobotEnemyState.Awake)
             {
-                case Directions4.Down:
-                    Velocity.Y += WALK_SPEED;
-                    CurrentSprite = forwardSprite;
-                    if (isEyeOpened)
-                        currentEyeSprite = forwardEyeSprite;
-                    else
-                        currentEyeSprite = forwardEyeSpriteClosed;
-                    currentEyeOffset = new Vector2(FORWARD_EYE_OFFSET_X, FORWARD_EYE_OFFSET_Y);
-                    break;
-                case Directions4.Up:
-                    Velocity.Y -= WALK_SPEED;
-                    CurrentSprite = backwardSprite;
-                    if (isEyeOpened)
-                        currentEyeSprite = forwardEyeSprite;
-                    else
-                        currentEyeSprite = forwardEyeSpriteClosed;
-                    currentEyeOffset = new Vector2(BACKWARD_EYE_OFFSET_X, BACKWARD_EYE_OFFSET_Y);
-                    break;
-                case Directions4.Right:
-                    Velocity.X += WALK_SPEED;
-                    CurrentSprite = rightSprite;
-                    if (isEyeOpened)
-                        currentEyeSprite = rightEyeSprite;
-                    else
-                        currentEyeSprite = rightEyeSpriteClosed;
-                    currentEyeOffset = new Vector2(RIGHT_EYE_OFFSET_X, RIGHT_EYE_OFFSET_Y);
-                    break;
-                case Directions4.Left:
-                    Velocity.X -= WALK_SPEED;
-                    CurrentSprite = leftSprite;
-                    if (isEyeOpened)
-                        currentEyeSprite = leftEyeSprite;
-                    else
-                        currentEyeSprite = leftEyeSpriteClosed;
-                    currentEyeOffset = new Vector2(LEFT_EYE_OFFSET_X, LEFT_EYE_OFFSET_Y);
-                    break;
-                default:
-                    break;
+                if (!isJumping)
+                {
+                    jumpWaitTimer += (int)gameTime.ElapsedGameTime.TotalMilliseconds;
+
+                    if (jumpWaitTimer >= JUMP_WAIT_TIME)
+                    {
+                        Vector2 directionToPlayer = game.Player.Center - this.Center;
+                        float angleToPlayer = (float)Math.Atan2(directionToPlayer.Y, directionToPlayer.X);
+
+                        if (angleToPlayer >= -(3 * MathHelper.PiOver4) && angleToPlayer <= -MathHelper.PiOver4)
+                            FaceDirection = Directions4.Up;
+                        else if (angleToPlayer >= -MathHelper.PiOver4 && angleToPlayer <= MathHelper.PiOver4)
+                            FaceDirection = Directions4.Right;
+                        else if (angleToPlayer >= MathHelper.PiOver4 && angleToPlayer <= (3 * MathHelper.PiOver4))
+                            FaceDirection = Directions4.Down;
+                        else
+                            FaceDirection = Directions4.Left;
+
+                        movementHandler = new BounceMovementHandler(this,
+                            100,
+                            angleToPlayer,
+                            180, 0, 0, 0, 0);
+                        movementHandler.Start();
+                    }
+                }
+                else if (isJumping && movementHandler.IsFinished)
+                {
+                    jumpWaitTimer = 0;
+                    movementHandler = null;
+                }
+            }
+
+            //if (!isAsleep)
+            //{
+            //    moveTimer++;
+            //    if (moveTimer >= MOVE_TIME)
+            //    {
+            //        moveTimer = 0;
+            //        Velocity = Vector2.Zero;
+
+            //        Directions4 dir = Directions4.Down;
+
+            //        float playerDistanceX = game.Player.Center.X - this.Center.X;
+            //        float playerDistanceY = game.Player.Center.Y - this.Center.Y;
+
+            //        if ((Math.Abs(playerDistanceX) >= Math.Abs(playerDistanceY)) && playerDistanceX >= 0)
+            //            dir = Directions4.Right;
+            //        else if ((Math.Abs(playerDistanceX) >= Math.Abs(playerDistanceY)) && playerDistanceX < 0)
+            //            dir = Directions4.Left;
+            //        else if ((Math.Abs(playerDistanceX) < Math.Abs(playerDistanceY)) && playerDistanceY >= 0)
+            //            dir = Directions4.Down;
+            //        else if ((Math.Abs(playerDistanceX) < Math.Abs(playerDistanceY)) && playerDistanceY < 0)
+            //            dir = Directions4.Up;
+
+            //        changeDirection(dir);
+            //    }
+
+            //    eyeTimer++;
+            //    if (isEyeOpened && eyeTimer >= eyeOpenTime)
+            //        closeEye();
+            //    else if (!isEyeOpened && eyeTimer >= eyeClosedTime)
+            //        openEye();
+            //}
+
+            //else if (isAlert)
+            //{
+            //    float playerDistance = Vector2.Distance(game.Player.Center, this.Center);
+
+            //    if (playerDistance <= ALERT_RADIUS)
+            //    {
+            //        isAlert = false;
+            //        startWaking();
+            //    }
+            //}
+            //else if (isWaking)
+            //{
+            //    if (CurrentSprite.IsDoneAnimating)
+            //    {
+            //        isWaking = false;
+            //        wake();
+            //    }
+            //}
+        }
+
+        protected override void onHurtRecovery()
+        {
+            if (movementHandler is BounceMovementHandler)
+            {
+                BounceMovementHandler bounceMovementHandler = (BounceMovementHandler)movementHandler;
+                bounceMovementHandler.GroundVelocityX = 0;
+                bounceMovementHandler.GroundVelocityY = 0;
             }
         }
 
-        private void openEye()
-        {
-            isEyeOpened = true;
-            eyeTimer = 0;
-            eyeOpenTime = GameWorld.Random.Next(MIN_EYE_OPEN_TIME, MAX_EYE_OPEN_TIME);
+        //private void startWaking()
+        //{
+        //    isWaking = true;
+        //    CurrentSprite = wakingSprite;
+        //    CurrentSprite.ResetAnimation();
+        //}
 
-            if (FaceDirection == Directions4.Up || FaceDirection == Directions4.Down)
-                currentEyeSprite = forwardEyeSprite;
-            else if (FaceDirection == Directions4.Left)
-                currentEyeSprite = leftEyeSprite;
-            else if (FaceDirection == Directions4.Right)
-                currentEyeSprite = rightEyeSprite;
-        }
+        //private void changeDirection(Directions4 direction)
+        //{
+        //    FaceDirection = direction;
 
-        private void closeEye()
-        {
-            isEyeOpened = false;
-            eyeTimer = 0;
-            eyeClosedTime = GameWorld.Random.Next(MIN_EYE_CLOSED_TIME, MAX_EYE_CLOSED_TIME);
+        //    switch (direction)
+        //    {
+        //        case Directions4.Down:
+        //            Velocity.Y += WALK_SPEED;
+        //            CurrentSprite = forwardSprite;
+        //            if (isEyeOpened)
+        //                currentEyeSprite = forwardEyeSprite;
+        //            else
+        //                currentEyeSprite = forwardEyeSpriteClosed;
+        //            currentEyeOffset = new Vector2(FORWARD_EYE_OFFSET_X, FORWARD_EYE_OFFSET_Y);
+        //            break;
+        //        case Directions4.Up:
+        //            Velocity.Y -= WALK_SPEED;
+        //            CurrentSprite = backwardSprite;
+        //            if (isEyeOpened)
+        //                currentEyeSprite = forwardEyeSprite;
+        //            else
+        //                currentEyeSprite = forwardEyeSpriteClosed;
+        //            currentEyeOffset = new Vector2(BACKWARD_EYE_OFFSET_X, BACKWARD_EYE_OFFSET_Y);
+        //            break;
+        //        case Directions4.Right:
+        //            Velocity.X += WALK_SPEED;
+        //            CurrentSprite = rightSprite;
+        //            if (isEyeOpened)
+        //                currentEyeSprite = rightEyeSprite;
+        //            else
+        //                currentEyeSprite = rightEyeSpriteClosed;
+        //            currentEyeOffset = new Vector2(RIGHT_EYE_OFFSET_X, RIGHT_EYE_OFFSET_Y);
+        //            break;
+        //        case Directions4.Left:
+        //            Velocity.X -= WALK_SPEED;
+        //            CurrentSprite = leftSprite;
+        //            if (isEyeOpened)
+        //                currentEyeSprite = leftEyeSprite;
+        //            else
+        //                currentEyeSprite = leftEyeSpriteClosed;
+        //            currentEyeOffset = new Vector2(LEFT_EYE_OFFSET_X, LEFT_EYE_OFFSET_Y);
+        //            break;
+        //        default:
+        //            break;
+        //    }
+        //}
 
-            if (FaceDirection == Directions4.Up || FaceDirection == Directions4.Down)
-                currentEyeSprite = forwardEyeSpriteClosed;
-            else if (FaceDirection == Directions4.Left)
-                currentEyeSprite = leftEyeSpriteClosed;
-            else if (FaceDirection == Directions4.Right)
-                currentEyeSprite = rightEyeSpriteClosed;
-        }
+        //private void openEye()
+        //{
+        //    isEyeOpened = true;
+        //    eyeTimer = 0;
+        //    eyeOpenTime = GameWorld.Random.Next(MIN_EYE_OPEN_TIME, MAX_EYE_OPEN_TIME);
 
-        public float DropChance
-        {
-            get { return PICKUP_DROP_CHANCE; }
-        }
+        //    if (FaceDirection == Directions4.Up || FaceDirection == Directions4.Down)
+        //        currentEyeSprite = forwardEyeSprite;
+        //    else if (FaceDirection == Directions4.Left)
+        //        currentEyeSprite = leftEyeSprite;
+        //    else if (FaceDirection == Directions4.Right)
+        //        currentEyeSprite = rightEyeSprite;
+        //}
 
-        public void Activate()
+        //private void closeEye()
+        //{
+        //    isEyeOpened = false;
+        //    eyeTimer = 0;
+        //    eyeClosedTime = GameWorld.Random.Next(MIN_EYE_CLOSED_TIME, MAX_EYE_CLOSED_TIME);
+
+        //    if (FaceDirection == Directions4.Up || FaceDirection == Directions4.Down)
+        //        currentEyeSprite = forwardEyeSpriteClosed;
+        //    else if (FaceDirection == Directions4.Left)
+        //        currentEyeSprite = leftEyeSpriteClosed;
+        //    else if (FaceDirection == Directions4.Right)
+        //        currentEyeSprite = rightEyeSpriteClosed;
+        //}
+
+        //private void wake()
+        //{
+        //    isAsleep = false;
+        //    CurrentSprite = forwardSprite;
+        //    FaceDirection = Directions4.Down;
+        //    openEye();
+        //    IsPassable = true;
+        //    doesDamageOnContact = true;
+        //}
+
+        //public override void OnEntityCollision(Entity other)
+        //{
+        //    if (other is Arrow)
+        //    {
+        //        Arrow arrow = (Arrow)other;
+        //        if ((arrow.FaceDirection == Directions4.Up && this.FaceDirection == Directions4.Down) ||
+        //            (arrow.FaceDirection == Directions4.Down && this.FaceDirection == Directions4.Up) ||
+        //            (arrow.FaceDirection == Directions4.Left && this.FaceDirection == Directions4.Right) ||
+        //            (arrow.FaceDirection == Directions4.Right && this.FaceDirection == Directions4.Left))
+        //        {
+        //            //if (!IsHurt 
+        //            if (enemyState == EnemyState.Normal && arrow.IsFired && eyeHitBoxContains(arrow.TipPosition))
+        //            {
+        //                if (isEyeOpened && !isAsleep)
+        //                {
+        //                    takeDamageFrom(arrow);
+        //                    closeEye();
+        //                }
+        //                arrow.HitEntity(this);
+        //            }
+        //        }
+        //        else if (arrow.IsFired && this.Contains(arrow.TipPosition))
+        //        {
+        //            arrow.HitEntity(this);
+        //        }
+        //    }
+        //}
+
+        //private bool eyeHitBoxContains(Vector2 position)
+        //{
+        //    return this.EyeHitBox.Contains(new Point((int)Math.Round(position.X), (int)Math.Round(position.Y)));
+        //}
+
+        //public override void ReactToSwordHit(Player player)
+        //{
+        //    player.KnockBack(this);
+        //}
+
+        //public override void Draw(SpriteBatch spriteBatch, Effect changeColorsEffect)
+        //{
+        //    base.Draw(spriteBatch, changeColorsEffect);
+
+        //    if (!isAsleep && FaceDirection != Directions4.Up)
+        //        currentEyeSprite.Draw(spriteBatch, new Vector2(EyeHitBox.X, EyeHitBox.Y));
+        //}
+
+        public void TriggerOn()
         {
             isAlert = true;
         }
 
-        private void wake()
+        public void TriggerOff()
         {
-            isAsleep = false;
-            CurrentSprite = forwardSprite;
-            FaceDirection = Directions4.Down;
-            openEye();
-            IsPassable = true;
-            doesDamageOnContact = true;
+            isAlert = false;
         }
 
-        public void Deactivate()
+        private enum RobotEnemyState
         {
-        }
-
-        public Pickup SpawnPickup()
-        {
-            List<PickupType> possibleTypes = new List<PickupType>();
-            possibleTypes.Add(PickupType.BronzeCoin);
-            possibleTypes.Add(PickupType.SilverCoin);
-            possibleTypes.Add(PickupType.GoldCoin);
-            possibleTypes.Add(PickupType.Heart);
-
-            Pickup pickup = new Pickup(game, area, possibleTypes.ElementAt(GameWorld.Random.Next(possibleTypes.Count)), true);
-            pickup.Center = this.Center;
-            return pickup;
-        }
-
-        public override void OnEntityCollision(Entity other)
-        {
-            if (other is Arrow)
-            {
-                Arrow arrow = (Arrow)other;
-                if ((arrow.FaceDirection == Directions4.Up && this.FaceDirection == Directions4.Down) ||
-                    (arrow.FaceDirection == Directions4.Down && this.FaceDirection == Directions4.Up) ||
-                    (arrow.FaceDirection == Directions4.Left && this.FaceDirection == Directions4.Right) ||
-                    (arrow.FaceDirection == Directions4.Right && this.FaceDirection == Directions4.Left))
-                {
-                    //if (!IsHurt 
-                    if (state == EnemyState.Normal && arrow.IsFired && eyeHitBoxContains(arrow.TipPosition))
-                    {
-                        if (isEyeOpened && !isAsleep)
-                        {
-                            takeDamageFrom(arrow);
-                            closeEye();
-                        }
-                        arrow.HitEntity(this);
-                    }
-                }
-                else if (arrow.IsFired && this.Contains(arrow.TipPosition))
-                {
-                    arrow.HitEntity(this);
-                }
-            }
-        }
-
-        private bool eyeHitBoxContains(Vector2 position)
-        {
-            return this.EyeHitBox.Contains(new Point((int)Math.Round(position.X), (int)Math.Round(position.Y)));
-        }
-
-        public override void ReactToSwordHit(Player player)
-        {
-            player.KnockBack(this);
-        }
-
-        public override void Draw(SpriteBatch spriteBatch, Effect changeColorsEffect)
-        {
-            base.Draw(spriteBatch, changeColorsEffect);
-
-            if (!isAsleep && FaceDirection != Directions4.Up)
-                currentEyeSprite.Draw(spriteBatch, new Vector2(EyeHitBox.X, EyeHitBox.Y));
+            Asleep,
+            Waking,
+            Awake
         }
     }
 }

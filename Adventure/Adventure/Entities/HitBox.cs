@@ -8,18 +8,15 @@ namespace Adventure
 {
     public class HitBox
     {
-        public const string BOUNDING_BOX_ID = "bounding_box";
-
         private Entity owner;
         private string id;
         private Vector2 relativePosition;
 
         public bool IsActive = false;
-        public bool TakesDamageFromPlayerSword = false;
-        public bool TakesDamageFromArrow = false;
-        public bool CanStopArrows = false;
-        public bool DamagesPlayer = false;
-        public int Damage = 0;
+        //public bool TakesDamageFromPlayerSword = false;
+        //public bool TakesDamageFromArrow = false;
+        //public bool TakesDamageFromPot = false;
+        public bool CanStopArrow = false;
 
         public int Width;
         public int Height;
@@ -40,6 +37,36 @@ namespace Adventure
         {
             get { return relativePosition.Y; }
             set { relativePosition.Y = value; }
+        }
+
+        /// <summary>
+        /// Gets and sets the owner entity's X position relative to the hit box's position without changing the 
+        /// actual position of the hit box.
+        /// </summary>
+        public float EntityPositionRelativeX
+        {
+            get { return -relativePosition.X; }
+            set
+            {
+                float actualX = this.ActualX;
+                relativePosition.X = -value;
+                this.ActualX = actualX;
+            }
+        }
+
+        /// <summary>
+        /// Gets and sets the owner entity's Y position relative to the hit box's position without changing the 
+        /// actual position of the hit box.
+        /// </summary>
+        public float EntityPositionRelativeY
+        {
+            get { return -relativePosition.Y; }
+            set
+            {
+                float actualY = this.ActualY;
+                relativePosition.Y = -value;
+                this.ActualY = actualY;
+            }
         }
 
         /// <summary>

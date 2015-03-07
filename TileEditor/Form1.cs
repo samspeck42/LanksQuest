@@ -39,7 +39,7 @@ namespace TileEditor
         Dictionary<TileCollision, System.Drawing.Color> tileCollisionColorDict =
             new Dictionary<TileCollision, System.Drawing.Color>
             {
-                {TileCollision.Obstacle,System.Drawing.Color.Orange}
+                {TileCollision.Wall,System.Drawing.Color.Orange}
             };
 
 
@@ -150,7 +150,7 @@ namespace TileEditor
                             }
                             else if (removeTileCollisionButton.Checked)
                             {
-                                area.SetCollisionAtCell(new Point(cellX, cellY), TileCollision.Passable);
+                                area.SetCollisionAtCell(new Point(cellX, cellY), TileCollision.None);
                             }
                         }
                     }
@@ -186,7 +186,7 @@ namespace TileEditor
                             if (tabControl1.SelectedTab == collisionLayoutTab)
                             {
                                 TileCollision collision = area.GetCollisionAtCell(x, y);
-                                if (collision != TileCollision.Passable)
+                                if (collision != TileCollision.None)
                                 {
                                     System.Drawing.Color color = tileCollisionColorDict[collision];
 

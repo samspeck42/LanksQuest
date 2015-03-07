@@ -5,50 +5,79 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
+using TileEngine;
 
 namespace Adventure
 {
-    public class BlobEnemy : Enemy, PickupDropper, Activatable
+    public class BlobEnemy : Enemy, Triggerable
     {
-        private const float PICKUP_DROP_CHANCE = 0.75f;
+        private const string NORMAL_SPRITE_ID = "normal_sprite";
+        private const string OBSTACLE_COLLISION_BOX_ID = "obstacle_collision_box";
 
-        const float WALK_SPEED = 1.0f;
-        const int WALK_ANIMATION_DELAY = 6;
-        const int MOVE_TIME = 60;
-        const int MAX_HEALTH = 2;
-        const int DAMAGE = 1;
+        private const float WALK_SPEED = 14;
+        private const int WALK_ANIMATION_DELAY = 100;
+        private const int JUMP_WAIT_TIME = 2000;
 
-        private int moveTimer = MOVE_TIME;
-        private int[] moves = new int[] { 0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3 };
-        private int currentMove;
+        public override HitBox ObstacleCollisionBox { get { return GetHitBoxById(OBSTACLE_COLLISION_BOX_ID); } }
+        public override int Damage { get { return 1; } }
+        public override bool IsBlockedByObstacleEntities { get { return true; } }
+        public override int MaxHealth { get { return 2; } }
+        public override TileCollision ObstacleTileCollisions
+        {
+            get
+            {
+                return TileCollision.Wall | TileCollision.Doorway;
+            }
+        }
 
-        private Sprite sprite;
+        private bool isJumping { get { return movementHandler is BounceMovementHandler; } }
+        private bool canJump = true;
+        private int jumpWaitTimer = 0;
 
         public BlobEnemy(GameWorld game, Area area)
             : base(game, area)
         {
-            hitBoxOffset = Vector2.Zero;
-            hitBoxWidth = 22;
-            hitBoxHeight = 24;
+            BoundingBox.RelativeX = -11;
+            BoundingBox.RelativeY = -12;
+            BoundingBox.Width = 22;
+            BoundingBox.Height = 24;
 
-            Vector2 origin = new Vector2(2, 2);
-            sprite = new Sprite(origin, 8, WALK_ANIMATION_DELAY);
+            HitBox obstacleCollisionBox = new HitBox(this, OBSTACLE_COLLISION_BOX_ID);
+            obstacleCollisionBox.RelativeX = -11;
+            obstacleCollisionBox.RelativeY = -12;
+            obstacleCollisionBox.Width = 22;
+            obstacleCollisionBox.Height = 24;
+            obstacleCollisionBox.IsActive = true;
+            HitBoxes.Add(obstacleCollisionBox);
 
-            CurrentSprite = sprite;
+            Vector2 origin = new Vector2(13, 14);
+            Sprite sprite = new Sprite("Sprites/Enemies/blob_enemy", this, origin, 8, WALK_ANIMATION_DELAY);
+            spriteHandler.AddSprite(NORMAL_SPRITE_ID, sprite);
+            spriteHandler.SetSprite(NORMAL_SPRITE_ID);
 
-            currentMove = moves.Count();
-
-            MaxHealth = MAX_HEALTH;
-            Health = MaxHealth;
-            Damage = DAMAGE;
-
-            CanLeaveArea = false;
+            movementHandler = new ChaseMovementHandler(this, WALK_SPEED, game.Player);
+            movementHandler.Start();
         }
 
-        public override void LoadContent()
+        public override bool DamagesPlayer(HitBox thisHitBox, out KnockBackType knockBackType)
         {
-            base.LoadContent();
-            sprite.Texture = game.Content.Load<Texture2D>("Sprites/Enemies/blob_enemy");
+            knockBackType = KnockBackType.HitAngle;
+            return enemyState == EnemyState.Normal && thisHitBox.IsId(BOUNDING_BOX_ID);
+        }
+
+        public override bool TakesDamageFromPlayerSword(HitBox thisHitBox)
+        {
+            return thisHitBox.IsId(BOUNDING_BOX_ID);
+        }
+
+        public override bool TakesDamageFromPot(HitBox thisHitBox)
+        {
+            return thisHitBox.IsId(BOUNDING_BOX_ID);
+        }
+
+        public override bool TakesDamageFromArrow(HitBox thisHitBox)
+        {
+            return thisHitBox.IsId(BOUNDING_BOX_ID);
         }
 
         public override void Update(GameTime gameTime)
@@ -56,112 +85,102 @@ namespace Adventure
             base.Update(gameTime);
         }
 
-        protected override void updateAI()
+        protected override void updateAI(GameTime gameTime)
         {
-            moveTimer++;
-            if (moveTimer >= MOVE_TIME)
+            if (!isJumping)
             {
-                moveTimer = 0;
-                Velocity = Vector2.Zero;
-
-                currentMove++;
-                if (currentMove >= moves.Count())
+                if (canJump)
                 {
-                    currentMove = 0;
-                    List<int> temp = new List<int>();
-                    foreach (int k in moves)
-                        temp.Add(k);
-                    for (int k = 0; k < moves.Count(); k++)
+                    Vector2 directionToPlayer = game.Player.Center - this.Center;
+                    float distanceToPlayer = directionToPlayer.Length();
+
+                    if (distanceToPlayer < 100)
                     {
-                        int r = GameWorld.Random.Next(temp.Count);
-                        moves[k] = temp.ElementAt(r);
-                        temp.RemoveAt(r);
-                    }
-
-                }
-
-                int n = moves[currentMove];
-                switch (n)
-                {
-                    case 0:
-                        Velocity.Y += WALK_SPEED;
-                        break;
-                    case 1:
-                        Velocity.Y -= WALK_SPEED;
-                        break;
-                    case 2:
-                        Velocity.X += WALK_SPEED;
-                        break;
-                    case 3:
-                        Velocity.X -= WALK_SPEED;
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-
-        public override void OnEntityCollision(Entity other)
-        {
-            if (other is Pot)
-            {
-                Pot pot = (Pot)other;
-                if (pot.IsThrown && state == EnemyState.Normal)
-                    //!IsHurt)
-                {
-                    takeDamageFrom(pot);
-                }
-            }
-            if (other is Arrow)
-            {
-                Arrow arrow = (Arrow)other;
-                if (arrow.IsFired && state == EnemyState.Normal)
-                    //!IsHurt)
-                {
-                    if (this.Contains(arrow.TipPosition))
-                    {
-                        takeDamageFrom(arrow);
-                        arrow.HitEntity(this);
+                        // start jumping
+                        movementHandler = new BounceMovementHandler(this,
+                            160,
+                            (float)Math.Atan2(directionToPlayer.Y, directionToPlayer.X),
+                            240, 0, 0, 0, 0);
+                        movementHandler.Start();
                     }
                 }
-            }
-        }
+                else
+                {
+                    jumpWaitTimer += (int)gameTime.ElapsedGameTime.TotalMilliseconds;
 
-        public override void  ReactToSwordHit(Player player)
-        {
-            //if (!IsHurt)
-            if (state == EnemyState.Normal)
+                    if (jumpWaitTimer >= JUMP_WAIT_TIME)
+                        canJump = true;
+                }
+            }
+            else if (isJumping && movementHandler.IsFinished)
             {
-                takeDamageFrom(player);
+                // done jumping
+                canJump = false;
+                jumpWaitTimer = 0;
+
+                movementHandler = new ChaseMovementHandler(this, WALK_SPEED, game.Player);
+                movementHandler.Start();
+            }
+
+            //moveTimer++;
+            //if (moveTimer >= MOVE_TIME)
+            //{
+            //    moveTimer = 0;
+            //    Velocity = Vector2.Zero;
+
+            //    currentMove++;
+            //    if (currentMove >= moves.Count())
+            //    {
+            //        currentMove = 0;
+            //        List<int> temp = new List<int>();
+            //        foreach (int k in moves)
+            //            temp.Add(k);
+            //        for (int k = 0; k < moves.Count(); k++)
+            //        {
+            //            int r = GameWorld.Random.Next(temp.Count);
+            //            moves[k] = temp.ElementAt(r);
+            //            temp.RemoveAt(r);
+            //        }
+
+            //    }
+
+            //    int n = moves[currentMove];
+            //    switch (n)
+            //    {
+            //        case 0:
+            //            Velocity.Y += WALK_SPEED;
+            //            break;
+            //        case 1:
+            //            Velocity.Y -= WALK_SPEED;
+            //            break;
+            //        case 2:
+            //            Velocity.X += WALK_SPEED;
+            //            break;
+            //        case 3:
+            //            Velocity.X -= WALK_SPEED;
+            //            break;
+            //        default:
+            //            break;
+            //    }
+            //}
+        }
+
+        protected override void onHurtRecovery()
+        {
+            if (movementHandler is BounceMovementHandler)
+            {
+                BounceMovementHandler bounceMovementHandler = (BounceMovementHandler)movementHandler;
+                bounceMovementHandler.GroundVelocityX = 0;
+                bounceMovementHandler.GroundVelocityY = 0;
             }
         }
 
-        
-
-        public Pickup SpawnPickup()
+        public void TriggerOn()
         {
-            List<PickupType> possibleTypes = new List<PickupType>();
-            possibleTypes.Add(PickupType.BronzeCoin);
-            possibleTypes.Add(PickupType.SilverCoin);
-            possibleTypes.Add(PickupType.GoldCoin);
-            possibleTypes.Add(PickupType.Heart);
-
-            Pickup pickup = new Pickup(game, area, possibleTypes.ElementAt(GameWorld.Random.Next(possibleTypes.Count)), true);
-            pickup.Center = this.Center;
-            return pickup;
+            isVisible = true;
         }
 
-        public float DropChance
-        {
-            get { return PICKUP_DROP_CHANCE; }
-        }
-
-        public void Activate()
-        {
-            isActive = true;
-        }
-
-        public void Deactivate()
+        public void TriggerOff()
         {
             
         }

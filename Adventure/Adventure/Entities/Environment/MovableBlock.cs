@@ -10,148 +10,108 @@ using Microsoft.Xna.Framework.Audio;
 
 namespace Adventure
 {
-    public class MovableBlock : ActivatingEntity, Activatable
+    public class MovableBlock : ActivatingEntity, Interactable, Triggerable
     {
-        private const String SPRITE_IMAGE_NAME = "Tiles/dungeon_block";
+        private const string NORMAL_SPRITE_ID = "normal_sprite";
 
-        private Sprite sprite;
+        public override bool IsObstacle { get { return true; } }
+        public bool CanStartInteraction { get { return !isMoving; } }
+        public bool MustBeAllignedWithToInteract { get { return true; } }
+
         private SoundEffect pushSound;
 
-        private Point destinationCell;
-        private bool isBeingPushed;
-        private Directions4 pushDirection;
+        private MovementHandler movementHandler = null;
+        private bool isMoving = false;
         private bool hasMoved = false;
         private List<Directions4> movableDirections = new List<Directions4>();
 
         public MovableBlock(GameWorld game, Area area)
             : base(game, area)
         {
-            hitBoxOffset = Vector2.Zero;
-            hitBoxWidth = 32;
-            hitBoxHeight = 32;
-            Vector2 origin = new Vector2(0, 0);
-            sprite = new Sprite(origin);
+            BoundingBox.RelativeX = -16;
+            BoundingBox.RelativeY = -16;
+            BoundingBox.Width = 32;
+            BoundingBox.Height = 32;
 
-            CurrentSprite = sprite;
-            IsAffectedByWallCollisions = false;
-            IsPassable = false;
-            IsOnGround = true;
-            destinationCell = new Point();
-            isBeingPushed = false;
-            pushDirection = Directions4.Up;
+            Vector2 origin = new Vector2(16, 16);
+            Sprite sprite = new Sprite("Tiles/dungeon_block", this, origin);
+            spriteHandler.AddSprite(NORMAL_SPRITE_ID, sprite);
+            spriteHandler.SetSprite(NORMAL_SPRITE_ID);
         }
 
         public override void LoadContent()
         {
-            sprite.Texture = game.Content.Load<Texture2D>("Tiles/dungeon_block");
+            base.LoadContent();
+
             pushSound = game.Content.Load<SoundEffect>("Audio/block_push");
         }
 
-        public override void Update(GameTime gameTime)
+        protected override void processAttributeData(Dictionary<string, string> dataDict)
         {
-            base.Update(gameTime);
-
-            if (isBeingPushed)
-                doPush();
-        }
-
-        public override void OnEntityCollision(Entity other)
-        {
-        }
-
-        protected override void processData(Dictionary<string, string> dataDict)
-        {
-            base.processData(dataDict);
+            base.processAttributeData(dataDict);
 
             if (dataDict.ContainsKey("movableDirections"))
             {
                 string[] movableDirectionsData = dataDict["movableDirections"].Split(';');
                 foreach (string str in movableDirectionsData)
                 {
-                    movableDirections.Add((Directions4)int.Parse(str));
+                    movableDirections.Add((Directions4)Enum.Parse(typeof(Directions4), str));
                 }
             }
         }
 
-        private void setDestinationCell(Directions4 direction)
+        public override bool ActivatesPressureSwitch()
         {
-            destinationCell = Area.ConvertPositionToCell(Center);
-
-            if (direction == Directions4.Left)
-                destinationCell.X--;
-            else if (direction == Directions4.Right)
-                destinationCell.X++;
-            else if (direction == Directions4.Up)
-                destinationCell.Y--;
-            else if (direction == Directions4.Down)
-                destinationCell.Y++;
+            return !isMoving;
         }
 
-        public bool CanBePushed(Directions4 direction)
+        public override void Update(GameTime gameTime)
         {
-            setDestinationCell(direction);
-            return movableDirections.Contains(direction) && !hasMoved &&
-                area.GetCollisionAtCell(destinationCell) == TileEngine.TileCollision.Passable;
+            spriteHandler.Update(gameTime);
+
+            if (isMoving && movementHandler != null)
+            {
+                movementHandler.Update(gameTime);
+
+                if (movementHandler.IsFinished)
+                {
+                    isMoving = false;
+                    hasMoved = true;
+
+                    tryToTriggerActivations();
+                }
+            }
         }
 
-        public void StartBeingPushed(Directions4 direction)
+        public void StartInteraction()
         {
-            setDestinationCell(direction);
-            IsPassable = true;
-            isBeingPushed = true;
-            pushDirection = direction;
-            pushSound.Play(0.5f, 0, 0);
+            if (CanStartInteraction)
+                game.Player.StartGrabbing(this);
         }
 
-        private void doPush()
+        public bool TryToStartMoving(Directions4 direction)
         {
-            if (pushDirection == Directions4.Left)
-                Position.X = game.Player.HitBoxPosition.X - Width;
-            else if (pushDirection == Directions4.Right)
-                Position.X = game.Player.HitBoxPosition.X + game.Player.Width;
-            else if (pushDirection == Directions4.Up)
-                Position.Y = game.Player.HitBoxPosition.Y - Height;
-            else if (pushDirection == Directions4.Down)
-                Position.Y = game.Player.HitBoxPosition.Y + game.Player.Height;
-        }
+            if (movableDirections.Contains(direction) && !hasMoved)
+            {
+                isMoving = true;
+                Vector2 velocity = DirectionsHelper.GetDirectionVector(direction) * 80;
+                movementHandler = new StraightMovementHandler(this, velocity, Area.TILE_WIDTH);
+                movementHandler.Start();
 
-        public bool ReachedPushDestination()
-        {
-            float distanceToDestination = 0;
-
-            if (pushDirection == Directions4.Left)
-                distanceToDestination = Position.X - (destinationCell.X * Area.TILE_WIDTH);
-            else if (pushDirection == Directions4.Right)
-                distanceToDestination = (destinationCell.X * Area.TILE_WIDTH) - Position.X;
-            else if (pushDirection == Directions4.Up)
-                distanceToDestination = Position.Y - (destinationCell.Y * Area.TILE_HEIGHT);
-            else if (pushDirection == Directions4.Down)
-                distanceToDestination = (destinationCell.Y * Area.TILE_HEIGHT) - Position.Y;
-
-            if (distanceToDestination <= 0)
+                pushSound.Play(0.5f, 0, 0);
                 return true;
+            }
             return false;
         }
 
-        public void EndPush()
+        public void TriggerOn()
         {
-            Position = new Vector2(destinationCell.X * Area.TILE_WIDTH,
-                destinationCell.Y * Area.TILE_HEIGHT);
-            IsPassable = false;
-            isBeingPushed = false;
-            hasMoved = true;
-
-            tryToTriggerActivations();
+            isVisible = true;
         }
 
-        public void Activate()
+        public void TriggerOff()
         {
-            isActive = true;
-        }
-
-        public void Deactivate()
-        {
-            isActive = false;
+            isVisible = false;
         }
     }
 }

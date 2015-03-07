@@ -8,15 +8,14 @@ using Microsoft.Xna.Framework.Audio;
 
 namespace Adventure
 {
-    public class ArrowSwitch : ActivatingEntity, Activatable
+    public class ArrowSwitch : Switch, Triggerable
     {
-        private Sprite offSprite;
-        private Sprite onSprite;
-        private Sprite trapOffSprite;
-        private Sprite trapOnSprite;
-        private SoundEffect activateSound;
+        private const string OFF_SPRITE_ID = "off_sprite";
+        private const string ON_SPRITE_ID = "on_sprite";
+        private const string TRAP_OFF_SPRITE_ID = "trap_off_sprite";
+        private const string TRAP_ON_SPRITE_ID = "trap_on_sprite";
 
-        private Rectangle target;
+        private SoundEffect activateSound;
 
         private ArrowSwitchType type = ArrowSwitchType.Normal;
         public ArrowSwitchType Type { get { return type; } }
@@ -24,96 +23,119 @@ namespace Adventure
         public ArrowSwitch(GameWorld game, Area area)
             : base(game, area)
         {
-            hitBoxOffset = Vector2.Zero;
-            hitBoxWidth = 18;
-            hitBoxHeight = 30;
+            BoundingBox.RelativeX = -9;
+            BoundingBox.RelativeY = -28;
+            BoundingBox.Width = 18;
+            BoundingBox.Height = 17;
 
-            Vector2 origin = new Vector2(7, 2);
-            offSprite = new Sprite(origin);
-            onSprite = new Sprite(origin);
-            trapOffSprite = new Sprite(origin);
-            trapOnSprite = new Sprite(origin);
+            Vector2 origin = new Vector2(16, 30);
+            Sprite sprite = new Sprite("Sprites/Environment/arrow_switch_off", this, origin);
+            spriteHandler.AddSprite(OFF_SPRITE_ID, sprite);
+            sprite = new Sprite("Sprites/Environment/arrow_switch_on", this, origin);
+            spriteHandler.AddSprite(ON_SPRITE_ID, sprite);
+            sprite = new Sprite("Sprites/Environment/arrow_switch_trap_off", this, origin);
+            spriteHandler.AddSprite(TRAP_OFF_SPRITE_ID, sprite);
+            sprite = new Sprite("Sprites/Environment/arrow_switch_trap_on", this, origin);
+            spriteHandler.AddSprite(TRAP_ON_SPRITE_ID, sprite);
 
-            CurrentSprite = offSprite;
-
-            target = new Rectangle(0, 0, 18, 18);
+            spriteHandler.SetSprite(OFF_SPRITE_ID);
         }
 
-        public override void Update(GameTime gameTime)
+        public override void LoadContent()
         {
-            Vector2 prevVelocity = new Vector2(Velocity.X, Velocity.Y);
+            base.LoadContent();
 
-            base.Update(gameTime);
-
-            if (JustCollidedWithWall)
-            {
-                Velocity.X = -prevVelocity.X;
-                Velocity.Y = -prevVelocity.Y;
-            }
-
-            target.X = HitBox2.X;
-            target.Y = HitBox2.Y;
+            activateSound = game.Content.Load<SoundEffect>("Audio/arrow_switch_activate");
         }
 
-        public override void OnEntityCollision(Entity other)
+        protected override void processAttributeData(Dictionary<string, string> dataDict)
         {
-            if (other is Arrow)
-            {
-                Arrow arrow = (Arrow)other;
-                if (arrow.IsFired && target.Contains(new Point((int)Math.Round(arrow.TipPosition.X), (int)Math.Round(arrow.TipPosition.Y))))
-                {
-                    arrow.HitEntity(this);
-                    if (!hasTriggeredActivations)
-                    {
-                        if (type == ArrowSwitchType.Normal)
-                            CurrentSprite = onSprite;
-                        else if (type == ArrowSwitchType.Trap)
-                            CurrentSprite = trapOnSprite;
-                        tryToTriggerActivations();
-                        activateSound.Play(0.75f, 0, 0);
-                    }
-                }
-            }
-        }
+            base.processAttributeData(dataDict);
 
-
-        protected override void processData(Dictionary<string, string> dataDict)
-        {
-            base.processData(dataDict);
-
-            if (dataDict.ContainsKey("velocity"))
-            {
-                string[] pos = dataDict["velocity"].Split(',');
-                Velocity = new Vector2(float.Parse(pos[0].Trim()), float.Parse(pos[1].Trim()));
-            }
+            //if (dataDict.ContainsKey("velocity"))
+            //{
+            //    string[] pos = dataDict["velocity"].Split(',');
+            //    Velocity = new Vector2(float.Parse(pos[0].Trim()), float.Parse(pos[1].Trim()));
+            //}
             if (dataDict.ContainsKey("type"))
             {
                 type = (ArrowSwitchType)int.Parse(dataDict["type"]);
 
                 if (type == ArrowSwitchType.Normal)
-                    CurrentSprite = offSprite;
+                    spriteHandler.SetSprite(OFF_SPRITE_ID);
                 else if (type == ArrowSwitchType.Trap)
-                    CurrentSprite = trapOffSprite;
+                    spriteHandler.SetSprite(TRAP_OFF_SPRITE_ID);
             }
         }
 
-        public override void LoadContent()
+        public override void Update(GameTime gameTime)
         {
-            offSprite.Texture = game.Content.Load<Texture2D>("Sprites/Environment/arrow_switch_off");
-            onSprite.Texture = game.Content.Load<Texture2D>("Sprites/Environment/arrow_switch_on");
-            trapOffSprite.Texture = game.Content.Load<Texture2D>("Sprites/Environment/arrow_switch_trap_off");
-            trapOnSprite.Texture = game.Content.Load<Texture2D>("Sprites/Environment/arrow_switch_trap_on");
-            activateSound = game.Content.Load<SoundEffect>("Audio/arrow_switch_activate");
+            spriteHandler.Update(gameTime);
         }
 
-        public void Activate()
+        public override bool IsActivatedByArrow(HitBox thisHitBox)
         {
-            isActive = true;
+            return true;
         }
 
-        public void Deactivate()
+        public override void Activate()
         {
-            isActive = false;
+            if (!hasTriggeredActivations)
+            {
+                if (type == ArrowSwitchType.Normal)
+                    spriteHandler.SetSprite(ON_SPRITE_ID);
+                else if (type == ArrowSwitchType.Trap)
+                    spriteHandler.SetSprite(OFF_SPRITE_ID);
+                tryToTriggerActivations();
+                activateSound.Play(0.75f, 0, 0);
+            }
+        }
+
+        //public override void Update(GameTime gameTime)
+        //{
+        //    Vector2 prevVelocity = new Vector2(Velocity.X, Velocity.Y);
+
+        //    base.Update(gameTime);
+
+        //    if (JustCollidedWithWall)
+        //    {
+        //        Velocity.X = -prevVelocity.X;
+        //        Velocity.Y = -prevVelocity.Y;
+        //    }
+
+        //    target.X = HitBox2.X;
+        //    target.Y = HitBox2.Y;
+        //}
+
+        //public override void OnEntityCollision(Entity other)
+        //{
+        //    if (other is Arrow)
+        //    {
+        //        Arrow arrow = (Arrow)other;
+        //        if (arrow.IsFired && target.Contains(new Point((int)Math.Round(arrow.TipPosition.X), (int)Math.Round(arrow.TipPosition.Y))))
+        //        {
+        //            arrow.HitEntity(this);
+        //            if (!hasTriggeredActivations)
+        //            {
+        //                if (type == ArrowSwitchType.Normal)
+        //                    CurrentSprite = onSprite;
+        //                else if (type == ArrowSwitchType.Trap)
+        //                    CurrentSprite = trapOnSprite;
+        //                tryToTriggerActivations();
+        //                activateSound.Play(0.75f, 0, 0);
+        //            }
+        //        }
+        //    }
+        //}
+
+        public void TriggerOn()
+        {
+            isVisible = true;
+        }
+
+        public void TriggerOff()
+        {
+            isVisible = false;
         }
     }
 

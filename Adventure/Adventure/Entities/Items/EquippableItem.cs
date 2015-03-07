@@ -9,10 +9,8 @@ namespace Adventure
 {
     public interface EquippableItem
     {
-        Texture2D InventoryScreenIcon { get; }
-        Point InventoryScreenPoint { get; }
-        bool IsDoneBeingUsed { get; }
+        string InventoryScreenId { get; }
 
-        void StartBeingUsed();
+        void StartUsing(int itemButtonNumber);
     }
 }

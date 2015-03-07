@@ -21,12 +21,6 @@ namespace Adventure
             ".png", ".jpg",
         };
 
-        private int[,] backgroundTileLayout;
-        private int[,] foregroundTileLayout;
-        private int[,] collisionLayout;
-
-        private List<Texture2D> tileTextures;
-
         public int WidthInCells { get { return backgroundTileLayout.GetLength(1); } }
         public int HeightInCells { get { return backgroundTileLayout.GetLength(0); } }
 
@@ -35,29 +29,35 @@ namespace Adventure
 
         public Point CellCoordinates = new Point();
 
-        public List<Entity> Entities;
-        public List<MapTransition> MapTransitions;
+        public List<Entity> Entities = new List<Entity>();
+        public List<MapTransition> MapTransitions = new List<MapTransition>();
+
+        public bool IsLoaded { get { return isLoaded; } }
+        public bool IsBossArea { get { return isBossArea; } }
+        public bool IsRewardArea { get { return isRewardArea; } }
+
+        public Map Map { get { return map; } }
+
+
+        private int[,] backgroundTileLayout;
+        private int[,] foregroundTileLayout;
+        private int[,] collisionLayout;
+
+        private List<Texture2D> tileTextures = new List<Texture2D>();
+        private List<Texture2D> shadowTextures = new List<Texture2D>();
 
         private bool isLoaded = false;
-        public bool IsLoaded { get { return isLoaded; } }
-
         private bool isBossArea = false;
-        public bool IsBossArea { get { return isBossArea; } }
-
         private bool isRewardArea = false;
-        public bool IsRewardArea { get { return isRewardArea; } }
 
         private GameWorld game;
         private Map map;
-        public Map Map { get { return map; } }
 
         public Area(GameWorld game, Map map, int width, int height)
         {
             this.game = game;
             this.map = map;
-            tileTextures = new List<Texture2D>();
-            Entities = new List<Entity>();
-            MapTransitions = new List<MapTransition>();
+
             backgroundTileLayout = new int[height, width];
             foregroundTileLayout = new int[height, width];
             collisionLayout = new int[height, width];
@@ -73,16 +73,24 @@ namespace Adventure
             }
         }
 
+        public void LoadContent(ContentManager content, List<string> textureNames)
+        {
+            foreach (string textureName in textureNames)
+            {
+                Texture2D tileTexture = content.Load<Texture2D>("Tiles/" + textureName);
+                this.tileTextures.Add(tileTexture);
+            }
+
+            this.shadowTextures.Add(content.Load<Texture2D>("Sprites/Environment/shadow_small"));
+            this.shadowTextures.Add(content.Load<Texture2D>("Sprites/Environment/shadow_medium"));
+        }
+
         public static Area FromFile(GameWorld game, Map map, string areaName)
         {
             List<string> textureNames = new List<string>();
             Area area = processFile(game, map, "Content/Areas/" + areaName + ".area", textureNames);
 
-            foreach (string textureName in textureNames)
-            {
-                Texture2D tileTexture = game.Content.Load<Texture2D>("Tiles/" + textureName);
-                area.tileTextures.Add(tileTexture);
-            }
+            area.LoadContent(game.Content, textureNames);
 
             area.isLoaded = true;
             return area;
@@ -223,7 +231,7 @@ namespace Adventure
                     }
                     else if (readingMapTransitions)
                     {
-                        MapTransition mapTransition = MapTransition.FromString(line);
+                        MapTransition mapTransition = MapTransition.CreateFromString(line);
                         tempMapTransitions.Add(mapTransition);
                     }
                     else if (readingProperties)
@@ -250,7 +258,7 @@ namespace Adventure
             }
             foreach (string line in entityData)
             {
-                area.Entities.Add(Entity.CreateEntityFromString(line, game, area));
+                area.Entities.Add(Entity.CreateFromString(line, game, area));
             }
             area.MapTransitions = tempMapTransitions;
             if (propertiesDict.ContainsKey("isBossArea"))
@@ -371,7 +379,7 @@ namespace Adventure
         {
             if (CellInBounds(cell))
                 return (TileCollision)collisionLayout[cell.Y, cell.X];
-            return TileCollision.Passable;
+            return TileCollision.None;
         }
 
         public void SetCollisionAtCell(Point cell, TileCollision collision)
@@ -514,35 +522,78 @@ namespace Adventure
             foreach (Entity entity in sortedEntities)
             {
                 if (entity.ShouldBeDrawnByArea)
+                {
+                    if (entity is ShadowOwner)
+                    {
+                        ShadowOwner shadowOwner = (ShadowOwner)entity;
+                        int shadowTextureIndex = (int)shadowOwner.ShadowSize;
+
+                        Texture2D shadowTexture = null;
+                        if (shadowTextureIndex >= 0)
+                            shadowTexture = shadowTextures[shadowTextureIndex];
+
+                        if (shadowTexture != null)
+                        {
+                            spriteBatch.Draw(shadowTexture,
+                                new Vector2(
+                                    shadowOwner.ShadowCenter.X - (shadowTexture.Width / 2),
+                                    shadowOwner.ShadowCenter.Y - (shadowTexture.Height / 2)),
+                                Color.White);
+                        }
+                    }
+
                     entity.Draw(spriteBatch, changeColorsEffect);
+                }
             }
         }
 
-        public List<Entity> GetObstacleEntitiesInCollisionPathX(Entity entity)
+        public void SpawnPickup(PickupDropper pickupDropper)
+        {
+            float n = (float)GameWorld.Random.NextDouble();
+            if (n < pickupDropper.PickupDropChance)
+            {
+                List<PickupType> possibleTypes = new List<PickupType>();
+                possibleTypes.Add(PickupType.BronzeCoin);
+                possibleTypes.Add(PickupType.SilverCoin);
+                possibleTypes.Add(PickupType.GoldCoin);
+                possibleTypes.Add(PickupType.Heart);
+
+                Pickup pickup = new Pickup(game, this, possibleTypes.ElementAt(GameWorld.Random.Next(possibleTypes.Count)), true);
+                pickup.Center = pickupDropper.PickupDropPosition;
+                pickup.LoadContent();
+                Entities.Add(pickup);
+            }
+        }
+
+        public List<Entity> GetObstacleEntitiesInCollisionPathX(Entity entity, float xMovement)
         {
             List<Entity> entitiesInCollisionPathX = new List<Entity>();
-            foreach (Entity e in GetActiveEntities())
+            foreach (Entity other in GetActiveEntities())
             {
-                if (e.IsObstacle && e.BoundingBox.Bottom > entity.BoundingBox.Top && e.BoundingBox.Top < entity.BoundingBox.Bottom)
+                if (other.IsObstacle && 
+                    other.BoundingBox.Bottom > entity.ObstacleCollisionBox.Top &&
+                    other.BoundingBox.Top < entity.ObstacleCollisionBox.Bottom)
                 {
-                    if ((entity.Velocity.X > 0 && e.Center.X > entity.Center.X) ||
-                        (entity.Velocity.X < 0 && e.Center.X < entity.Center.X))
-                        entitiesInCollisionPathX.Add(e);
+                    if ((xMovement > 0 && other.Center.X > entity.Center.X) ||
+                        (xMovement < 0 && other.Center.X < entity.Center.X))
+                        entitiesInCollisionPathX.Add(other);
                 }
             }
             return entitiesInCollisionPathX;
         }
 
-        public List<Entity> GetObstacleEntitiesInCollisionPathY(Entity entity)
+        public List<Entity> GetObstacleEntitiesInCollisionPathY(Entity entity, float yMovement)
         {
             List<Entity> entitiesInCollisionPathY = new List<Entity>();
-            foreach (Entity e in GetActiveEntities())
+            foreach (Entity other in GetActiveEntities())
             {
-                if (e.IsObstacle && e.BoundingBox.Right > entity.BoundingBox.Left && e.BoundingBox.Left < entity.BoundingBox.Right)
+                if (other.IsObstacle &&
+                    other.BoundingBox.Right > entity.ObstacleCollisionBox.Left &&
+                    other.BoundingBox.Left < entity.ObstacleCollisionBox.Right)
                 {
-                    if ((entity.Velocity.Y > 0 && e.Center.Y > entity.Center.Y) ||
-                        (entity.Velocity.Y < 0 && e.Center.Y < entity.Center.Y))
-                        entitiesInCollisionPathY.Add(e);
+                    if ((yMovement > 0 && other.Center.Y > entity.Center.Y) ||
+                        (yMovement < 0 && other.Center.Y < entity.Center.Y))
+                        entitiesInCollisionPathY.Add(other);
                 }
             }
             return entitiesInCollisionPathY;
@@ -554,7 +605,7 @@ namespace Adventure
 
             foreach (Entity entity in Entities)
             {
-                if (entity.IsActive)
+                if (entity.IsVisible)
                     activeEntities.Add(entity);
             }
 

@@ -30,19 +30,19 @@ namespace Adventure
             numBombs = 0;
         }
 
-        //public void CollectPickup(Pickup pickup)
-        //{
-        //    if (pickup.Type == PickupType.BronzeCoin ||
-        //            pickup.Type == PickupType.SilverCoin ||
-        //            pickup.Type == PickupType.GoldCoin)
-        //    {
-        //        money += pickup.Value;
-        //    }
-        //    else if (pickup.Type == PickupType.Key)
-        //    {
-        //        numKeys += pickup.Value;
-        //    }
-        //}
+        public void CollectPickup(Pickup pickup)
+        {
+            if (pickup.PickupType == PickupType.BronzeCoin ||
+                    pickup.PickupType == PickupType.SilverCoin ||
+                    pickup.PickupType == PickupType.GoldCoin)
+            {
+                money += pickup.Value;
+            }
+            else if (pickup.PickupType == PickupType.Key)
+            {
+                numKeys += pickup.Value;
+            }
+        }
 
         public void CollectEquippableItem(EquippableItem item)
         {
@@ -67,14 +67,24 @@ namespace Adventure
             return -1;
         }
 
-        public EquippableItem GetEquippableItemAtPoint(Point point)
+        public EquippableItem GetOwnedEquippableItemByInventoryScreenId(string id)
         {
             foreach (EquippableItem item in ownedEquippableItems)
             {
-                if (item.InventoryScreenPoint.Equals(point))
+                if (item.InventoryScreenId.Equals(id))
                     return item;
             }
             return null;
+        }
+
+        public bool IsEquippableItemOwned(string id)
+        {
+            foreach (EquippableItem item in ownedEquippableItems)
+            {
+                if (item.InventoryScreenId.Equals(id))
+                    return true;
+            }
+            return false;
         }
 
         public void EquipItem(EquippableItem item, int index)

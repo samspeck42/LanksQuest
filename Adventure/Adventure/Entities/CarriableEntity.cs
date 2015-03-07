@@ -7,138 +7,93 @@ using Microsoft.Xna.Framework;
 
 namespace Adventure
 {
-    public abstract class CarriableEntity : Entity
+    public abstract class CarriableEntity : Entity, Interactable, ShadowOwner
     {
-        protected const float THROW_SPEED = 14f;
-        protected const float FALL_SPEED = 2.5f;
-        protected const int THROW_TIME = 12;
-
-        protected bool isBeingCarried;
-        protected bool isThrown;
+        protected const float THROW_SPEED = 700f;
+        private const string OBSTACLE_COLLISION_BOX_ID = "obstacle_collision_box";
+        
         public bool IsThrown { get { return isThrown; } }
+        public virtual bool CanStartInteraction { get { return !isThrown; } }
+        public bool MustBeAllignedWithToInteract { get { return false; } }
 
-        protected Directions4 throwDirection;
-        protected int throwTimer;
+        public override HitBox ObstacleCollisionBox { get { return GetHitBoxById(OBSTACLE_COLLISION_BOX_ID); } }
+        public override TileCollision ObstacleTileCollisions
+        {
+            get
+            {
+                return TileCollision.Wall | TileCollision.Doorway;
+            }
+        }
+        public override DrawLayer DrawLayer
+        {
+            get
+            {
+                return isThrown ? DrawLayer.High : DrawLayer.Middle;
+            }
+        }
 
-        public CarriableEntity(GameWorld game, Area area)
+        public virtual ShadowSizes ShadowSize { get { return ShadowSizes.Medium; } }
+        public virtual Vector2 ShadowCenter
+        {
+            get
+            {
+                return new Vector2(
+                    this.BoundingBox.Left + (this.BoundingBox.Width / 2),
+                    this.BoundingBox.Bottom - 5);
+            }
+        }
+
+        protected bool isThrown = false;
+        protected int numBouncesBeforeLand;
+        protected MovementHandler movementHandler = null;
+
+        public CarriableEntity(GameWorld game, Area area, int numBouncesBeforeLand)
             : base(game, area)
         {
-            isBeingCarried = false;
-            isThrown = false;
-            throwDirection = Directions4.Up;
-            throwTimer = 0;
-            CanLeaveArea = false;
+            this.numBouncesBeforeLand = numBouncesBeforeLand;
+
+            HitBox obstacleCollisionBox = new HitBox(this, OBSTACLE_COLLISION_BOX_ID);
+            obstacleCollisionBox.IsActive = true;
+            HitBoxes.Add(obstacleCollisionBox);
         }
 
         public override void Update(GameTime gameTime)
         {
-            base.Update(gameTime);
+            if (movementHandler != null)
+            {
+                movementHandler.Update(gameTime);
 
-            if (isBeingCarried)
-                doCarry();
+                if (movementHandler.IsFinished)
+                    land();
+            }
 
-            if (isThrown)
-                doThrow();
+            spriteHandler.Update(gameTime);
         }
 
-        public void StartBeingLifted()
+        public void StartInteraction()
         {
-            Position.X = game.Player.Center.X - (Width / 2);
-            Position.Y = game.Player.BoundingBox.ActualY - Height;
-            isBeingCarried = true;
+            if (CanStartInteraction)
+                game.Player.StartLifting(this);
         }
 
-        private void doCarry()
+        public void StartThrow(Directions4 direction)
         {
-            Position.X = game.Player.Center.X - (Width / 2);
-            Position.Y = game.Player.BoundingBox.ActualY - Height;
-        }
+            Vector2 directionVector = DirectionsHelper.GetDirectionVector(direction);
 
-        public void StartBeingThrown(Directions4 direction)
-        {
-            if (direction == Directions4.Up)
-            {
-                Velocity.Y = -THROW_SPEED;
-            }
-            else if (direction == Directions4.Down)
-            {
-                Velocity.Y = THROW_SPEED;
-            }
-            else if (direction == Directions4.Left)
-            {
-                Velocity.X = -THROW_SPEED;
-                Velocity.Y = FALL_SPEED;
-            }
-            else if (direction == Directions4.Right)
-            {
-                Velocity.X = THROW_SPEED;
-                Velocity.Y = FALL_SPEED;
-            }
+            movementHandler = new BounceMovementHandler(this,
+                new Vector2(
+                    directionVector.X * THROW_SPEED,
+                    directionVector.Y * THROW_SPEED),
+                0f, 180f, 0.8f, game.Player.Height, numBouncesBeforeLand);
+            movementHandler.Start();
 
             isThrown = true;
-            isBeingCarried = false;
-            throwDirection = direction;
-            throwTimer = 0;
+            FaceDirection = direction;
         }
 
-        private void doThrow()
+        protected virtual void land()
         {
-            throwTimer++;
-
-            if (throwTimer >= THROW_TIME)
-                endThrow();
-
-            Vector2 collisionPos = new Vector2();
-            if (throwDirection == Directions4.Up)
-                collisionPos = new Vector2(Position.X + (Width / 2), Position.Y);
-            else if (throwDirection == Directions4.Down)
-                collisionPos = new Vector2(Position.X + (Width / 2), Position.Y + Height);
-            else if (throwDirection == Directions4.Left)
-                collisionPos = new Vector2(Position.X, Position.Y + Height);
-            else if (throwDirection == Directions4.Right)
-                collisionPos = new Vector2(Position.X + Width, Position.Y + Height);
-
-            List<TileCollision> impassableTileCollisions = 
-                new List<TileCollision> { TileCollision.Obstacle, TileCollision.Doorway };
-            if (impassableTileCollisions.Contains(area.GetCollisionAtCell(Area.ConvertPositionToCell(collisionPos))))
-            {
-                Rectangle cellRectangle = Area.CreateRectangleForCell(Area.ConvertPositionToCell(collisionPos));
-
-                float intersectDistance = 0f;
-                if (throwDirection == Directions4.Up)
-                    intersectDistance = cellRectangle.Bottom - collisionPos.Y;
-                else if (throwDirection == Directions4.Down)
-                    intersectDistance = collisionPos.Y - cellRectangle.Top;
-                else if (throwDirection == Directions4.Left)
-                    intersectDistance = cellRectangle.Right - collisionPos.X;
-                else if (throwDirection == Directions4.Right)
-                    intersectDistance = collisionPos.X - cellRectangle.Left;
-
-                if (intersectDistance >= 3)
-                {
-                    if (throwDirection == Directions4.Up)
-                        Position.Y = cellRectangle.Bottom - 3;
-                    else if (throwDirection == Directions4.Down)
-                        Position.Y = cellRectangle.Top + 3 - Height;
-                    else if (throwDirection == Directions4.Left)
-                        Position.X = cellRectangle.Right - 3;
-                    else if (throwDirection == Directions4.Right)
-                        Position.X = cellRectangle.Left + 3 - Width;
-
-                    endThrow();
-                }
-            }
-        }
-
-        protected void endThrow()
-        {
-            Velocity = Vector2.Zero;
-            throwTimer = 0;
-
-            land();
             isThrown = false;
         }
-
-        protected abstract void land();
     }
 }

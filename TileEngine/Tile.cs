@@ -36,8 +36,8 @@ namespace TileEngine
 
     public enum TileCollision
     {
-        Passable,
-        Obstacle,
-        Doorway
+        None = 0,
+        Wall = 1,
+        Doorway = 2
     }
 }

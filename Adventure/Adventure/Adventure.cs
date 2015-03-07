@@ -21,6 +21,7 @@ namespace Adventure
 
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        RenderTarget2D renderTarget;
 
         GameWorld gameWorld;
         InventoryScreen inventoryScreen;
@@ -30,8 +31,8 @@ namespace Adventure
         private Texture2D heartIconRight;
         private Texture2D coinIcon;
         private Texture2D keyIcon;
-        private Texture2D equippedItemOutlineZ;
         private Texture2D equippedItemOutlineX;
+        private Texture2D equippedItemOutlineY;
         private SpriteFont font;
 
         GamePadState gamepadState;
@@ -42,8 +43,6 @@ namespace Adventure
         public Adventure()
         { 
             graphics = new GraphicsDeviceManager(this);
-            graphics.PreferredBackBufferWidth = SCREEN_WIDTH;
-            graphics.PreferredBackBufferHeight = SCREEN_HEIGHT;
             Content.RootDirectory = "Content";
         }
 
@@ -80,6 +79,7 @@ namespace Adventure
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
+            renderTarget = new RenderTarget2D(GraphicsDevice, SCREEN_WIDTH, SCREEN_HEIGHT);
             gameWorld.LoadContent();
             inventoryScreen.LoadContent(Content);
 
@@ -88,8 +88,8 @@ namespace Adventure
             heartIconRight = Content.Load<Texture2D>("HUD/heart_icon_right");
             coinIcon = Content.Load<Texture2D>("HUD/coin_icon");
             keyIcon = Content.Load<Texture2D>("HUD/key");
-            equippedItemOutlineZ = Content.Load<Texture2D>("HUD/equipped_item_outline_z");
             equippedItemOutlineX = Content.Load<Texture2D>("HUD/equipped_item_outline_x");
+            equippedItemOutlineY = Content.Load<Texture2D>("HUD/equipped_item_outline_y");
             font = Content.Load<SpriteFont>("Fonts/font");
         }
 
@@ -112,7 +112,7 @@ namespace Adventure
             // Allows the game to exit
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
-
+            
             gamepadState = GamePad.GetState(PlayerIndex.One);
 
             if (gamepadState.IsButtonDown(Buttons.RightShoulder) && previousGamepadState.IsButtonUp(Buttons.RightShoulder))
@@ -123,13 +123,11 @@ namespace Adventure
             {
                 gameWorld.Update(gameTime);
 
-                if (gamepadState.IsButtonDown(Buttons.Start) && previousGamepadState.IsButtonUp(Buttons.Start))
+                if (gameWorld.State == GameWorldState.Playing &&
+                    gamepadState.IsButtonDown(Buttons.Start) && previousGamepadState.IsButtonUp(Buttons.Start))
                 {
-                    if (!gameWorld.IsAreaTransitioning && !gameWorld.IsMapTransitioning)
-                    {
-                        gameState = GameState.InventoryScreen;
-                        inventoryScreen.StartDisplaying();
-                    }
+                    gameState = GameState.InventoryScreen;
+                    inventoryScreen.StartDisplaying();
                 }
             }
             else if (gameState == GameState.InventoryScreen)
@@ -158,7 +156,10 @@ namespace Adventure
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            gameWorld.Draw(spriteBatch);
+            GraphicsDevice.SetRenderTarget(renderTarget);
+            GraphicsDevice.Clear(Color.Black);
+
+            gameWorld.Draw(spriteBatch, renderTarget);
 
             if (gameState == GameState.InventoryScreen)
                 inventoryScreen.Draw(spriteBatch);
@@ -166,6 +167,18 @@ namespace Adventure
             drawHUD();
 
             base.Draw(gameTime);
+
+            GraphicsDevice.SetRenderTarget(null);
+            GraphicsDevice.Clear(Color.Black);
+
+            spriteBatch.Begin();
+            spriteBatch.Draw((Texture2D)renderTarget, new Vector2(
+                (graphics.PreferredBackBufferWidth / 2) - (SCREEN_WIDTH / 2),
+                0),
+                Color.White);
+            spriteBatch.End();
+
+            
         }
 
         private void drawHUD()
@@ -199,27 +212,29 @@ namespace Adventure
             spriteBatch.DrawString(font, "x " + gameWorld.Player.Inventory.Money, new Vector2(30, 34), Color.White);
 
             spriteBatch.Draw(equippedItemOutlineX,
-                new Vector2(550 - (equippedItemOutlineZ.Width / 2),
-                        30 - (equippedItemOutlineZ.Height / 2)),
-                    Color.White);
-            spriteBatch.Draw(equippedItemOutlineZ,
-                new Vector2(600 - (equippedItemOutlineX.Width / 2),
+                new Vector2(550 - (equippedItemOutlineX.Width / 2),
                         30 - (equippedItemOutlineX.Height / 2)),
+                    Color.White);
+            spriteBatch.Draw(equippedItemOutlineY,
+                new Vector2(600 - (equippedItemOutlineY.Width / 2),
+                        30 - (equippedItemOutlineY.Height / 2)),
                     Color.White);
 
             EquippableItem item = null;
             if ((item = gameWorld.Player.Inventory.EquippedItemAtIndex(0)) != null)
             {
-                //spriteBatch.Draw(item.InventoryScreenIcon,
-                //    new Vector2(550 - (item.InventoryScreenIcon.Width / 2),
-                //        30 - (item.InventoryScreenIcon.Height / 2)),
-                //    Color.White);
+                Texture2D icon = inventoryScreen.GetEquippableItemIcon(item.InventoryScreenId);
+                spriteBatch.Draw(icon,
+                    new Vector2(550 - (icon.Width / 2),
+                        30 - (icon.Height / 2)),
+                    Color.White);
             }
             if ((item = gameWorld.Player.Inventory.EquippedItemAtIndex(1)) != null)
             {
-                spriteBatch.Draw(item.InventoryScreenIcon,
-                    new Vector2(600 - (item.InventoryScreenIcon.Width / 2),
-                        30 - (item.InventoryScreenIcon.Height / 2)),
+                Texture2D icon = inventoryScreen.GetEquippableItemIcon(item.InventoryScreenId);
+                spriteBatch.Draw(icon,
+                    new Vector2(600 - (icon.Width / 2),
+                        30 - (icon.Height / 2)),
                     Color.White);
             }
 

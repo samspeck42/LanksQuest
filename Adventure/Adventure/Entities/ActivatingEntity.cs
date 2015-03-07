@@ -8,30 +8,20 @@ namespace Adventure
 {
     public abstract class ActivatingEntity : Entity
     {
-        protected List<KeyValuePair<int, string>> activationIds;
-        protected List<Activatable> activations;
-        protected List<KeyValuePair<int, string>> deactivationIds;
-        protected List<Activatable> deactivations;
-        protected List<KeyValuePair<int, string>> dependentIds;
-        protected List<ActivatingEntity> dependents;
-        protected bool addedActivatableEntites = false;
-        protected bool hasTriggeredActivations = false;
         public bool HasTriggeredActivations { get { return hasTriggeredActivations; } }
+
+        protected List<KeyValuePair<int, string>> activationIds = new List<KeyValuePair<int, string>>();
+        protected List<KeyValuePair<int, string>> deactivationIds = new List<KeyValuePair<int, string>>();
+        protected List<KeyValuePair<int, string>> dependentIds = new List<KeyValuePair<int, string>>();
+        protected bool hasTriggeredActivations = false;
 
         public ActivatingEntity(GameWorld game, Area area)
             : base(game, area)
-        {
-            activationIds = new List<KeyValuePair<int, string>>();
-            activations = new List<Activatable>();
-            deactivationIds = new List<KeyValuePair<int, string>>();
-            deactivations = new List<Activatable>();
-            dependentIds = new List<KeyValuePair<int, string>>();
-            dependents = new List<ActivatingEntity>();
-        }
+        { }
 
-        protected override void processData(Dictionary<string, string> dataDict)
+        protected override void processAttributeData(Dictionary<string, string> dataDict)
         {
-            base.processData(dataDict);
+            base.processAttributeData(dataDict);
 
             if (dataDict.ContainsKey("activations"))
             {
@@ -67,57 +57,23 @@ namespace Adventure
             return new KeyValuePair<int, string>(areaNum, id);
         }
 
-        public override void Update(GameTime gameTime)
-        {
-            if (!addedActivatableEntites)
-            {
-                foreach (KeyValuePair<int, string> pair in activationIds)
-                {
-                    Area entityArea;
-                    if (pair.Key < 0)
-                        entityArea = this.area;
-                    else
-                        entityArea = this.area.Map.GetAreaByIndex(pair.Key);
-                    Entity entity = entityArea.GetEntityById(pair.Value);
-                    if (entity != null && entity is Activatable)
-                    {
-                        activations.Add((Activatable)entity);
-                    }
-                }
-                foreach (KeyValuePair<int, string> pair in deactivationIds)
-                {
-                    Area entityArea;
-                    if (pair.Key < 0)
-                        entityArea = this.area;
-                    else
-                        entityArea = this.area.Map.GetAreaByIndex(pair.Key);
-                    Entity entity = entityArea.GetEntityById(pair.Value);
-                    if (entity != null && entity is Activatable)
-                    {
-                        deactivations.Add((Activatable)entity);
-                    }
-                }
-                foreach (KeyValuePair<int, string> pair in dependentIds)
-                {
-                    Area entityArea;
-                    if (pair.Key < 0)
-                        entityArea = this.area;
-                    else
-                        entityArea = this.area.Map.GetAreaByIndex(pair.Key);
-                    Entity entity = entityArea.GetEntityById(pair.Value);
-                    if (entity != null && entity is ActivatingEntity)
-                    {
-                        dependents.Add((ActivatingEntity)entity);
-                    }
-                }
-                addedActivatableEntites = true;
-            }
-
-            base.Update(gameTime);
-        }
-
         protected void tryToTriggerActivations()
         {
+            List<ActivatingEntity> dependents = new List<ActivatingEntity>();
+            foreach (KeyValuePair<int, string> pair in dependentIds)
+            {
+                Area entityArea;
+                if (pair.Key < 0)
+                    entityArea = this.area;
+                else
+                    entityArea = this.area.Map.GetAreaByIndex(pair.Key);
+                Entity entity = entityArea.GetEntityById(pair.Value);
+                if (entity != null && entity is ActivatingEntity)
+                {
+                    dependents.Add((ActivatingEntity)entity);
+                }
+            }
+
             bool canTrigger = true;
             foreach (ActivatingEntity dependent in dependents)
             {
@@ -130,26 +86,47 @@ namespace Adventure
 
             if (canTrigger)
             {
-                foreach (Activatable activatableEntity in activations)
+                List<Triggerable> activations = new List<Triggerable>();
+                List<Triggerable> deactivations = new List<Triggerable>();
+
+                foreach (KeyValuePair<int, string> pair in activationIds)
                 {
-                    activatableEntity.Activate();
+                    Area entityArea;
+                    if (pair.Key < 0)
+                        entityArea = this.area;
+                    else
+                        entityArea = this.area.Map.GetAreaByIndex(pair.Key);
+                    Entity entity = entityArea.GetEntityById(pair.Value);
+                    if (entity != null && entity is Triggerable)
+                    {
+                        activations.Add((Triggerable)entity);
+                    }
                 }
-                foreach (Activatable activatableEntity in deactivations)
+                foreach (KeyValuePair<int, string> pair in deactivationIds)
                 {
-                    activatableEntity.Deactivate();
+                    Area entityArea;
+                    if (pair.Key < 0)
+                        entityArea = this.area;
+                    else
+                        entityArea = this.area.Map.GetAreaByIndex(pair.Key);
+                    Entity entity = entityArea.GetEntityById(pair.Value);
+                    if (entity != null && entity is Triggerable)
+                    {
+                        deactivations.Add((Triggerable)entity);
+                    }
+                }
+
+                foreach (Triggerable activatableEntity in activations)
+                {
+                    activatableEntity.TriggerOn();
+                }
+                foreach (Triggerable activatableEntity in deactivations)
+                {
+                    activatableEntity.TriggerOff();
                 }
             }
 
             hasTriggeredActivations = true;
-        }
-
-        public override void OnEntityCollision(Entity other, HitBox thisHitBox, HitBox otherHitBox)
-        {
-            
-        }
-
-        public override void LoadContent()
-        {
         }
     }
 }

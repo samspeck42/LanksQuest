@@ -9,34 +9,29 @@ using Microsoft.Xna.Framework.Audio;
 
 namespace Adventure
 {
-    public abstract class Enemy : ActivatingEntity
+    public abstract class Enemy : Mob, PickupDropper
     {
-        protected const int BLINK_DELAY = 8;
-        protected const int DEFAULT_KNOCKBACK_TIME = 10;
-        protected const int DEFAULT_HURT_TIME = 30;
-        protected const float DEFAULT_KNOCKBACK_SPEED = 10.0f;
+        protected const int BLINK_DELAY = 130;
+        protected const int HURT_TIME = 500;
 
-        //protected bool isHurt = false;
-        //public bool IsHurt { get { return isHurt; } }
-        //protected bool isDying = false;
-        //public bool IsDying { get { return isDying; } }
+        public EnemyState EnemyState { get { return enemyState; } }
+        public float PickupDropChance { get { return 0.75f; } }
+        public Vector2 PickupDropPosition { get { return this.Center; } }
 
-        protected EnemyState state = EnemyState.Normal;
-        public EnemyState State { get { return state; } }
-        protected bool doesDamageOnContact = true;
-        public bool DoesDamageOnContact { get { return doesDamageOnContact; } }
+        protected EnemyState enemyState = EnemyState.Normal;
+        protected MovementHandler movementHandler = null;
+        private MovementHandler oldMovementHandler;
+        private int hurtTimer = 0;
 
-        protected int hurtTimer = 0;
-        protected int knockBackTime = DEFAULT_KNOCKBACK_TIME;
-        protected int hurtTime = DEFAULT_HURT_TIME;
-        protected float knockBackSpeed = DEFAULT_KNOCKBACK_SPEED;
+        protected virtual float knockBackSpeed { get { return 400; } }
+        protected virtual float knockBackDistance { get { return 48; } }
 
         protected SoundEffect hitSound;
 
         public Enemy(GameWorld game, Area area)
-            : base(game, area)
+            : base(game, area) 
         {
-            CanLeaveArea = false;
+            setHealth(MaxHealth);
         }
 
         public override void LoadContent()
@@ -46,69 +41,94 @@ namespace Adventure
             hitSound = game.Content.Load<SoundEffect>("Audio/enemy_hit");
         }
 
-        protected override void processData(Dictionary<string, string> dataDict)
+        public virtual bool TakesDamageFromPlayerSword(HitBox thisHitBox)
         {
-            base.processData(dataDict);
+            return false;
+        }
+
+        public virtual bool TakesDamageFromPot(HitBox thisHitBox)
+        {
+            return false;
+        }
+
+        public virtual bool TakesDamageFromArrow(HitBox thisHitBox)
+        {
+            return false;
+        }
+
+        protected override void processAttributeData(Dictionary<string, string> dataDict)
+        {
+            base.processAttributeData(dataDict);
 
             if (dataDict.ContainsKey("isActive"))
             {
-                isActive = bool.Parse(dataDict["isActive"]);
+                isVisible = bool.Parse(dataDict["isActive"]);
             }
         }
 
         public override void Update(GameTime gameTime)
         {
-            base.Update(gameTime);
+            if (movementHandler != null)
+                movementHandler.Update(gameTime);
 
-            //if (IsHurt && !IsDying)
-            if(state == EnemyState.Hurt)
+            if (enemyState == EnemyState.Normal)
             {
-                hurtTimer++;
-                if (hurtTimer == knockBackTime)
+                updateAI(gameTime);
+            }
+            else if (enemyState == EnemyState.Hurt)
+            {
+                hurtTimer += (int)gameTime.ElapsedGameTime.TotalMilliseconds;
+                if (hurtTimer >= HURT_TIME)
                 {
-                    Velocity = Vector2.Zero;
-                }
-                if (hurtTimer >= hurtTime)
-                {
-                    //isHurt = false;
-                    state = EnemyState.Normal;
+                    // recover from being hurt
+                    enemyState = EnemyState.Normal;
                     hurtTimer = 0;
 
                     if (Health <= 0)
                     {
                         StartDying();
                     }
+                    else
+                    {
+                        // restore old movement handler enemy was using before it was hurt
+                        movementHandler = oldMovementHandler;
+
+                        onHurtRecovery();
+                    }
                 }
             }
-            //if (!IsHurt && !IsDying)
-            if (state == EnemyState.Normal)
+            else if (enemyState == EnemyState.Dying)
             {
-                updateAI();
+                Die();
             }
+
+            spriteHandler.Update(gameTime);
         }
 
-        protected abstract void updateAI();
+        protected abstract void updateAI(GameTime gameTime);
+
+        protected virtual void onHurtRecovery() { }
 
         public virtual void StartDying()
         {
-            //isDying = true;
-            //isHurt = false;
-            state = EnemyState.Dying;
-            Die();
+            movementHandler = null;
+            enemyState = EnemyState.Dying;
         }
 
-        public virtual void Die()
+        public override void Die()
         {
-            isAlive = false;
             tryToTriggerActivations();
+
+            base.Die();
+
+            area.SpawnPickup(this);
         }
 
         public override void Draw(SpriteBatch spriteBatch, Effect changeColorsEffect)
         {
             bool increaseRed = false;
             bool increaseBlue = false;
-            //if (IsHurt)
-            if (state == EnemyState.Hurt)
+            if (enemyState == EnemyState.Hurt)
             {
                 int n = hurtTimer % (BLINK_DELAY * 3);
                 if (n < BLINK_DELAY)
@@ -116,45 +136,45 @@ namespace Adventure
                 else if (n < (BLINK_DELAY * 2))
                     increaseBlue = true;
             }
-
-            changeColorsEffect.Parameters["red"].SetValue(increaseRed);
-            changeColorsEffect.Parameters["blue"].SetValue(increaseBlue);
+            if (increaseRed)
+                changeColorsEffect.Parameters["red"].SetValue(0.6f);
+            if (increaseBlue)
+                changeColorsEffect.Parameters["blue"].SetValue(0.6f);
             base.Draw(spriteBatch, changeColorsEffect);
-            changeColorsEffect.Parameters["red"].SetValue(false);
-            changeColorsEffect.Parameters["blue"].SetValue(false);
+            changeColorsEffect.Parameters["red"].SetValue(0f);
+            changeColorsEffect.Parameters["blue"].SetValue(0f);
         }
 
-        protected virtual void takeDamageFrom(Entity entity)
+        public override void TakeDamage(Entity other, KnockBackType knockBackType)
         {
-            //isHurt = true;
-            state = EnemyState.Hurt;
-            Health -= entity.Damage;
+            if (enemyState == EnemyState.Hurt || enemyState == EnemyState.Dying)
+                return;
 
-            Vector2 direction = this.Center - entity.Center;
+            base.TakeDamage(other, knockBackType);
+
+            enemyState = EnemyState.Hurt;
+
             float angle = 0f;
-            if (entity is Arrow)
+            float distance = 0f;
+            if (knockBackType == KnockBackType.HitAngle || knockBackType == KnockBackType.FaceDirection)
             {
-                if (entity.FaceDirection == Directions4.Up)
-                    angle = 3f * MathHelper.PiOver2;
-                else if (entity.FaceDirection == Directions4.Down)
-                    angle = MathHelper.PiOver2;
-                else if (entity.FaceDirection == Directions4.Left)
-                    angle = MathHelper.Pi;
-                else if (entity.FaceDirection == Directions4.Right)
-                    angle = 0f;
-            }
-            else
-            {
+                Vector2 direction = Vector2.Zero;
+
+                if (knockBackType == KnockBackType.HitAngle)
+                    direction = this.Center - other.Center;
+                else if (knockBackType == KnockBackType.FaceDirection)
+                    direction = DirectionsHelper.GetDirectionVector(other.FaceDirection);
+
                 angle = (float)Math.Atan2(direction.Y, direction.X);
+                distance = knockBackDistance;
             }
-            Velocity.X = (float)Math.Cos(angle) * knockBackSpeed;
-            Velocity.Y = (float)Math.Sin(angle) * knockBackSpeed;
 
-            hitSound.Play(0.75f, 0, 0);
+            oldMovementHandler = movementHandler;
+            movementHandler = new StraightMovementHandler(this, knockBackSpeed, angle, distance);
+            movementHandler.Start();
+
+            hitSound.Play(0.9f, 0, 0);
         }
-
-        public abstract void ReactToSwordHit(Player player);
-        
     }
 
     public enum EnemyState

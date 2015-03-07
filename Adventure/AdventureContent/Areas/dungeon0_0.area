@@ -67,20 +67,27 @@ track_vertical
 1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 
 
 [Entities]
-[Entities]
-#KeyDoor (spawnCell:19,8)(faceDirection:2)(isOpen:False)
-#ClosedDoor (id:cd1)(spawnCell:10,0)(faceDirection:1)(isOpen:false)
-#ClosedDoor (id:cd2)(spawnCell:1,8)(faceDirection:3)(isOpen:false)
-#Pot (spawnCell:6,7) 
-#Pot (spawnCell:7,7)
-#Pot (spawnCell:6,6)
-#Pot (spawnCell:7,6)
-#FloorSwitch (spawnCell:13,7)(activations:cd1)
-#ArrowSwitch (spawnCell:2,7)(activations:cd2)
-#BlobEnemy (id:be1)(spawnCell:10,7)(isActive:false)
+KeyDoor (spawnCell:19,8)(faceDirection:Left)(state:Closed)
+ObstacleDoor (id:cd1)(spawnCell:10,0)(faceDirection:Down)(state:Closed)
+ObstacleDoor (id:cd2)(spawnCell:1,8)(faceDirection:Right)(state:Closed)
+Pot (spawnCell:6,7) 
+Pot (spawnCell:7,7)
+Pot (spawnCell:6,6)
+Pot (spawnCell:7,6)
+#Pot (spawnCell:6,5) 
+#Pot (spawnCell:7,5)
+#Pot (spawnCell:6,4)
+#Pot (spawnCell:7,4)
+PressureSwitch (spawnCell:13,7)(activations:cd1;re1)
+ArrowSwitch (spawnCell:2,7)(activations:cd2)
+#BlobEnemy (id:be1)(spawnCell:11,4)
 #BlobEnemy (id:be2)(spawnCell:9,9)(isActive:false)
 #BlobEnemy (id:be3)(spawnCell:11,9)(isActive:false)
-#MovableBlock (spawnCell:6,5)(movableDirections:3)
+MovableBlock (spawnCell:13,6)(movableDirections:Down)
+#Chest (spawnCell:12,6)(treasure:Pickup (spawnCell:0,0)(type:2))(isActive:true)
 
-#[MapTransitions]
-#10,14 -1 0 15,8
+Spikes (id:s1)(spawnCell:13,9)(isUp:true)
+RobotEnemy (id:re1)(spawnCell:11,4)(isAlert:true)
+
+[MapTransitions]
+10,14 -1 0 15,8 Down

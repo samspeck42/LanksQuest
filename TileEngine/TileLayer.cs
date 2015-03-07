@@ -150,7 +150,7 @@ namespace TileEngine
                 for (int c = 0; c < layerWidth; c++)
                 {
                     int tileIndex = tileLayout[r][c];
-                    Tile empty = new Tile(null, TileCollision.Passable);
+                    Tile empty = new Tile(null, TileCollision.None);
 
                     if (tileIndex <= 0)
                         tileLayer.SetTileAtCell(new Point(c, r), empty);
@@ -166,7 +166,7 @@ namespace TileEngine
         {
             if (CellInBounds(cell))
                 return tileMap[cell.Y, cell.X];
-            return new Tile(null, TileCollision.Passable);
+            return new Tile(null, TileCollision.None);
         }
 
         public void SetTileAtCell(Point cell, Tile tile) 
@@ -179,7 +179,7 @@ namespace TileEngine
         {
             if (CellInBounds(cell))
                 return tileMap[cell.Y, cell.X].Collision;
-            return TileCollision.Passable;
+            return TileCollision.None;
         }
 
         public bool CellInBounds(Point cell)

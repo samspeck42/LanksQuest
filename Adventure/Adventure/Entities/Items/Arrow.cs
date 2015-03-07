@@ -10,102 +10,76 @@ namespace Adventure
 {
     class Arrow : Entity
     {
-        private const float FIRE_SPEED = 6.0f;
-        private const int LIFETIME = 180;
-        private const int BLINK_START_TIME = 120;
-        private const int BLINK_DELAY = 2;
-        private const int DAMAGE = 2;
-        private const int WALL_INTERSECT_DISTANCE = 10;
+        private const string NORMAL_SPRITES_ID = "normal_sprites";
+        private const string TIP_HIT_BOX_ID = "tip_hit_box";
 
-        private Sprite verticalSprite;
-        private Sprite horizontalSprite;
-        private bool isFired;
-        public bool IsFired { get { return isFired; } }
-        private bool hasHit;
+        private const float FIRE_SPEED = 360;
+        private const int LIFETIME = 3000;
+        private const int BLINK_START_TIME = 2000;
+
+        public override TileCollision ObstacleTileCollisions
+        {
+            get
+            {
+                return TileCollision.Wall | TileCollision.Doorway;
+            }
+        }
+        public override int Damage { get { return 2; } }
+        public override DrawLayer DrawLayer
+        {
+            get
+            {
+                return DrawLayer.High;
+            }
+        }
+
+        private MovementHandler movementHandler = null;
+        //private bool isFired = false;
+        private bool hasHit = false;
         private int lifeTimer = 0;
         private Entity entityHit = null;
         private Vector2 entityHitPosition = Vector2.Zero;
 
-        public Vector2 TipPosition
-        {
-            get
-            {
-                if (FaceDirection == Directions4.Up)
-                    return new Vector2(BoundingBox.ActualX + (Width / 2), BoundingBox.ActualY);
-                else if (FaceDirection == Directions4.Down)
-                    return new Vector2(BoundingBox.ActualX + (Width / 2), BoundingBox.ActualY + Height);
-                else if (FaceDirection == Directions4.Left)
-                    return new Vector2(BoundingBox.ActualX, BoundingBox.ActualY + (Height / 2));
-                else if (FaceDirection == Directions4.Right)
-                    return new Vector2(BoundingBox.ActualX + Width, BoundingBox.ActualY + (Height / 2));
-                return Vector2.Zero;
-            }
-        }
 
-        public Arrow(GameWorld game, Area area, Directions4 direction)
+        public Arrow(GameWorld game, Area area)
             : base(game, area)
         {
-            Vector2 origin = new Vector2(4, 10);
-            //verticalSprite = new Sprite(this, origin);
-            origin = new Vector2(10, 4);
-            //horizontalSprite = new Sprite(this, origin);
+            BoundingBox.RelativeX = -4;
+            BoundingBox.RelativeY = -4;
+            BoundingBox.Width = 8;
+            BoundingBox.Height = 8;
 
-            FaceDirection = direction;
+            HitBox tipHitBox = new HitBox(this, TIP_HIT_BOX_ID);
+            tipHitBox.Width = 6;
+            tipHitBox.Height = 6;
+            tipHitBox.IsActive = false;
+            HitBoxes.Add(tipHitBox);
 
-            if (FaceDirection == Directions4.Up)
-            {
-                //CurrentSprite = verticalSprite;
-                BoundingBox.RelativeX = -4;
-                BoundingBox.RelativeY = -10;
-                BoundingBox.Width = 8;
-                BoundingBox.Height = 20;
-                CurrentSprite.Rotation = 0;
-            }
-            else if (FaceDirection == Directions4.Down)
-            {
-                //CurrentSprite = verticalSprite;
-                BoundingBox.RelativeX = -4;
-                BoundingBox.RelativeY = -10;
-                BoundingBox.Width = 8;
-                BoundingBox.Height = 20;
-                CurrentSprite.Rotation = MathHelper.Pi;
-            }
-            else if (FaceDirection == Directions4.Left)
-            {
-                //CurrentSprite = horizontalSprite;
-                BoundingBox.RelativeX = -10;
-                BoundingBox.RelativeY = -4;
-                BoundingBox.Width = 20;
-                BoundingBox.Height = 8;
-                CurrentSprite.Rotation = 0;
-            }
-            else if (FaceDirection == Directions4.Right)
-            {
-                //CurrentSprite = horizontalSprite;
-                BoundingBox.RelativeX = -10;
-                BoundingBox.RelativeY = -4;
-                BoundingBox.Width = 20;
-                BoundingBox.Height = 8;
-                CurrentSprite.Rotation = MathHelper.Pi;
-            }
+            SpriteSet spriteSet = new SpriteSet();
+            Vector2 origin = new Vector2(4, 4);
+            Sprite sprite = new Sprite("Sprites/Items/arrow", this, origin);
+            spriteSet.SetSprite(Directions4.Right, sprite);
 
-            isFired = false;
-            hasHit = false;
-            IsInAir = true;
-            Damage = DAMAGE;
+            sprite = new Sprite("Sprites/Items/arrow", this, origin);
+            sprite.Rotation = MathHelper.PiOver2;
+            spriteSet.SetSprite(Directions4.Down, sprite);
+
+            sprite = new Sprite("Sprites/Items/arrow", this, origin);
+            sprite.Rotation = MathHelper.Pi;
+            spriteSet.SetSprite(Directions4.Left, sprite);
+
+            sprite = new Sprite("Sprites/Items/arrow", this, origin);
+            sprite.Rotation = 3 * MathHelper.PiOver2;
+            spriteSet.SetSprite(Directions4.Up, sprite);
+
+            spriteHandler.AddSpriteSet(NORMAL_SPRITES_ID, spriteSet);
+            spriteHandler.SetSprite(NORMAL_SPRITES_ID);
+
             diesOutsideArea = true;
-        }
-
-        public override void LoadContent()
-        {
-            //verticalSprite.Texture = game.Content.Load<Texture2D>("Sprites/Items/arrow_vertical");
-            //horizontalSprite.Texture = game.Content.Load<Texture2D>("Sprites/Items/arrow_horizontal");
         }
 
         public override void Update(GameTime gameTime)
         {
-            base.Update(gameTime);
-
             //bool isInsideWall = false;
             //Point tipCell = Area.ConvertPositionToCell(TipPosition);
             //Rectangle collisionRect = new Rectangle();
@@ -158,12 +132,23 @@ namespace Adventure
 
             //}
 
+            spriteHandler.Update(gameTime);
+
+            if (movementHandler != null)
+            {
+                movementHandler.Update(gameTime);
+            }
+
             if (hasHit)
             {
-                lifeTimer++;
+                lifeTimer += (int)gameTime.ElapsedGameTime.TotalMilliseconds;
+                if (lifeTimer >= BLINK_START_TIME && !spriteHandler.IsBlinking)
+                {
+                    spriteHandler.StartBlinking();
+                }
                 if (lifeTimer >= LIFETIME)
                 {
-                    isAlive = false;
+                    Die();
                 }
 
                 if (entityHit != null)
@@ -171,62 +156,77 @@ namespace Adventure
                     BoundingBox.ActualX = entityHit.BoundingBox.ActualX + entityHitPosition.X;
                     BoundingBox.ActualY = entityHit.BoundingBox.ActualY + entityHitPosition.Y;
 
-                    if (!entityHit.IsAlive || !entityHit.IsActive)
-                        this.isAlive = false;
+                    if (!entityHit.IsAlive || !entityHit.IsVisible)
+                        Die();
                 }
-            }
-        }
-
-        public override void Draw(SpriteBatch spriteBatch, Effect changeColorsEffect)
-        {
-            bool shouldDraw = true;
-            if (lifeTimer >= BLINK_START_TIME)
-            {
-                int n = lifeTimer % (BLINK_DELAY * 2);
-                if (n < BLINK_DELAY)
-                    shouldDraw = false;
-            }
-            if (shouldDraw)
-            {
-                base.Draw(spriteBatch, changeColorsEffect);
             }
         }
 
         public override void OnEntityCollision(Entity other, HitBox thisHitBox, HitBox otherHitBox)
         {
-            
+            if (thisHitBox.IsId(TIP_HIT_BOX_ID))
+            {
+                if (other is Enemy)
+                {
+                    Enemy enemy = (Enemy)other;
+                    if (enemy.TakesDamageFromArrow(otherHitBox))
+                    {
+                        enemy.TakeDamage(this, KnockBackType.FaceDirection);
+                        this.hitEntity(enemy);
+                    }
+                }
+                if (other is Switch)
+                {
+                    Switch sw = (Switch)other;
+                    if (sw.IsActivatedByArrow(otherHitBox))
+                    {
+                        sw.Activate();
+                        this.hitEntity(sw);
+                    }
+                }
+            }
         }
 
-        public void Fire()
+        public void Fire(Directions4 direction)
         {
-            isFired = true;
+            //isFired = true;
+            FaceDirection = direction;
+            Vector2 directionVector = DirectionsHelper.GetDirectionVector(FaceDirection);
 
-            if (FaceDirection == Directions4.Up)
-                Velocity.Y = -FIRE_SPEED;
-            else if (FaceDirection == Directions4.Down)
-                Velocity.Y = FIRE_SPEED;
-            else if (FaceDirection == Directions4.Left)
-                Velocity.X = -FIRE_SPEED;
-            else if (FaceDirection == Directions4.Right)
-                Velocity.X = FIRE_SPEED;
+            HitBox tipHitBox = GetHitBoxById(TIP_HIT_BOX_ID);
+            tipHitBox.RelativeX = (13 * directionVector.X) - (tipHitBox.Width / 2);
+            tipHitBox.RelativeY = (13 * directionVector.Y) - (tipHitBox.Height / 2);
+            tipHitBox.IsActive = true;
+
+            Vector2 velicity = directionVector * FIRE_SPEED;
+            movementHandler = new StraightMovementHandler(this, velicity);
+            movementHandler.Start();
 
             area.Entities.Add(this);
         }
 
-        public void HitEntity(Entity entity)
+        public override void OnMovementEvent(MovementEvent movementEvent)
         {
-            isFired = false;
+            if (movementEvent == MovementEvent.CollisionWithObstacle)
+            {
+                ((StraightMovementHandler)movementHandler).Velocity = Vector2.Zero;
+                //isFired = false;
+                hasHit = true;
+                GetHitBoxById(TIP_HIT_BOX_ID).IsActive = false;
+            }
+        }
+
+        private void hitEntity(Entity entity)
+        {
+            //isFired = false;
+            if (movementHandler != null)
+                ((StraightMovementHandler)movementHandler).Velocity = Vector2.Zero;
             hasHit = true;
-            Velocity = Vector2.Zero;
+            GetHitBoxById(TIP_HIT_BOX_ID).IsActive = false;
 
             entityHit = entity;
             entityHitPosition = new Vector2(BoundingBox.ActualX - entity.BoundingBox.ActualX, 
                 BoundingBox.ActualY - entity.BoundingBox.ActualY);
-        }
-
-        private bool canBeStoppedBy(Entity entity)
-        {
-            return !entity.IsObstacle; // && !(entity is Spikes);
         }
     }
 }

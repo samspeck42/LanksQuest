@@ -8,12 +8,20 @@ namespace Adventure
 {
     public abstract class Switch : ActivatingEntity
     {
-        protected bool isOn = false;
-        public bool IsOn { get { return isOn; } }
-
         public Switch(GameWorld game, Area area)
             : base(game, area)
+        { }
+
+        public virtual bool IsActivatedByPlayerSword(HitBox thisHitBox)
         {
+            return false;
         }
+
+        public virtual bool IsActivatedByArrow(HitBox thisHitBox)
+        {
+            return false;
+        }
+
+        public abstract void Activate();
     }
 }

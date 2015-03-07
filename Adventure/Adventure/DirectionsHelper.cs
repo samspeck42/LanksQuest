@@ -61,6 +61,16 @@ namespace Adventure
 
             return (Directions)((int)Math.Pow(2, directionNum));
         }
+
+        public static Directions4 Opposite(Directions4 direction4)
+        {
+            int directionNum = (int)direction4;
+
+            if (directionNum < 0)
+                return Directions4.None;
+
+            return (Directions4)(directionNum + (int)Math.Pow(-1, directionNum));
+        }
     }
 
     [Flags]

@@ -2,16 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.Xna.Framework;
 
 namespace Adventure
 {
     public interface PickupDropper
     {
-        float DropChance
-        {
-            get;
-        }
+        float PickupDropChance { get; }
 
-        //Pickup SpawnPickup();
+        Vector2 PickupDropPosition { get; }
     }
 }

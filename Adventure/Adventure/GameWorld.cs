@@ -32,11 +32,10 @@ namespace Adventure
         public GraphicsDevice GraphicsDevice { get { return graphicsDevice; } }
         public SpriteFont Font;
         public Texture2D SquareTexture;
+        public GameWorldState State { get { return state; } }
 
         private Camera camera;
 
-        private bool isAreaTransitioning = false;
-        public bool IsAreaTransitioning { get { return isAreaTransitioning; } }
         private Area transitionArea = null;
         private Camera transitionCamera = null;
         private Vector2 transitionVelocity = Vector2.Zero;
@@ -45,9 +44,8 @@ namespace Adventure
         private RenderTarget2D renderTarget;
         private float screenFade = 1.0f;
         private int mapTransitionTimer = 0;
-        private bool isMapTransitioning = false;
-        public bool IsMapTransitioning { get { return isMapTransitioning; } }
         private bool enteredNewMap;
+        private GameWorldState state = GameWorldState.Playing;
 
         private MapTransition currentMapTransition = null;
 
@@ -85,7 +83,7 @@ namespace Adventure
                 CurrentMap.Enter();
                 enteredNewMap = false;
             }
-            if (!(isAreaTransitioning || isMapTransitioning))
+            if (state == GameWorldState.Playing)
             {
                 CurrentMap.Update();
                 Point previousMapCell = CurrentMap.GetCurrentCell();
@@ -105,21 +103,8 @@ namespace Adventure
                     if (!entity.IsAlive)
                     {
                         entitiesToRemove.Add(entity);
-                        if (entity is PickupDropper)
-                        {
-                            PickupDropper pickupDropper = (PickupDropper)entity;
-                            float n = (float)Random.NextDouble();
-                            if (n < pickupDropper.DropChance)
-                            {
-                                //Pickup pickup = pickupDropper.SpawnPickup();
-                                //pickup.LoadContent();
-                                //pickupsToAdd.Add(pickup);
-                            }
-                        }
                         continue;
                     }
-
-                    handlePlayerInteractions(entity);
                 }
 
                 if (entitiesToRemove.Count > 0)
@@ -152,7 +137,7 @@ namespace Adventure
                 }
 
                 // update camera
-                updateCamera();
+                UpdateCamera();
 
                 // check if player has left area
                 if (currentArea != CurrentMap.GetPlayerArea() && CurrentMap.GetPlayerArea() != null)
@@ -163,79 +148,33 @@ namespace Adventure
                 // check if player is leaving map
                 foreach (MapTransition mapTransition in currentArea.MapTransitions)
                 {
-                    if (Player.BoundingBox.CollidesWith(Area.CreateRectangleForCell(mapTransition.LocationCell)))
+                    if (Player.BoundingBox.CollidesWith(Area.CreateRectangleForCell(mapTransition.LocationCell)) && 
+                        Player.CanLeaveArea)
                     {
-                        StartMapTransition(mapTransition);
+                        //StartMapTransition(mapTransition);
+                        Player.StartLeavingMap(mapTransition);
                     }
                 }
             }
-            else if (isAreaTransitioning)
+            else if (state == GameWorldState.AreaTransition)
             {
                 doAreaTransition();
             }
-            else if (isMapTransitioning)
+            else if (state == GameWorldState.MapTransition)
             {
                 doMapTransition(gameTime);
             }
         }
 
-        private void handlePlayerInteractions(Entity entity)
-        {
-            //if (entity is Enemy && Player.State == PlayerState.Attacking)
-            //{
-            //    Enemy enemy = (Enemy)entity;
-
-            //    if (enemy.HitBox2.Contains(Player.SwordHitBox) ||
-            //        enemy.HitBox2.Intersects(Player.SwordHitBox))
-            //        enemy.ReactToSwordHit(Player);
-            //}
-
-            //if (entity is Breakable && Player.State == PlayerState.Attacking)
-            //{
-            //    Breakable breakable = (Breakable)entity;
-
-            //    if (entity.HitBox2.Contains(Player.SwordHitBox) ||
-            //        entity.HitBox2.Intersects(Player.SwordHitBox))
-            //        breakable.StartBreaking();
-            //}
-
-            //if (entity is MovableBlock && Player.CanEnterState(PlayerState.Pushing))
-            //{
-            //    MovableBlock block = (MovableBlock)entity;
-
-            //    // check if player can move this block
-            //    if (Player.IsReadyToPush &&
-            //        Player.IsAllignedWith(block) &&
-            //        block.CanBePushed(Player.FaceDirection))
-            //        Player.StartPushing(block);
-            //}
-
-            //if (entity is CarriableEntity && Player.StateHandler.CanInteract)
-            //{
-            //    CarriableEntity liftableEntity = (CarriableEntity)entity;
-
-            //    // check if player can lift this entity
-            //    if (Player.IsTryingToInteract &&
-            //        Player.IsInFrontOf(liftableEntity) &&
-            //        !liftableEntity.IsThrown)
-            //        Player.StartLifting(liftableEntity);
-            //}
-
-            //if (entity is Chest && Player.CanEnterState(PlayerState.OpeningChest))
-            //{
-            //    Chest chest = (Chest)entity;
-
-            //    if (Player.IsTryingToInteract &&
-            //        Player.IsInFrontOf(chest) &&
-            //        !chest.IsOpened)
-            //        Player.StartOpening(chest);
-            //}
-        }
-
-        private void updateCamera()
+        public void UpdateCamera()
         {
             camera.LockToTarget(Player.BoundingBox.ToRectangle(), Adventure.SCREEN_WIDTH, Adventure.SCREEN_HEIGHT);
             camera.ClampToArea(currentArea.WidthInPixels - Adventure.SCREEN_WIDTH, currentArea.HeightInPixels - Adventure.SCREEN_HEIGHT);
+        }
+
+        public void EnterState(GameWorldStateHandler newStateHandler)
+        {
+            //TODO
         }
 
         private void doMapTransition(GameTime gameTime)
@@ -247,16 +186,18 @@ namespace Adventure
 
             if ((mapTransitionTimer >= MAP_TRANSITION_TIME / 2) && currentMapTransition != null)
             {
-                CurrentMap.Exit();
+                currentMap.Exit();
                 if (currentMapTransition.IsDungeonTransition)
                     currentMap = new Dungeon(this, currentMapTransition.DestinationDungeonNumber);
                 else
                     currentMap = new Overworld(this);
-                CurrentMap.Load();
-                currentArea = CurrentMap.GetAreaByIndex(currentMapTransition.DestinationAreaIndex);
+                currentMap.Load();
+                currentArea = currentMap.GetAreaByIndex(currentMapTransition.DestinationAreaIndex);
                 Point destinationCenterPoint = Area.CreateRectangleForCell(currentMapTransition.DestinationCell).Center;
-                Player.Center = new Vector2(destinationCenterPoint.X, destinationCenterPoint.Y);
-                updateCamera();
+                Player.Center = new Vector2(destinationCenterPoint.X, destinationCenterPoint.Y) +
+                    (DirectionsHelper.GetDirectionVector(currentMapTransition.Direction) * 64);
+                Player.EnterState(new NormalStateHandler(Player));
+                UpdateCamera();
                 currentMapTransition = null;
                 enteredNewMap = true;
             }
@@ -268,23 +209,23 @@ namespace Adventure
 
         private void finishMapTransition()
         {
-            isMapTransitioning = false;
+            state = GameWorldState.Playing;
             mapTransitionTimer = 0;
             screenFade = 1f;
 
-            Player.Velocity = Vector2.Zero;
+            //Player.Velocity = Vector2.Zero;
         }
 
         public void StartMapTransition(MapTransition mapTransition)
         {
-            isMapTransitioning = true;
+            state = GameWorldState.MapTransition;
             mapTransitionTimer = 0;
             currentMapTransition = mapTransition;
 
-            if (Player.Velocity.Y < 0)
-                Player.Velocity.Y = -Player.MAP_TRANSITION_WALK_SPEED;
-            else if (Player.Velocity.Y > 0)
-                Player.Velocity.Y = Player.MAP_TRANSITION_WALK_SPEED;
+            //if (Player.Velocity.Y < 0)
+            //    Player.Velocity.Y = -Player.MAP_TRANSITION_WALK_SPEED;
+            //else if (Player.Velocity.Y > 0)
+            //    Player.Velocity.Y = Player.MAP_TRANSITION_WALK_SPEED;
         }
 
         private void doAreaTransition()
@@ -324,7 +265,7 @@ namespace Adventure
 
         private void startAreaTransition(Point previousMapCell, Point currentMapCell)
         {
-            isAreaTransitioning = true;
+            state = GameWorldState.AreaTransition;
             transitionArea = CurrentMap.GetPlayerArea();
             transitionCamera = new Camera();
             if (currentMapCell.X < previousMapCell.X)
@@ -363,7 +304,7 @@ namespace Adventure
 
         private void finishAreaTransition()
         {
-            isAreaTransitioning = false;
+            state = GameWorldState.Playing;
             currentArea = transitionArea;
             camera = transitionCamera;
             transitionArea = null;
@@ -372,12 +313,12 @@ namespace Adventure
             Player.StartEnteringArea(transitionDirection);
         }
 
-        public void Draw(SpriteBatch spriteBatch)
+        public void Draw(SpriteBatch spriteBatch, RenderTarget2D screenRenderTarget)
         {
             GraphicsDevice.SetRenderTarget(renderTarget);
             GraphicsDevice.Clear(Color.Black);
 
-            if (isAreaTransitioning)
+            if (state == GameWorldState.AreaTransition)
             {
                 spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, null, null, null, changeColorsEffect, transitionCamera.TransformMatrix);
                 transitionArea.DrawBackground(spriteBatch);
@@ -385,14 +326,14 @@ namespace Adventure
                 spriteBatch.End();
             }
 
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, null, null, null, null, camera.TransformMatrix);
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, null, null, null, changeColorsEffect, camera.TransformMatrix);
             currentArea.DrawBackground(spriteBatch);
             currentArea.DrawEntities(spriteBatch, changeColorsEffect);
             Player.Draw(spriteBatch, changeColorsEffect);
             currentArea.DrawForeground(spriteBatch);
             spriteBatch.End();
 
-            if (isAreaTransitioning)
+            if (state == GameWorldState.AreaTransition)
             {
                 spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, null, null, null, changeColorsEffect, transitionCamera.TransformMatrix);
                 transitionArea.DrawForeground(spriteBatch);
@@ -400,7 +341,7 @@ namespace Adventure
             }
 
 
-            GraphicsDevice.SetRenderTarget(null);
+            GraphicsDevice.SetRenderTarget(screenRenderTarget);
             GraphicsDevice.Clear(Color.Black);
 
             spriteBatch.Begin();

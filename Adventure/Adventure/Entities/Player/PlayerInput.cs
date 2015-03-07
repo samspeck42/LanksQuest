@@ -11,7 +11,7 @@ namespace Adventure
     {
         public Directions InputDirection { get { return inputDirection; } }
 
-        private Dictionary<PlayerButtons, Buttons> buttonMappings = new Dictionary<PlayerButtons, Buttons>()
+        private static Dictionary<PlayerButtons, Buttons> buttonMappings = new Dictionary<PlayerButtons, Buttons>()
         {
             {PlayerButtons.Interact, Buttons.A},
             {PlayerButtons.Attack, Buttons.B},
@@ -37,6 +37,11 @@ namespace Adventure
             }
             gamePadState = GamePad.GetState(PlayerIndex.One);
             this.player = player;
+        }
+
+        public static Buttons PlayerButtonsToButtons(PlayerButtons playerButton)
+        {
+            return buttonMappings[playerButton];
         }
 
         /// <summary>
@@ -74,7 +79,7 @@ namespace Adventure
         /// </summary>
         public void Handle()
         {
-            foreach (PlayerButtons playerButton in buttonMappings.Keys)
+            foreach (PlayerButtons playerButton in Enum.GetValues(typeof(PlayerButtons)))
             {
                 if (!previousPlayerButtonDownState[playerButton] && playerButtonDownState[playerButton])
                     player.OnButtonPressed(playerButton);
@@ -88,14 +93,33 @@ namespace Adventure
             return playerButtonDownState[button];
         }
 
+        public bool IsEquippedItemButtonDown(int itemButtonNumber)
+        {
+            if (itemButtonNumber == 0)
+                return playerButtonDownState[PlayerButtons.EquippedItem1];
+            else if (itemButtonNumber == 1)
+                return playerButtonDownState[PlayerButtons.EquippedItem2];
+            return false;
+        }
+
         public bool IsButtonUp(PlayerButtons button)
         {
             return !playerButtonDownState[button];
+        }
+
+        public bool IsEquippedItemButtonUp(int itemButtonNumber)
+        {
+            if (itemButtonNumber == 0)
+                return !playerButtonDownState[PlayerButtons.EquippedItem1];
+            else if (itemButtonNumber == 1)
+                return !playerButtonDownState[PlayerButtons.EquippedItem2];
+            return false;
         }
     }
 
     public enum PlayerButtons
     {
+        None,
         Interact,
         Attack,
         EquippedItem1,

@@ -8,12 +8,20 @@ using Microsoft.Xna.Framework.Audio;
 
 namespace Adventure
 {
-    public class Chest : ActivatingEntity, Activatable
+    public class Chest : ActivatingEntity, Interactable, Triggerable
     {
-        private const int TREASURE_DISPLAY_TIME = 60;
+        private const int TREASURE_DISPLAY_TIME = 1000;
+        private const string UNOPENED_SPRITE_ID = "unopened_sprite";
+        private const string OPENED_SPRITE_ID = "opened_sprite";
 
-        private Sprite unopenedSprite;
-        private Sprite openedSprite;
+        public override bool IsObstacle { get { return true; } }
+
+        public bool CanStartInteraction { get { return !isOpened; } }
+        public bool MustBeAllignedWithToInteract { get { return false; } }
+
+        public bool IsOpened { get { return isOpened; } }
+        public Entity Treasure { get { return treasure; } }
+
         private SoundEffect openSound;
 
         private bool isOpened = false;
@@ -21,71 +29,70 @@ namespace Adventure
         private Entity treasure = null;
         private int treasureDisplayTimer = 0;
 
-        public bool IsOpened { get { return isOpened; } }
-        public Entity Treasure { get { return treasure; } }
-
         public Chest(GameWorld game, Area area)
             : base(game, area)
         {
-            hitBoxOffset = Vector2.Zero;
-            hitBoxWidth = 30;
-            hitBoxHeight = 24;
+            BoundingBox.RelativeX = -15;
+            BoundingBox.RelativeY = -12;
+            BoundingBox.Width = 30;
+            BoundingBox.Height = 24;
 
-            Vector2 origin = new Vector2(1, 4);
-            unopenedSprite = new Sprite(origin);
-            openedSprite = new Sprite(origin);
-
-            CurrentSprite = unopenedSprite;
-
-            IsPassable = false;
-        }
-
-        public override void OnEntityCollision(Entity other)
-        {
+            Vector2 origin = new Vector2(15, 12);
+            Sprite unopenedSprite = new Sprite("Sprites/Environment/chest_unopened", this, origin);
+            spriteHandler.AddSprite(UNOPENED_SPRITE_ID, unopenedSprite);
+            Sprite openedSprite = new Sprite("Sprites/Environment/chest_opened", this, origin);
+            spriteHandler.AddSprite(OPENED_SPRITE_ID, openedSprite);
+            spriteHandler.SetSprite(UNOPENED_SPRITE_ID);
         }
 
         public override void LoadContent()
         {
-            unopenedSprite.Texture = game.Content.Load<Texture2D>("Sprites/Environment/chest_unopened");
-            openedSprite.Texture = game.Content.Load<Texture2D>("Sprites/Environment/chest_opened");
+            base.LoadContent();
+
             openSound = game.Content.Load<SoundEffect>("Audio/chest_open");
         }
 
 
-        protected override void processData(Dictionary<string, string> dataDict)
+        protected override void processAttributeData(Dictionary<string, string> dataDict)
         {
-            base.processData(dataDict);
+            base.processAttributeData(dataDict);
 
-            treasure = Entity.CreateEntityFromString(dataDict["treasure"], game, area);
-            isActive = bool.Parse(dataDict["isActive"]);
+            treasure = Entity.CreateFromString(dataDict["treasure"], game, area);
+            isVisible = bool.Parse(dataDict["isActive"]);
         }
 
         public override string ToString()
         {
             string treasureTypeName = treasure.GetType().ToString().Replace("Adventure.", "");
-            return "(" + base.ToString() + ")(" + treasureTypeName + " " + treasure.ToString() + ")(" + isActive.ToString() + ")";
+            return "(" + base.ToString() + ")(" + treasureTypeName + " " + treasure.ToString() + ")(" + isVisible.ToString() + ")";
         }
 
         public override void Update(GameTime gameTime)
         {
-            base.Update(gameTime);
+            spriteHandler.Update(gameTime);
 
             if (isDisplayingTreasure)
             {
-                treasure.CurrentSprite.UpdateAnimation(gameTime);
-                treasureDisplayTimer++;
+                treasure.CurrentSprite.Update(gameTime);
+                treasureDisplayTimer += (int)gameTime.ElapsedGameTime.TotalMilliseconds;
 
                 if (treasureDisplayTimer <= (TREASURE_DISPLAY_TIME / 3))
-                    treasure.Position.Y -= 0.8f;
+                    treasure.Position.Y -= 48 * (float)gameTime.ElapsedGameTime.TotalSeconds;
                 if (treasureDisplayTimer >= TREASURE_DISPLAY_TIME)
                     isDisplayingTreasure = false;
             }
         }
 
+        public void StartInteraction()
+        {
+            if (CanStartInteraction)
+                game.Player.StartOpening(this);
+        }
+
         public void StartOpening()
         {
             isOpened = true;
-            CurrentSprite = openedSprite;
+            spriteHandler.SetSprite(OPENED_SPRITE_ID);
             startDisplayingTreasure();
 
             tryToTriggerActivations();
@@ -107,14 +114,14 @@ namespace Adventure
                 treasure.CurrentSprite.Draw(spriteBatch, treasure.Position);
         }
 
-        public void Activate()
+        public void TriggerOn()
         {
-            isActive = true;
+            isVisible = true;
         }
 
-        public void Deactivate()
+        public void TriggerOff()
         {
-            isActive = false;
+            isVisible = false;
         }
     }
 }

@@ -10,6 +10,31 @@ namespace Adventure
 {
     public class SpriteHandler
     {
+        private const int BLINK_DELAY = 30;
+
+        public bool IsBlinking { get { return isBlinking; } }
+        public Sprite CurrentSprite
+        {
+            get
+            {
+                if (spriteSetDict.ContainsKey(currentSpriteId))
+                    return spriteSetDict[currentSpriteId].GetSprite(currentSpriteDirection);
+                else if (spriteDict.ContainsKey(currentSpriteId))
+                    return spriteDict[currentSpriteId];
+                else
+                    return null;
+            }
+        }
+        public bool IsCurrentSpriteDoneAnimating
+        {
+            get
+            {
+                return CurrentSprite.IsDoneAnimating;
+            }
+        }
+
+        private bool isBlinking = false;
+        private int blinkTimer = 0;
         protected Dictionary<string, SpriteSet> spriteSetDict = new Dictionary<string, SpriteSet>();
         protected Dictionary<string, Sprite> spriteDict = new Dictionary<string, Sprite>();
         protected string currentSpriteId;
@@ -41,11 +66,18 @@ namespace Adventure
             spriteSetDict.Add(spriteSetId, spriteSet);
         }
 
-        public void SetSprite(string spriteSetId)
+        /// <summary>
+        /// Sets the owner entity's current sprite or sprite set to the one corresponding to the given id.
+        /// The owner entity's current face direction will be used to determine which sprite will be used
+        /// if a sprite set is specified.
+        /// </summary>
+        /// <param name="spriteId">The id of the sprite or sprite set to set as the owner entity's current
+        /// sprite.</param>
+        public void SetSprite(string spriteId)
         {
-            currentSpriteId = spriteSetId;
+            currentSpriteId = spriteId;
             currentSpriteDirection = entity.FaceDirection;
-            GetCurrentSprite().ResetAnimation();
+            CurrentSprite.ResetAnimation();
         }
 
         public bool IsCurrentSprite(string spriteSetId)
@@ -53,19 +85,15 @@ namespace Adventure
             return currentSpriteId.Equals(spriteSetId);
         }
 
-        public bool IsCurrentSpriteDoneAnimating()
+        public void StartBlinking()
         {
-            return GetCurrentSprite().IsDoneAnimating;
+            isBlinking = true;
+            blinkTimer = 0;
         }
 
-        public Sprite GetCurrentSprite()
+        public void StopBlinking()
         {
-            if (spriteSetDict.ContainsKey(currentSpriteId))
-                return spriteSetDict[currentSpriteId].GetSprite(currentSpriteDirection);
-            else if (spriteDict.ContainsKey(currentSpriteId))
-                return spriteDict[currentSpriteId];
-            else
-                return null;
+            isBlinking = false;
         }
 
         /// <summary>
@@ -75,22 +103,30 @@ namespace Adventure
         public void UpdateSpriteDirection()
         {
             currentSpriteDirection = entity.FaceDirection;
-            GetCurrentSprite().ResetAnimation();
+            CurrentSprite.ResetAnimation();
         }
 
         public virtual void Update(GameTime gameTime)
         {
             // update current sprite's animation
-            GetCurrentSprite().Update(gameTime);
+            CurrentSprite.Update(gameTime);
 
             // entity's face direction has changed, so update sprite's direction
             if (entity.FaceDirection != currentSpriteDirection)
-                UpdateSpriteDirection();
+                UpdateSpriteDirection(); 
+
+            if (isBlinking)
+                blinkTimer += (int)gameTime.ElapsedGameTime.TotalMilliseconds;
         }
 
-        public void Draw(SpriteBatch spriteBatch)
+        public virtual void Draw(SpriteBatch spriteBatch)
         {
-            GetCurrentSprite().Draw(spriteBatch, new Vector2(50, 50));//entity.Position);
+            if (CurrentSprite != null)
+            {
+                bool shouldDraw = isBlinking ? blinkTimer % (BLINK_DELAY * 2) < BLINK_DELAY : true;
+                if (shouldDraw)
+                    CurrentSprite.Draw(spriteBatch, entity.Position);
+            }
         }
     }
 }

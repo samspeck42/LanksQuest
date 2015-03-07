@@ -8,67 +8,31 @@ using Microsoft.Xna.Framework.Content;
 
 namespace Adventure
 {
-    public class KeyDoor : Door
+    public class KeyDoor : Door, Interactable
     {
-        private Sprite sprite;
-        private Sprite openingSprite;
+        public bool CanStartInteraction
+        {
+            get { return state == DoorState.Closed; }
+        }
+        public bool MustBeAllignedWithToInteract
+        {
+            get { return false; }
+        }
+
+        protected override string closedSpriteName { get { return "Sprites/Environment/key_door"; } }
+        protected override string openingSpriteName { get { return "Sprites/Environment/key_door_opening"; } }
 
         public KeyDoor(GameWorld game, Area area)
             : base(game, area)
+        { }
+
+        public void StartInteraction()
         {
-            init();
-        }
-
-        public KeyDoor(GameWorld game, Area area, Directions4 faceDirection)
-            : base(game, area)
-        {
-            init();
-
-            setFaceDirection(faceDirection);
-        }
-
-        private void init()
-        {
-            hitBoxOffset = new Vector2(-16, -16);
-            hitBoxWidth = 32;
-            hitBoxHeight = 32;
-
-            Vector2 origin = new Vector2(16, 16);
-            sprite = new Sprite(origin);
-            openingSprite = new Sprite(origin, 8, 2, 1);
-
-            CurrentSprite = sprite;
-        }
-
-        public override void LoadContent()
-        {
-            base.LoadContent();
-
-            sprite.Texture = game.Content.Load<Texture2D>("Sprites/Environment/key_door");
-            openingSprite.Texture = game.Content.Load<Texture2D>("Sprites/Environment/key_door_opening");
-        }
-
-        public override void Update(GameTime gameTime)
-        {
-            base.Update(gameTime);
-
-            if (isOpening && CurrentSprite.IsDoneAnimating)
+            if (CanStartInteraction && game.Player.Inventory.NumKeys > 0)
             {
-                isAlive = false;
+                game.Player.Inventory.UseKey();
+                startOpening();
             }
-        }
-
-        public override void StartOpening()
-        {
-            isOpening = true;
-            CurrentSprite = openingSprite;
-            setFaceDirection(FaceDirection);
-            openSound.Play(1f, 0, 0);
-        }
-
-        public override void OnEntityCollision(Entity other)
-        {
-
         }
     }
 }

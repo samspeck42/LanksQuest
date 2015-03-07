@@ -62,4 +62,4 @@ BlobEnemy (spawnCell:3,10)
 BlobEnemy (spawnCell:10,10)
 
 [MapTransitions]
-15,8 0 0 10,14
+15,8 0 0 10,14 Up

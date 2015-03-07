@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Audio;
 
 namespace Adventure
 {
-    public class Pickup : Entity
+    public class Pickup : Entity, ShadowOwner
     {
         private const int ANIMATION_DELAY = 65;
         private const int BRONZE_COIN_VALUE = 1;
@@ -18,29 +18,42 @@ namespace Adventure
         private const int HEART_VALUE = 2;
         private const int KEY_VALUE = 1;
 
-        private const int LIFETIME = 300;
-        private const int BLINK_START_TIME = 240;
-        private const int BLINK_DELAY = 2;
+        private const int LIFETIME = 5000;
+        private const int BLINK_START_TIME = 3500;
 
-        private Sprite bronzeCoinSprite;
-        private Sprite silverCoinSprite;
-        private Sprite goldCoinSprite;
-        private Sprite heartSprite;
-        private Sprite keySprite;
+        private const string BRONZE_COIN_SPRITE_ID = "bronze_coin_sprite";
+        private const string SILVER_COIN_SPRITE_ID = "silver_coin_sprite";
+        private const string GOLD_COIN_SPRITE_ID = "gold_coin_sprite";
+        private const string HEART_SPRITE_ID = "heart_sprite";
+        private const string KEY_SPRITE_ID = "key_sprite";
+        private const string OBSTACLE_COLLISION_BOX_ID = "obstacle_collision_box";
+
+        public override HitBox ObstacleCollisionBox { get { return GetHitBoxById(OBSTACLE_COLLISION_BOX_ID); } }
+
+        public virtual ShadowSizes ShadowSize { get { return ShadowSizes.Small; } }
+        public virtual Vector2 ShadowCenter
+        {
+            get
+            {
+                return new Vector2(
+                    this.ObstacleCollisionBox.Left + (this.ObstacleCollisionBox.Width / 2),
+                    this.ObstacleCollisionBox.Bottom - 3);
+            }
+        }
+
+        public PickupType PickupType { get { return pickupType; } }
+        public int Value { get { return value; } }
 
         private SoundEffect coinCollectSound;
         private SoundEffect heartCollectSound;
 
-        private Texture2D shadowTexture;
-        private float bounceHeight;
-        private float bounceGravity;
-        private float bounceVelocity;
-        private bool isBouncing = false;
-        private bool isDropped;
-        private int lifeTimer = 0;
-
-        public PickupType Type;
-        public int Value;
+        private PickupType pickupType;
+        private int value;
+        private MovementHandler movementHandler;
+        private bool isDropped = false;
+        private bool hasStartedDrop = false;
+        private long lifeTimer = 0;
+        private bool canBeCollected = false;
 
         public Pickup(GameWorld game, Area area)
             : base(game, area)
@@ -57,177 +70,144 @@ namespace Adventure
         private void init(PickupType type, bool isDropped)
         {
             this.isDropped = isDropped;
-            IsAffectedByWallCollisions = false;
 
-            hitBoxOffset = Vector2.Zero;
-            hitBoxWidth = 14;
-            hitBoxHeight = 14;
+            BoundingBox.RelativeX = 0;
+            BoundingBox.RelativeY = 0;
+            BoundingBox.Width = 14;
+            BoundingBox.Height = 14;
+
+            HitBox obstacleCollisionBox = new HitBox(this, OBSTACLE_COLLISION_BOX_ID);
+            obstacleCollisionBox.RelativeX = 0;
+            obstacleCollisionBox.RelativeY = 0;
+            obstacleCollisionBox.Width = 14;
+            obstacleCollisionBox.Height = 14;
+            obstacleCollisionBox.IsActive = true;
+            HitBoxes.Add(obstacleCollisionBox);
 
             Vector2 origin = new Vector2(0, 0);
-            bronzeCoinSprite = new Sprite(origin, 6, ANIMATION_DELAY);
-
-            silverCoinSprite = new Sprite(origin, 6, ANIMATION_DELAY);
-
-            goldCoinSprite = new Sprite(origin, 6, ANIMATION_DELAY);
-
-            heartSprite = new Sprite(origin);
-
-            keySprite = new Sprite(origin);
+            Sprite sprite = new Sprite("Sprites/Pickups/coin_bronze", this, origin, 6, ANIMATION_DELAY);
+            spriteHandler.AddSprite(BRONZE_COIN_SPRITE_ID, sprite);
+            sprite = new Sprite("Sprites/Pickups/coin_silver", this, origin, 6, ANIMATION_DELAY);
+            spriteHandler.AddSprite(SILVER_COIN_SPRITE_ID, sprite);
+            sprite = new Sprite("Sprites/Pickups/coin_gold", this, origin, 6, ANIMATION_DELAY);
+            spriteHandler.AddSprite(GOLD_COIN_SPRITE_ID, sprite);
+            sprite = new Sprite("Sprites/Pickups/heart", this, origin);
+            spriteHandler.AddSprite(HEART_SPRITE_ID, sprite);
+            sprite = new Sprite("Sprites/Pickups/key", this, origin);
+            spriteHandler.AddSprite(KEY_SPRITE_ID, sprite);
 
             setType(type);
 
-            if (isDropped)
-            {
-                startBounce();
-            }
+            movementHandler = new BounceMovementHandler(this, Vector2.Zero, 100, 240, 0.75f, 20, 4);
         }
 
 
-        protected override void processData(Dictionary<string, string> dataDict)
+        protected override void processAttributeData(Dictionary<string, string> dataDict)
         {
-            base.processData(dataDict);
+            base.processAttributeData(dataDict);
 
             setType((PickupType)int.Parse(dataDict["type"]));
         }
 
         public override string ToString()
         {
-            return "(" + base.ToString() + ")(" + ((int)Type).ToString() + ")";
+            return "(" + base.ToString() + ")(" + ((int)PickupType).ToString() + ")";
         }
 
         private void setType(PickupType pickupType)
         {
-            this.Type = pickupType;
+            this.pickupType = pickupType;
 
-            if (Type == PickupType.BronzeCoin)
+            if (PickupType == PickupType.BronzeCoin)
             {
-                CurrentSprite = bronzeCoinSprite;
-                Value = BRONZE_COIN_VALUE;
+                spriteHandler.SetSprite(BRONZE_COIN_SPRITE_ID);
+                value = BRONZE_COIN_VALUE;
             }
-            else if (Type == PickupType.SilverCoin)
+            else if (PickupType == PickupType.SilverCoin)
             {
-                CurrentSprite = silverCoinSprite;
-                Value = SILVER_COIN_VALUE;
+                spriteHandler.SetSprite(SILVER_COIN_SPRITE_ID);
+                value = SILVER_COIN_VALUE;
             }
-            else if (Type == PickupType.GoldCoin)
+            else if (PickupType == PickupType.GoldCoin)
             {
-                CurrentSprite = goldCoinSprite;
-                Value = GOLD_COIN_VALUE;
+                spriteHandler.SetSprite(GOLD_COIN_SPRITE_ID);
+                value = GOLD_COIN_VALUE;
             }
-            else if (Type == PickupType.Heart)
+            else if (PickupType == PickupType.Heart)
             {
-                CurrentSprite = heartSprite;
-                Value = HEART_VALUE;
+                spriteHandler.SetSprite(HEART_SPRITE_ID);
+                value = HEART_VALUE;
             }
-            else if (Type == PickupType.Key)
+            else if (PickupType == PickupType.Key)
             {
-                CurrentSprite = keySprite;
-                Value = KEY_VALUE;
+                spriteHandler.SetSprite(KEY_SPRITE_ID);
+                value = KEY_VALUE;
             }
         }
 
         public override void LoadContent()
         {
-            bronzeCoinSprite.Texture = game.Content.Load<Texture2D>("Sprites/Pickups/coin_bronze");
-            silverCoinSprite.Texture = game.Content.Load<Texture2D>("Sprites/Pickups/coin_silver");
-            goldCoinSprite.Texture = game.Content.Load<Texture2D>("Sprites/Pickups/coin_gold");
-            heartSprite.Texture = game.Content.Load<Texture2D>("Sprites/Pickups/heart");
-            keySprite.Texture = game.Content.Load<Texture2D>("Sprites/Pickups/key");
-            shadowTexture = game.Content.Load<Texture2D>("Sprites/Pickups/shadow");
+            base.LoadContent();
+
             coinCollectSound = game.Content.Load<SoundEffect>("Audio/coin_collect");
             heartCollectSound = game.Content.Load<SoundEffect>("Audio/heart_collect");
         }
 
-        private void startBounce()
-        {
-            bounceHeight = 20;
-            bounceGravity = 0.5f;
-            bounceVelocity = 1;
-            isBouncing = true;
-        }
-
         public override void Update(GameTime gameTime)
         {
-            base.Update(gameTime);
+            spriteHandler.Update(gameTime);
 
-            if (isBouncing)
-            {
-                doBounce();
-            }
+            movementHandler.Update(gameTime);
 
             if (isDropped)
             {
-                lifeTimer++;
+                if (!hasStartedDrop)
+                {
+                    startBounce();
+                    hasStartedDrop = true;
+                }
+
+                lifeTimer += (long)gameTime.ElapsedGameTime.TotalMilliseconds;
                 if (lifeTimer >= LIFETIME)
                 {
-                    isAlive = false;
+                    Die();
+                }
+                if (lifeTimer >= BLINK_START_TIME && !spriteHandler.IsBlinking)
+                {
+                    spriteHandler.StartBlinking();
                 }
             }
         }
 
-        private void doBounce()
+        private void startBounce()
         {
-            bounceVelocity -= bounceGravity;
-            bounceHeight += bounceVelocity;
-
-            if (bounceHeight <= 0)
-            {
-                bounceHeight = 0;
-
-                if (Math.Abs(bounceVelocity) <= 0.1)
-                {
-                    endBounce();
-                }
-                else
-                {
-                    bounceVelocity *= -0.75f;
-                }
-            }
-        }
-
-        private void endBounce()
-        {
-            bounceHeight = 0;
-            bounceGravity = 0;
-            bounceVelocity = 0;
-            isBouncing = false;
+            movementHandler.Start();
         }
 
         public void PlayCollectionSound()
         {
-            if (this.Type == PickupType.Heart)
+            if (this.PickupType == PickupType.Heart)
                 heartCollectSound.Play(0.75f, 0, 0);
             else
                 coinCollectSound.Play(0.75f, 0, 0);
         }
 
-        public override void Draw(SpriteBatch spriteBatch, Effect changeColorsEffect)
+        public override void OnEntityCollision(Entity other, HitBox thisHitBox, HitBox otherHitBox)
         {
-            spriteBatch.Draw(shadowTexture,
-               new Vector2(Center.X - (shadowTexture.Width / 2), Position.Y + Height - (shadowTexture.Height / 2)),
-               Color.White);
-
-            bool shouldDraw = true;
-            if (lifeTimer >= BLINK_START_TIME)
+            if (other is Player && thisHitBox.IsId(BOUNDING_BOX_ID) && canBeCollected)
             {
-                int n = lifeTimer % (BLINK_DELAY * 2);
-                if (n < BLINK_DELAY)
-                    shouldDraw = false;
-            }
-            if (shouldDraw)
-            {
-                if (isBouncing)
-                    CurrentSprite.Draw(spriteBatch, new Vector2(Position.X, Position.Y - bounceHeight));
-                else
-                    base.Draw(spriteBatch, changeColorsEffect);
+                Player player = (Player)other;
+                player.CollectPickup(this);
+                PlayCollectionSound();
+                this.Die();
             }
         }
 
-        public override void OnEntityCollision(Entity other)
+        public override void OnMovementEvent(MovementEvent movementEvent)
         {
-            if (other is Player)
+            if (movementEvent == MovementEvent.CollisionWithGround && !canBeCollected)
             {
-                isAlive = false;
+                canBeCollected = true;
             }
         }
     }

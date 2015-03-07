@@ -4,59 +4,136 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Adventure
 {
     public abstract class Door : Entity
     {
+        protected const string CLOSED_SPRITES_ID = "closed_sprites";
+        protected const string OPENING_SPRITES_ID = "opening_sprites";
+
+        public override bool IsObstacle
+        {
+            get
+            {
+                return state != DoorState.Open;
+            }
+        }
+
         protected SoundEffect openSound;
         protected SoundEffect closeSound;
 
-        protected bool isOpening = false;
-        protected bool isOpen = false;
+        protected DoorState state = DoorState.Closed;
+
+        protected abstract string closedSpriteName { get; }
+        protected abstract string openingSpriteName { get; }
 
         public Door(GameWorld game, Area area)
             : base(game, area)
         {
-            IsPassable = false;
+            BoundingBox.RelativeX = -16;
+            BoundingBox.RelativeY = -16;
+            BoundingBox.Width = 32;
+            BoundingBox.Height = 32;
+
+            SpriteSet spriteSet = new SpriteSet();
+            Vector2 origin = new Vector2(16, 16);
+            Sprite sprite = new Sprite(closedSpriteName, this, origin);
+            sprite.Rotation = MathHelper.Pi;
+            spriteSet.SetSprite(Directions4.Up, sprite);
+
+            sprite = new Sprite(closedSpriteName, this, origin);
+            spriteSet.SetSprite(Directions4.Down, sprite);
+
+            sprite = new Sprite(closedSpriteName, this, origin);
+            sprite.Rotation = MathHelper.PiOver2;
+            spriteSet.SetSprite(Directions4.Left, sprite);
+
+            sprite = new Sprite(closedSpriteName, this, origin);
+            sprite.Rotation = 3 * MathHelper.PiOver2;
+            spriteSet.SetSprite(Directions4.Right, sprite);
+
+            spriteHandler.AddSpriteSet(CLOSED_SPRITES_ID, spriteSet);
+
+            spriteSet = new SpriteSet();
+            origin = new Vector2(16, 16);
+            sprite = new Sprite(openingSpriteName, this, origin, 8, 32, 1);
+            sprite.Rotation = MathHelper.Pi;
+            spriteSet.SetSprite(Directions4.Up, sprite);
+
+            sprite = new Sprite(openingSpriteName, this, origin, 8, 32, 1);
+            spriteSet.SetSprite(Directions4.Down, sprite);
+
+            sprite = new Sprite(openingSpriteName, this, origin, 8, 32, 1);
+            sprite.Rotation = MathHelper.PiOver2;
+            spriteSet.SetSprite(Directions4.Left, sprite);
+
+            sprite = new Sprite(openingSpriteName, this, origin, 8, 32, 1);
+            sprite.Rotation = 3 * MathHelper.PiOver2;
+            spriteSet.SetSprite(Directions4.Right, sprite);
+
+            spriteHandler.AddSpriteSet(OPENING_SPRITES_ID, spriteSet);
+
+            spriteHandler.SetSprite(CLOSED_SPRITES_ID);
         }
 
         public override void LoadContent()
         {
+            base.LoadContent();
+
             openSound = game.Content.Load<SoundEffect>("Audio/door_open");
             closeSound = game.Content.Load<SoundEffect>("Audio/door_close");
         }
 
-        protected override void processData(Dictionary<string, string> dataDict)
+        protected override void processAttributeData(Dictionary<string, string> dataDict)
         {
-            base.processData(dataDict);
+            base.processAttributeData(dataDict);
 
-            setFaceDirection((Directions4)int.Parse(dataDict["faceDirection"]));
-            isOpen = bool.Parse(dataDict["isOpen"]);
-
-            if (isOpen)
-                IsPassable = true;
+            state = (DoorState)Enum.Parse(typeof(DoorState), dataDict["state"]);
         }
 
         public override string ToString()
         {
-            return "(" + base.ToString() + ")(" + ((int)FaceDirection).ToString() + ")(" + isOpen.ToString() + ")";
+            return "(" + base.ToString() + ")(" + ((int)FaceDirection).ToString() + ")(" + state.ToString() + ")";
         }
 
-        protected void setFaceDirection(Directions4 faceDirection)
+        public override void Update(GameTime gameTime)
         {
-            this.FaceDirection = faceDirection;
+            if (state == DoorState.Opening && spriteHandler.IsCurrentSpriteDoneAnimating)
+            {
+                state = DoorState.Open;
+            }
 
-            if (FaceDirection == Directions4.Up)
-                CurrentSprite.Rotation = MathHelper.Pi;
-            else if (FaceDirection == Directions4.Down)
-                CurrentSprite.Rotation = 0f;
-            else if (FaceDirection == Directions4.Left)
-                CurrentSprite.Rotation = MathHelper.PiOver2;
-            else if (FaceDirection == Directions4.Right)
-                CurrentSprite.Rotation = 3f * MathHelper.PiOver2;
+            spriteHandler.Update(gameTime);
         }
 
-        public abstract void StartOpening();
+        protected void startOpening()
+        {
+            if (game.CurrentArea.Entities.Contains(this))
+            {
+                state = DoorState.Opening;
+                spriteHandler.SetSprite(OPENING_SPRITES_ID);
+                openSound.Play(1f, 0, 0);
+            }
+            else
+            {
+                state = DoorState.Open;
+            }
+        }
+
+        public override void Draw(SpriteBatch spriteBatch, Effect changeColorsEffect)
+        {
+            if (state != DoorState.Open)
+                base.Draw(spriteBatch, changeColorsEffect);
+        }
+    }
+
+    public enum DoorState
+    {
+        Open,
+        Closed,
+        Opening,
+        Closing
     }
 }

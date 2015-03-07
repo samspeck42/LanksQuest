@@ -15,7 +15,7 @@ namespace Adventure
             get { return texture; }
         }
 
-        public int Delay;
+        public float Delay;
         public float Rotation;
         public bool Flip;
         public bool IsDoneAnimating { get { return isDoneAnimating; } }
@@ -25,7 +25,7 @@ namespace Adventure
 
 
         private int currentFrame;
-        private int currentDelay;
+        private float currentDelay;
 
         private Texture2D texture;
         private string textureName;
@@ -90,7 +90,7 @@ namespace Adventure
             hitBoxTextureNameDict = new Dictionary<string, string>();
         }
 
-        public Sprite(string textureName, Entity owner, Vector2 origin, int numFrames, int delay)
+        public Sprite(string textureName, Entity owner, Vector2 origin, int numFrames, float delay)
         {
             this.textureName = textureName;
             this.owner = owner;
@@ -107,7 +107,7 @@ namespace Adventure
             hitBoxTextureNameDict = new Dictionary<string, string>();
         }
 
-        public Sprite(string textureName, Entity owner, Vector2 origin, int numFrames, int delay, int numLoops)
+        public Sprite(string textureName, Entity owner, Vector2 origin, int numFrames, float delay, int numLoops)
         {
             this.textureName = textureName;
             this.owner = owner;
@@ -130,6 +130,8 @@ namespace Adventure
         public void Load(ContentManager content)
         {
             texture = content.Load<Texture2D>(textureName);
+            frameWidth = texture.Width / numFrames;
+            frameHeight = texture.Height;
             loadHitBoxTextures(content);
         }
 
@@ -246,7 +248,7 @@ namespace Adventure
             {
                 if (currentDelay >= Delay)
                 {
-                    currentFrame += currentDelay / Delay;
+                    currentFrame += (int)Math.Round(currentDelay / Delay);
                     currentDelay = currentDelay % Delay;
                     if (currentFrame >= numFrames)
                     {
@@ -267,7 +269,7 @@ namespace Adventure
                 }
                 else
                 {
-                    currentDelay += gameTime.ElapsedGameTime.Milliseconds;
+                    currentDelay += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
                 }
             }
 

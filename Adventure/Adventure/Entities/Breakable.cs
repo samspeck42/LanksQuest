@@ -7,6 +7,8 @@ namespace Adventure
 {
     interface Breakable
     {
+        bool CanBeBroken { get; }
+
         void StartBreaking();
     }
 }

@@ -12,74 +12,75 @@ namespace Adventure
 {
     public class Pot : CarriableEntity, Breakable, PickupDropper
     {
-        private const float PICKUP_DROP_CHANCE = 0.9f;
-        private const int DAMAGE = 2;
+        private const string NORMAL_SPRITE_ID = "normal_sprite";
 
-        private Sprite sprite;
+        public override bool IsObstacle { get { return !isThrown; } }
+        public override int Damage { get { return 2; } }
+        public override bool CanStartInteraction { get { return !isThrown && !isBroken; } }
+        public bool CanBeBroken { get { return !isThrown && !isBroken; } }
+
+        public float PickupDropChance { get { return 0.9f; } }
+        public Vector2 PickupDropPosition
+        {
+            get { return new Vector2(Center.X, Center.Y + 2); }
+        }
+
         private SoundEffect breakingSound;
+        private bool isBroken = false;
 
         public Pot(GameWorld game, Area area)
-            : base(game, area)
+            : base(game, area, 0)
         {
-            IsPassable = false;
-            Damage = DAMAGE;
+            BoundingBox.RelativeX = -11;
+            BoundingBox.RelativeY = -11;
+            BoundingBox.Width = 22;
+            BoundingBox.Height = 22;
 
-            hitBoxOffset = Vector2.Zero;
-            hitBoxWidth = 26;
-            hitBoxHeight = 26;
-            Vector2 origin = new Vector2(0, 0);
-            sprite = new Sprite(origin);
+            ObstacleCollisionBox.RelativeX = -11;
+            ObstacleCollisionBox.RelativeY = -11;
+            ObstacleCollisionBox.Width = 22;
+            ObstacleCollisionBox.Height = 22;
 
-            CurrentSprite = sprite;
-
-            diesOutsideArea = true;
+            Vector2 origin = new Vector2(12, 14);
+            Sprite sprite = new Sprite("Sprites/Environment/pot_small", this, origin);
+            spriteHandler.AddSprite(NORMAL_SPRITE_ID, sprite);
+            spriteHandler.SetSprite(NORMAL_SPRITE_ID);
         }
 
         public override void LoadContent()
         {
-            sprite.Texture = game.Content.Load<Texture2D>("Sprites/Environment/pot_small");
+            base.LoadContent();
+
             breakingSound = game.Content.Load<SoundEffect>("Audio/pot_breaking");
         }
 
         public void StartBreaking()
         {
-            isAlive = false;
+            Die();
+            isBroken = true;
+
+            area.SpawnPickup(this);
             breakingSound.Play(0.5f, 0, 0);
         }
 
-        public float DropChance
+        public override void OnEntityCollision(Entity other, HitBox thisHitBox, HitBox otherHitBox)
         {
-            get { return PICKUP_DROP_CHANCE; }
-        }
-
-        public Pickup SpawnPickup()
-        {
-            List<PickupType> possibleTypes = new List<PickupType>();
-            possibleTypes.Add(PickupType.BronzeCoin);
-            possibleTypes.Add(PickupType.SilverCoin);
-            possibleTypes.Add(PickupType.GoldCoin);
-            possibleTypes.Add(PickupType.Heart);
-
-            Pickup pickup = new Pickup(game, area, possibleTypes.ElementAt(GameWorld.Random.Next(possibleTypes.Count)), true);
-            pickup.Center = this.Center;
-            return pickup;
-        }
-
-        public override void OnEntityCollision(Entity other)
-        {
-            if (other is Enemy)
+            if (other is Enemy && thisHitBox.IsId(BOUNDING_BOX_ID) && this.isThrown)
             {
-                if (isThrown)
+                Enemy enemy = (Enemy)other;
+                if (enemy.TakesDamageFromPot(otherHitBox))
                 {
-                    Velocity = Vector2.Zero;
+                    isThrown = false;
                     StartBreaking();
+                    enemy.TakeDamage(this, KnockBackType.FaceDirection);
                 }
-                    
             }
         }
 
         protected override void land()
         {
+            base.land();
+
             StartBreaking();
         }
     }
