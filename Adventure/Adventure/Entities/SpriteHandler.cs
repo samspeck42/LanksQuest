@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
 
-namespace Adventure
+namespace Adventure.Entities
 {
     public class SpriteHandler
     {
@@ -48,12 +48,12 @@ namespace Adventure
             this.entity = entity;
         }
 
-        public void Load(ContentManager content)
+        public void LoadSprites(ContentManager content)
         {
             foreach (SpriteSet spriteSet in spriteSetDict.Values)
-                spriteSet.Load(content);
+                spriteSet.LoadContent(content);
             foreach (Sprite sprite in spriteDict.Values)
-                sprite.Load(content);
+                sprite.LoadContent(content);
         }
 
         public void AddSprite(string spriteId, Sprite sprite)

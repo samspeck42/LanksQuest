@@ -5,8 +5,9 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
+using Adventure.Maps;
 
-namespace Adventure
+namespace Adventure.Entities.Environment
 {
     public abstract class Door : Entity
     {
@@ -29,8 +30,8 @@ namespace Adventure
         protected abstract string closedSpriteName { get; }
         protected abstract string openingSpriteName { get; }
 
-        public Door(GameWorld game, Area area)
-            : base(game, area)
+        public Door(GameWorld game, Map map, Area area)
+            : base(game, map, area)
         {
             BoundingBox.RelativeX = -16;
             BoundingBox.RelativeY = -16;
@@ -82,8 +83,8 @@ namespace Adventure
         {
             base.LoadContent();
 
-            openSound = game.Content.Load<SoundEffect>("Audio/door_open");
-            closeSound = game.Content.Load<SoundEffect>("Audio/door_close");
+            openSound = gameWorld.Content.Load<SoundEffect>("Audio/door_open");
+            closeSound = gameWorld.Content.Load<SoundEffect>("Audio/door_close");
         }
 
         protected override void processAttributeData(Dictionary<string, string> dataDict)
@@ -110,7 +111,7 @@ namespace Adventure
 
         protected void startOpening()
         {
-            if (game.CurrentArea.Entities.Contains(this))
+            if (gameWorld.CurrentArea.Entities.Contains(this))
             {
                 state = DoorState.Opening;
                 spriteHandler.SetSprite(OPENING_SPRITES_ID);

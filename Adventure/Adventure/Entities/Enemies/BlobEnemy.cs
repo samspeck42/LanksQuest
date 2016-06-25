@@ -6,8 +6,10 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
 using TileEngine;
+using Adventure.Maps;
+using Adventure.Entities.MovementHandlers;
 
-namespace Adventure
+namespace Adventure.Entities.Enemies
 {
     public class BlobEnemy : Enemy, Triggerable
     {
@@ -34,8 +36,8 @@ namespace Adventure
         private bool canJump = true;
         private int jumpWaitTimer = 0;
 
-        public BlobEnemy(GameWorld game, Area area)
-            : base(game, area)
+        public BlobEnemy(GameWorld game, Map map, Area area)
+            : base(game, map, area)
         {
             BoundingBox.RelativeX = -11;
             BoundingBox.RelativeY = -12;
@@ -91,7 +93,7 @@ namespace Adventure
             {
                 if (canJump)
                 {
-                    Vector2 directionToPlayer = game.Player.Center - this.Center;
+                    Vector2 directionToPlayer = gameWorld.Player.Center - this.Center;
                     float distanceToPlayer = directionToPlayer.Length();
 
                     if (distanceToPlayer < 100)
@@ -118,7 +120,7 @@ namespace Adventure
                 canJump = false;
                 jumpWaitTimer = 0;
 
-                movementHandler = new ChaseMovementHandler(this, WALK_SPEED, game.Player);
+                movementHandler = new ChaseMovementHandler(this, WALK_SPEED, gameWorld.Player);
                 movementHandler.Start();
             }
 

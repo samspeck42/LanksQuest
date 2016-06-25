@@ -11,6 +11,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TileEngine;
 using Adventure;
+using Adventure.Maps;
 
 namespace TileEditor
 {
@@ -76,8 +77,8 @@ namespace TileEditor
 
         private void tileDisplay1_OnDraw(object sender, EventArgs e)
         {
-            camera.Position.X = hScrollBar1.Value * Area.TILE_WIDTH;
-            camera.Position.Y = vScrollBar1.Value * Area.TILE_HEIGHT;
+            camera.Position.X = hScrollBar1.Value * Area.CELL_WIDTH;
+            camera.Position.Y = vScrollBar1.Value * Area.CELL_HEIGHT;
 
             int mx = Mouse.GetState().X;
             int my = Mouse.GetState().Y;
@@ -86,8 +87,8 @@ namespace TileEditor
             {
                 if (mx >= 0 && mx < tileDisplay1.Width && my >= 0 && my < tileDisplay1.Height)
                 {
-                    cellX = mx / Area.TILE_WIDTH;
-                    cellY = my / Area.TILE_HEIGHT;
+                    cellX = mx / Area.CELL_WIDTH;
+                    cellY = my / Area.CELL_HEIGHT;
 
                     cellX += hScrollBar1.Value;
                     cellY += vScrollBar1.Value;
@@ -321,7 +322,7 @@ namespace TileEditor
         {
             if (area.WidthInPixels > tileDisplay1.Width)
             {
-                maxWidth = (int)Math.Ceiling((double)(area.WidthInPixels - tileDisplay1.Width) / Area.TILE_WIDTH) - 1 + hScrollBar1.LargeChange;
+                maxWidth = (int)Math.Ceiling((double)(area.WidthInPixels - tileDisplay1.Width) / Area.CELL_WIDTH) - 1 + hScrollBar1.LargeChange;
 
                 hScrollBar1.Visible = true;
                 hScrollBar1.Minimum = 0;
@@ -335,7 +336,7 @@ namespace TileEditor
             }
             if (area.HeightInPixels > tileDisplay1.Height)
             {
-                maxHeight = (int)Math.Ceiling((double)(area.HeightInPixels - tileDisplay1.Height) / Area.TILE_HEIGHT) - 1 + vScrollBar1.LargeChange;
+                maxHeight = (int)Math.Ceiling((double)(area.HeightInPixels - tileDisplay1.Height) / Area.CELL_HEIGHT) - 1 + vScrollBar1.LargeChange;
 
                 vScrollBar1.Visible = true;
                 vScrollBar1.Minimum = 0;

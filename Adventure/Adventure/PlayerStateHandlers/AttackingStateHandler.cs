@@ -4,14 +4,15 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Adventure.Entities.Items;
 
-namespace Adventure
+namespace Adventure.PlayerStateHandlers
 {
-    public class PushingStateHandler : PlayerStateHandler
+    public class AttackingStateHandler : PlayerStateHandler
     {
         public override PlayerState State
         {
-            get { return PlayerState.Pushing; }
+            get { return PlayerState.Attacking; }
         }
 
         public override bool CanWalk
@@ -21,7 +22,7 @@ namespace Adventure
 
         public override bool CanGetHurt
         {
-            get { return false; }
+            get { return true; }
         }
 
         public override bool CanLeaveArea
@@ -31,7 +32,7 @@ namespace Adventure
 
         public override bool CanStartAttacking
         {
-            get { return false; }
+            get { return true; }
         }
 
         public override bool CanInteract
@@ -49,33 +50,34 @@ namespace Adventure
             return false;
         }
 
-
-        private Directions4 direction;
-
-        public PushingStateHandler(Player player, Directions4 direction)
-            : base(player) 
-        {
-            this.direction = direction;
-        }
+        public AttackingStateHandler(Player player)
+            : base(player) { }
 
         public override void Start()
         {
-            Vector2 velocity = DirectionsHelper.GetDirectionVector(direction) * 80;
-            player.StartMovement(new StraightMovementHandler(player, velocity, Area.TILE_WIDTH));
+            player.SpriteHandler.SetSpriteAttacking();
+            player.GetHitBoxById(Player.SWORD_HITBOX_ID).IsActive = true;
+            player.PlaySwordSwingSound();
         }
 
         public override void Update(GameTime gameTime)
         {
-            if (player.MovementHandler.IsFinished)
+            //attackTimer++;
+            //if (attackTimer >= Player.ATTACK_TIME)
+            if (player.SpriteHandler.IsCurrentSpriteAttacking() && player.SpriteHandler.IsCurrentSpriteDoneAnimating)
             {
-                player.StartMovement(new PlayerMovementHandler(player));
+                //attackTimer = 0;
+                //player.SwordHitPoint = Vector2.Zero;
+                player.SpriteHandler.SetSpriteStill();
+                player.GetHitBoxById(Player.SWORD_HITBOX_ID).IsActive = false;
                 player.EnterState(new NormalStateHandler(player));
             }
         }
 
         public override void End(PlayerState newState)
         {
-            player.StartMovement(new PlayerMovementHandler(player));
+            if (player.GetHitBoxById(Player.SWORD_HITBOX_ID).IsActive)
+                player.GetHitBoxById(Player.SWORD_HITBOX_ID).IsActive = false;
         }
     }
 }

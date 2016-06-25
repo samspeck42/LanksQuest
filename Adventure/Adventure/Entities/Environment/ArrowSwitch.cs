@@ -5,8 +5,9 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Audio;
+using Adventure.Maps;
 
-namespace Adventure
+namespace Adventure.Entities.Environment
 {
     public class ArrowSwitch : Switch, Triggerable
     {
@@ -20,8 +21,8 @@ namespace Adventure
         private ArrowSwitchType type = ArrowSwitchType.Normal;
         public ArrowSwitchType Type { get { return type; } }
 
-        public ArrowSwitch(GameWorld game, Area area)
-            : base(game, area)
+        public ArrowSwitch(GameWorld game, Map map, Area area)
+            : base(game, map, area)
         {
             BoundingBox.RelativeX = -9;
             BoundingBox.RelativeY = -28;
@@ -45,7 +46,7 @@ namespace Adventure
         {
             base.LoadContent();
 
-            activateSound = game.Content.Load<SoundEffect>("Audio/arrow_switch_activate");
+            activateSound = gameWorld.Content.Load<SoundEffect>("Audio/arrow_switch_activate");
         }
 
         protected override void processAttributeData(Dictionary<string, string> dataDict)

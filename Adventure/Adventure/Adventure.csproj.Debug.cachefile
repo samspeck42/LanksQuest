@@ -39,6 +39,7 @@ Content\Sprites\Player\player_backward_walking2.xnb
 Content\Sprites\Player\player_forward_still2.xnb
 Content\Sprites\Player\player_forward_walking2.xnb
 Content\Sprites\Enemies\blob_enemy.xnb
+Content\Sprites\Environment\shadow.xnb
 Content\HUD\empty_heart_icon.xnb
 Content\HUD\heart_icon_left.xnb
 Content\HUD\heart_icon_right.xnb
@@ -128,10 +129,6 @@ Content\Sprites\Player\player_forward_sword_hitbox.xnb
 Content\Sprites\Player\player_left_sword_hitbox.xnb
 Content\Sprites\Player\player_right_sword_hitbox.xnb
 Content\square.xnb
-Content\Effects\InvertColorsEffect.xnb
-Content\Effects\ChangeColorsEffect.xnb
-Content\Fonts\font.xnb
-Content\Sprites\Environment\shadow.xnb
 Content\Sprites\Environment\shadow_medium.xnb
 Content\Sprites\Environment\shadow_small.xnb
 Content\Sprites\Player\player_backward_grabbing_still.xnb
@@ -157,6 +154,9 @@ Content\Sprites\Enemies\robot_enemy_backward2.xnb
 Content\Sprites\Enemies\robot_enemy_forward2.xnb
 Content\Sprites\Enemies\robot_enemy_left2.xnb
 Content\Sprites\Enemies\robot_enemy_right2.xnb
+Content\Effects\InvertColorsEffect.xnb
+Content\Effects\ChangeColorsEffect.xnb
+Content\Fonts\font.xnb
 Content\Areas\dungeon0_0.area
 Content\Areas\dungeon0_1.area
 Content\Areas\dungeon0_2.area
@@ -166,5 +166,5 @@ Content\Areas\dungeon0_5.area
 Content\Areas\dungeon0_6.area
 Content\Areas\overworld_0.area
 Content\Areas\overworld_1.area
-Content\Dungeons\dungeon0.dungeon
+Content\Maps\dungeon0.gamemap
 Content\Maps\overworld.gamemap

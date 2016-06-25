@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
+using Adventure.Maps;
 
-namespace Adventure
+namespace Adventure.Entities
 {
     public abstract class Mob : ActivatingEntity, ShadowOwner
     {
@@ -25,8 +26,8 @@ namespace Adventure
         private int health;
 
 
-        public Mob(GameWorld game, Area area)
-            : base(game, area) { }
+        public Mob(GameWorld game, Map map, Area area)
+            : base(game, map, area) { }
 
         public virtual void TakeDamage(Entity other, KnockBackType knockBackType)
         {

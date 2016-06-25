@@ -6,8 +6,10 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Audio;
+using Adventure.Entities.MovementHandlers;
+using Adventure.Maps;
 
-namespace Adventure
+namespace Adventure.Entities.Environment
 {
     public class Pickup : Entity, ShadowOwner
     {
@@ -55,14 +57,14 @@ namespace Adventure
         private long lifeTimer = 0;
         private bool canBeCollected = false;
 
-        public Pickup(GameWorld game, Area area)
-            : base(game, area)
+        public Pickup(GameWorld game, Map map, Area area)
+            : base(game, map, area)
         {
             init(PickupType.BronzeCoin, false);
         }
 
-        public Pickup(GameWorld game, Area area, PickupType type, bool isDropped)
-            : base(game, area)
+        public Pickup(GameWorld game, Map map, Area area, PickupType type, bool isDropped)
+            : base(game, map, area)
         {
             init(type, isDropped);
         }
@@ -149,8 +151,8 @@ namespace Adventure
         {
             base.LoadContent();
 
-            coinCollectSound = game.Content.Load<SoundEffect>("Audio/coin_collect");
-            heartCollectSound = game.Content.Load<SoundEffect>("Audio/heart_collect");
+            coinCollectSound = gameWorld.Content.Load<SoundEffect>("Audio/coin_collect");
+            heartCollectSound = gameWorld.Content.Load<SoundEffect>("Audio/heart_collect");
         }
 
         public override void Update(GameTime gameTime)

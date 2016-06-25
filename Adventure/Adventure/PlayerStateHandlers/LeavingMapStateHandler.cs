@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
+using Adventure.Maps;
+using Adventure.Entities.Items;
+using Adventure.Entities.MovementHandlers;
 
-namespace Adventure
+namespace Adventure.PlayerStateHandlers
 {
     public class LeavingMapStateHandler : PlayerStateHandler
     {
@@ -61,7 +64,7 @@ namespace Adventure
         public override void Start()
         {
             Vector2 velocity = DirectionsHelper.GetDirectionVector(mapTransition.Direction) * 80;
-            player.StartMovement(new StraightMovementHandler(player, velocity, Area.TILE_WIDTH));
+            player.StartMovement(new StraightMovementHandler(player, velocity, Area.CELL_WIDTH));
             player.FaceDirection = mapTransition.Direction;
         }
 
@@ -69,7 +72,7 @@ namespace Adventure
         {
             if (player.MovementHandler.IsFinished && !isMapTransitionStarted)
             {
-                player.Game.StartMapTransition(mapTransition);
+                player.GameWorld.StartMapTransition(mapTransition);
                 isMapTransitionStarted = true;
             }
         }

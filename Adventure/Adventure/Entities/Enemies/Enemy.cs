@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Graphics;
+using Adventure.Entities.MovementHandlers;
+using Adventure.Maps;
 
-namespace Adventure
+namespace Adventure.Entities.Enemies
 {
     public abstract class Enemy : Mob, PickupDropper
     {
@@ -28,8 +27,8 @@ namespace Adventure
 
         protected SoundEffect hitSound;
 
-        public Enemy(GameWorld game, Area area)
-            : base(game, area) 
+        public Enemy(GameWorld game, Map map, Area area)
+            : base(game, map, area) 
         {
             setHealth(MaxHealth);
         }
@@ -38,7 +37,7 @@ namespace Adventure
         {
             base.LoadContent();
 
-            hitSound = game.Content.Load<SoundEffect>("Audio/enemy_hit");
+            hitSound = gameWorld.Content.Load<SoundEffect>("Audio/enemy_hit");
         }
 
         public virtual bool TakesDamageFromPlayerSword(HitBox thisHitBox)

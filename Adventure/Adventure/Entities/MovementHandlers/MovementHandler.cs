@@ -4,8 +4,9 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using TileEngine;
+using Adventure.Maps;
 
-namespace Adventure
+namespace Adventure.Entities.MovementHandlers
 {
     public abstract class MovementHandler
     {
@@ -50,10 +51,10 @@ namespace Adventure
         /// </summary>
         public void DoMovement()
         {
-            int topCellY = (int)Math.Round(entity.ObstacleCollisionBox.Top) / Area.TILE_HEIGHT;
-            int bottomCellY = (int)Math.Round(entity.ObstacleCollisionBox.Bottom - 1) / Area.TILE_HEIGHT;
-            int leftCellX = (int)Math.Round(entity.ObstacleCollisionBox.Left) / Area.TILE_WIDTH;
-            int rightCellX = (int)Math.Round(entity.ObstacleCollisionBox.Right - 1) / Area.TILE_WIDTH;
+            int topCellY = (int)Math.Round(entity.ObstacleCollisionBox.Top) / Area.CELL_HEIGHT;
+            int bottomCellY = (int)Math.Round(entity.ObstacleCollisionBox.Bottom - 1) / Area.CELL_HEIGHT;
+            int leftCellX = (int)Math.Round(entity.ObstacleCollisionBox.Left) / Area.CELL_WIDTH;
+            int rightCellX = (int)Math.Round(entity.ObstacleCollisionBox.Right - 1) / Area.CELL_WIDTH;
             int x = 0, y = 0;
             float collisionDist = 0;
             Point curCell = new Point();
@@ -68,18 +69,18 @@ namespace Adventure
                     if (movement.X > 0) //moving right
                     {
                         x = rightCellX + 1 + c;
-                        collisionDist = (x * Area.TILE_WIDTH) - entity.ObstacleCollisionBox.Right;
+                        collisionDist = (x * Area.CELL_WIDTH) - entity.ObstacleCollisionBox.Right;
                     }
                     else //moving left
                     {
                         x = leftCellX - 1 - c;
-                        collisionDist = ((x + 1) * Area.TILE_WIDTH) - entity.ObstacleCollisionBox.Left;
+                        collisionDist = ((x + 1) * Area.CELL_WIDTH) - entity.ObstacleCollisionBox.Left;
                     }
                     for (y = topCellY; y <= bottomCellY; y++)
                     {
                         curCell = new Point(x, y);
-                        if (entity.Game.CurrentArea.GetCollisionAtCell(curCell) != TileCollision.None && 
-                            entity.ObstacleTileCollisions.HasFlag(entity.Game.CurrentArea.GetCollisionAtCell(curCell)) &&
+                        if (entity.GameWorld.CurrentArea.GetCollisionAtCell(curCell) != TileCollision.None && 
+                            entity.ObstacleTileCollisions.HasFlag(entity.GameWorld.CurrentArea.GetCollisionAtCell(curCell)) &&
                             Math.Abs(collisionDist) < Math.Abs(movement.X))
                         {
                             //a collision with an obstacle tile will occur 
@@ -95,7 +96,7 @@ namespace Adventure
                 if (entity.IsBlockedByObstacleEntities)
                 {
                     // check obstacle entity collisions
-                    List<Entity> entitiesInPath = entity.Game.CurrentArea.GetObstacleEntitiesInCollisionPathX(entity, movement.X);
+                    List<Entity> entitiesInPath = entity.GameWorld.CurrentArea.GetObstacleEntitiesInCollisionPathX(entity, movement.X);
                     foreach (Entity other in entitiesInPath)
                     {
                         float dist = movement.X > 0 ? other.BoundingBox.Left - entity.ObstacleCollisionBox.Right :
@@ -132,10 +133,10 @@ namespace Adventure
             entity.Position.X += movement.X;
 
 
-            topCellY = (int)Math.Round(entity.ObstacleCollisionBox.Top) / Area.TILE_HEIGHT;
-            bottomCellY = (int)Math.Round(entity.ObstacleCollisionBox.Bottom - 1) / Area.TILE_HEIGHT;
-            leftCellX = (int)Math.Round(entity.ObstacleCollisionBox.Left) / Area.TILE_WIDTH;
-            rightCellX = (int)Math.Round(entity.ObstacleCollisionBox.Right - 1) / Area.TILE_WIDTH;
+            topCellY = (int)Math.Round(entity.ObstacleCollisionBox.Top) / Area.CELL_HEIGHT;
+            bottomCellY = (int)Math.Round(entity.ObstacleCollisionBox.Bottom - 1) / Area.CELL_HEIGHT;
+            leftCellX = (int)Math.Round(entity.ObstacleCollisionBox.Left) / Area.CELL_WIDTH;
+            rightCellX = (int)Math.Round(entity.ObstacleCollisionBox.Right - 1) / Area.CELL_WIDTH;
             collisionDist = 0;
             bool collidedY = false;
             List<Entity> entitiesCollidedWithY = new List<Entity>();
@@ -147,18 +148,18 @@ namespace Adventure
                     if (movement.Y > 0) //moving down
                     {
                         y = bottomCellY + 1 + r;
-                        collisionDist = (y * Area.TILE_HEIGHT) - entity.ObstacleCollisionBox.Bottom;
+                        collisionDist = (y * Area.CELL_HEIGHT) - entity.ObstacleCollisionBox.Bottom;
                     }
                     else //moving up
                     {
                         y = topCellY - 1 - r;
-                        collisionDist = ((y + 1) * Area.TILE_HEIGHT) - entity.ObstacleCollisionBox.Top;
+                        collisionDist = ((y + 1) * Area.CELL_HEIGHT) - entity.ObstacleCollisionBox.Top;
                     }
                     for (x = leftCellX; x <= rightCellX; x++)
                     {
                         curCell = new Point(x, y);
-                        if (entity.Game.CurrentArea.GetCollisionAtCell(curCell) != TileCollision.None && 
-                            entity.ObstacleTileCollisions.HasFlag(entity.Game.CurrentArea.GetCollisionAtCell(curCell)) &&
+                        if (entity.GameWorld.CurrentArea.GetCollisionAtCell(curCell) != TileCollision.None && 
+                            entity.ObstacleTileCollisions.HasFlag(entity.GameWorld.CurrentArea.GetCollisionAtCell(curCell)) &&
                             Math.Abs(collisionDist) < Math.Abs(movement.Y))
                         {
                             //a collision with an impassable tile will occur
@@ -174,7 +175,7 @@ namespace Adventure
                 if (entity.IsBlockedByObstacleEntities)
                 {
                     // check impassable entity collisions
-                    List<Entity> entitiesInPath = entity.Game.CurrentArea.GetObstacleEntitiesInCollisionPathY(entity, movement.Y);
+                    List<Entity> entitiesInPath = entity.GameWorld.CurrentArea.GetObstacleEntitiesInCollisionPathY(entity, movement.Y);
                     foreach (Entity other in entitiesInPath)
                     {
                         float dist = movement.Y > 0 ? other.BoundingBox.Top - entity.ObstacleCollisionBox.Bottom :

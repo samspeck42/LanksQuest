@@ -111,8 +111,8 @@ dungeon_wall_corner_bottomright_convex
 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
 
 [Entities]
-ClosedDoor (id:cd1)(spawnCell:0,4)(faceDirection:3)(isOpen:false)
-ClosedDoor (id:cd2)(spawnCell:0,23)(faceDirection:3)(isOpen:true)
+#ClosedDoor (id:cd1)(spawnCell:0,4)(faceDirection:3)(isOpen:false)
+#ClosedDoor (id:cd2)(spawnCell:0,23)(faceDirection:3)(isOpen:true)
 MovableBlock (id:mb1)(spawnCell:6,6)(movableDirections:3)(activations:cd1;cd1,2)(dependents:mb2)
 MovableBlock (id:mb2)(spawnCell:10,3)(movableDirections:1)(activations:cd1;cd1,2)(dependents:mb1)
 MovableBlock (spawnCell:5,4)

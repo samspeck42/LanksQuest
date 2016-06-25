@@ -7,8 +7,10 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using TileEngine;
 using Microsoft.Xna.Framework.Audio;
+using Adventure.Entities.MovementHandlers;
+using Adventure.Maps;
 
-namespace Adventure
+namespace Adventure.Entities.Environment
 {
     public class MovableBlock : ActivatingEntity, Interactable, Triggerable
     {
@@ -25,8 +27,8 @@ namespace Adventure
         private bool hasMoved = false;
         private List<Directions4> movableDirections = new List<Directions4>();
 
-        public MovableBlock(GameWorld game, Area area)
-            : base(game, area)
+        public MovableBlock(GameWorld game, Map map, Area area)
+            : base(game, map, area)
         {
             BoundingBox.RelativeX = -16;
             BoundingBox.RelativeY = -16;
@@ -43,7 +45,7 @@ namespace Adventure
         {
             base.LoadContent();
 
-            pushSound = game.Content.Load<SoundEffect>("Audio/block_push");
+            pushSound = gameWorld.Content.Load<SoundEffect>("Audio/block_push");
         }
 
         protected override void processAttributeData(Dictionary<string, string> dataDict)
@@ -86,7 +88,7 @@ namespace Adventure
         public void StartInteraction()
         {
             if (CanStartInteraction)
-                game.Player.StartGrabbing(this);
+                gameWorld.Player.StartGrabbing(this);
         }
 
         public bool TryToStartMoving(Directions4 direction)
@@ -95,7 +97,7 @@ namespace Adventure
             {
                 isMoving = true;
                 Vector2 velocity = DirectionsHelper.GetDirectionVector(direction) * 80;
-                movementHandler = new StraightMovementHandler(this, velocity, Area.TILE_WIDTH);
+                movementHandler = new StraightMovementHandler(this, velocity, Area.CELL_WIDTH);
                 movementHandler.Start();
 
                 pushSound.Play(0.5f, 0, 0);

@@ -7,8 +7,10 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using TileEngine;
 using Microsoft.Xna.Framework.Audio;
+using Adventure.Maps;
+using Adventure.Entities.Enemies;
 
-namespace Adventure
+namespace Adventure.Entities.Environment
 {
     public class Pot : CarriableEntity, Breakable, PickupDropper
     {
@@ -28,8 +30,8 @@ namespace Adventure
         private SoundEffect breakingSound;
         private bool isBroken = false;
 
-        public Pot(GameWorld game, Area area)
-            : base(game, area, 0)
+        public Pot(GameWorld game, Map map, Area area)
+            : base(game, map, area, 0)
         {
             BoundingBox.RelativeX = -11;
             BoundingBox.RelativeY = -11;
@@ -51,7 +53,7 @@ namespace Adventure
         {
             base.LoadContent();
 
-            breakingSound = game.Content.Load<SoundEffect>("Audio/pot_breaking");
+            breakingSound = gameWorld.Content.Load<SoundEffect>("Audio/pot_breaking");
         }
 
         public void StartBreaking()

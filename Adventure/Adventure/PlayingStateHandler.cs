@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
+using Adventure.Entities;
+using Adventure.Maps;
 
 namespace Adventure
 {
@@ -19,9 +21,9 @@ namespace Adventure
         public override void Update(GameTime gameTime)
         {
             gameWorld.CurrentMap.Update();
-            Point previousMapCell = gameWorld.CurrentMap.GetCurrentCell();
+            Point previousMapCell = gameWorld.CurrentMap.GetPlayerMapCell();
             gameWorld.Player.Update(gameTime);
-            Point currentMapCell = gameWorld.CurrentMap.GetCurrentCell();
+            Point currentMapCell = gameWorld.CurrentMap.GetPlayerMapCell();
 
             //List<Pickup> pickupsToAdd = new List<Pickup>();
             List<Entity> entitiesToRemove = new List<Entity>();
@@ -71,10 +73,10 @@ namespace Adventure
             gameWorld.UpdateCamera();
 
             // check if player has left area
-            if (gameWorld.CurrentArea != gameWorld.CurrentMap.GetPlayerArea() && gameWorld.CurrentMap.GetPlayerArea() != null)
-            {
-                //startAreaTransition(previousMapCell, currentMapCell);
-            }
+            //if (gameWorld.CurrentArea != gameWorld.CurrentMap.GetPlayerArea() && gameWorld.CurrentMap.GetPlayerArea() != null)
+            //{
+            //    //startAreaTransition(previousMapCell, currentMapCell);
+            //}
 
             // check if player is leaving map
             foreach (MapTransition mapTransition in gameWorld.CurrentArea.MapTransitions)

@@ -4,8 +4,11 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Adventure.Entities.Items;
+using Adventure.Maps;
+using Adventure.Entities.MovementHandlers;
 
-namespace Adventure
+namespace Adventure.PlayerStateHandlers
 {
     public class PullingStateHandler : PlayerStateHandler
     {
@@ -61,7 +64,7 @@ namespace Adventure
         public override void Start()
         {
             Vector2 velocity = DirectionsHelper.GetDirectionVector(direction) * 80;
-            player.StartMovement(new StraightMovementHandler(player, velocity, Area.TILE_WIDTH));
+            player.StartMovement(new StraightMovementHandler(player, velocity, Area.CELL_WIDTH));
         }
 
         public override void Update(GameTime gameTime)

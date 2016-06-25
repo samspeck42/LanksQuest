@@ -5,8 +5,9 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
+using Adventure.Maps;
 
-namespace Adventure
+namespace Adventure.Entities.Environment
 {
     public class KeyDoor : Door, Interactable
     {
@@ -22,15 +23,15 @@ namespace Adventure
         protected override string closedSpriteName { get { return "Sprites/Environment/key_door"; } }
         protected override string openingSpriteName { get { return "Sprites/Environment/key_door_opening"; } }
 
-        public KeyDoor(GameWorld game, Area area)
-            : base(game, area)
+        public KeyDoor(GameWorld game, Map map, Area area)
+            : base(game, map, area)
         { }
 
         public void StartInteraction()
         {
-            if (CanStartInteraction && game.Player.Inventory.NumKeys > 0)
+            if (CanStartInteraction && gameWorld.Player.Inventory.NumKeys > 0)
             {
-                game.Player.Inventory.UseKey();
+                gameWorld.Player.Inventory.UseKey();
                 startOpening();
             }
         }

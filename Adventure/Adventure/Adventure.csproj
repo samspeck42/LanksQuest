@@ -111,7 +111,7 @@
     <Compile Include="Entities\Enemies\RobotEnemy.cs" />
     <Compile Include="Entities\Environment\PressureSwitch.cs" />
     <Compile Include="Entities\Environment\Spikes.cs" />
-    <Compile Include="Entities\Player\StateHandlers\LeavingMapStateHandler.cs" />
+    <Compile Include="PlayerStateHandlers\LeavingMapStateHandler.cs" />
     <Compile Include="Entities\Triggerable.cs" />
     <Compile Include="Entities\ActivatingEntity.cs" />
     <Compile Include="Entities\Breakable.cs" />
@@ -144,38 +144,36 @@
     <Compile Include="Entities\MovementHandlers\MovementHandler.cs" />
     <Compile Include="Entities\MovementHandlers\StraightMovementHandler.cs" />
     <Compile Include="Entities\PickupDropper.cs" />
-    <Compile Include="Entities\Player\StateHandlers\AttackingStateHandler.cs" />
-    <Compile Include="Entities\Player\StateHandlers\CarryingStateHandler.cs">
+    <Compile Include="PlayerStateHandlers\AttackingStateHandler.cs" />
+    <Compile Include="PlayerStateHandlers\CarryingStateHandler.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Entities\Player\StateHandlers\GrabbingStateHandler.cs" />
-    <Compile Include="Entities\Player\StateHandlers\HurtStateHandler.cs" />
-    <Compile Include="Entities\Player\StateHandlers\NormalStateHandler.cs" />
-    <Compile Include="Entities\Player\Player.cs" />
-    <Compile Include="Entities\Player\PlayerInput.cs" />
+    <Compile Include="PlayerStateHandlers\GrabbingStateHandler.cs" />
+    <Compile Include="PlayerStateHandlers\HurtStateHandler.cs" />
+    <Compile Include="PlayerStateHandlers\NormalStateHandler.cs" />
+    <Compile Include="Player.cs" />
+    <Compile Include="PlayerInput.cs" />
     <Compile Include="Entities\MovementHandlers\PlayerMovementHandler.cs" />
-    <Compile Include="Entities\Player\PlayerSpriteHandler.cs" />
-    <Compile Include="Entities\Player\StateHandlers\OpeningChestStateHandler.cs" />
-    <Compile Include="Entities\Player\StateHandlers\PlayerStateHandler.cs" />
-    <Compile Include="Entities\Player\StateHandlers\PullingStateHandler.cs" />
-    <Compile Include="Entities\Player\StateHandlers\PushingStateHandler.cs" />
-    <Compile Include="Entities\Player\StateHandlers\UsingBowStateHandler.cs">
+    <Compile Include="PlayerSpriteHandler.cs" />
+    <Compile Include="PlayerStateHandlers\OpeningChestStateHandler.cs" />
+    <Compile Include="PlayerStateHandlers\PlayerStateHandler.cs" />
+    <Compile Include="PlayerStateHandlers\PullingStateHandler.cs" />
+    <Compile Include="PlayerStateHandlers\PushingStateHandler.cs" />
+    <Compile Include="PlayerStateHandlers\UsingBowStateHandler.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Entities\ShadowOwner.cs" />
     <Compile Include="Entities\SpriteHandler.cs" />
     <Compile Include="GameWorld.cs" />
     <Compile Include="GameWorldStateHandler.cs" />
-    <Compile Include="Map\Area.cs" />
-    <Compile Include="Map\Dungeon.cs" />
-    <Compile Include="Map\Map.cs" />
-    <Compile Include="Map\MapTransition.cs" />
-    <Compile Include="Map\Overworld.cs" />
+    <Compile Include="Maps\Area.cs" />
+    <Compile Include="Maps\Map.cs" />
+    <Compile Include="Maps\MapTransition.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="PlayingStateHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="Adventure.cs" />
+    <Compile Include="AdventureGame.cs" />
     <Compile Include="Screens\InventoryScreen.cs" />
     <Compile Include="Sprite.cs" />
     <Compile Include="SpriteSet.cs" />

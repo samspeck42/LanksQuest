@@ -4,8 +4,9 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework;
+using Adventure.Entities.Items;
 
-namespace Adventure
+namespace Adventure.PlayerStateHandlers
 {
     public abstract class PlayerStateHandler
     {

@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
+using Adventure.Entities;
 
 namespace Adventure
 {
@@ -127,7 +128,7 @@ namespace Adventure
             hitBoxTextureNameDict = new Dictionary<string, string>();
         }
 
-        public void Load(ContentManager content)
+        public void LoadContent(ContentManager content)
         {
             texture = content.Load<Texture2D>(textureName);
             frameWidth = texture.Width / numFrames;

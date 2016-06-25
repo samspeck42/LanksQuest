@@ -4,8 +4,10 @@ using System.Linq;
 using System.Text;
 using TileEngine;
 using Microsoft.Xna.Framework;
+using Adventure.Entities.MovementHandlers;
+using Adventure.Maps;
 
-namespace Adventure
+namespace Adventure.Entities
 {
     public abstract class CarriableEntity : Entity, Interactable, ShadowOwner
     {
@@ -47,8 +49,8 @@ namespace Adventure
         protected int numBouncesBeforeLand;
         protected MovementHandler movementHandler = null;
 
-        public CarriableEntity(GameWorld game, Area area, int numBouncesBeforeLand)
-            : base(game, area)
+        public CarriableEntity(GameWorld game, Map map, Area area, int numBouncesBeforeLand)
+            : base(game, map, area)
         {
             this.numBouncesBeforeLand = numBouncesBeforeLand;
 
@@ -73,7 +75,7 @@ namespace Adventure
         public void StartInteraction()
         {
             if (CanStartInteraction)
-                game.Player.StartLifting(this);
+                gameWorld.Player.StartLifting(this);
         }
 
         public void StartThrow(Directions4 direction)
@@ -84,7 +86,7 @@ namespace Adventure
                 new Vector2(
                     directionVector.X * THROW_SPEED,
                     directionVector.Y * THROW_SPEED),
-                0f, 180f, 0.8f, game.Player.Height, numBouncesBeforeLand);
+                0f, 180f, 0.8f, gameWorld.Player.Height, numBouncesBeforeLand);
             movementHandler.Start();
 
             isThrown = true;

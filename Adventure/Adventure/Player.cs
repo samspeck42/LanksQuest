@@ -8,6 +8,13 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Audio;
 using TileEngine;
+using Adventure.Entities.Items;
+using Adventure.Entities.MovementHandlers;
+using Adventure.Entities;
+using Adventure.PlayerStateHandlers;
+using Adventure.Entities.Environment;
+using Adventure.Entities.Enemies;
+using Adventure.Maps;
 
 namespace Adventure
 {
@@ -74,7 +81,7 @@ namespace Adventure
         //public Vector2 PreviousVelocity= Vector2.Zero;
 
         public Player(GameWorld game)
-            : base(game, null)
+            : base(game, null, null)
         {
             BoundingBox.RelativeX = -11;
             BoundingBox.RelativeY = -20;
@@ -113,10 +120,10 @@ namespace Adventure
         {
             base.LoadContent();
 
-            swordSwingSound = game.Content.Load<SoundEffect>("Audio/Player/sword_swing");
-            swordTink = game.Content.Load<SoundEffect>("Audio/sword_tink");
-            hitSound = game.Content.Load<SoundEffect>("Audio/player_hit");
-            arrowFireSound = game.Content.Load<SoundEffect>("Audio/arrow_fire");
+            swordSwingSound = gameWorld.Content.Load<SoundEffect>("Audio/Player/sword_swing");
+            swordTink = gameWorld.Content.Load<SoundEffect>("Audio/sword_tink");
+            hitSound = gameWorld.Content.Load<SoundEffect>("Audio/player_hit");
+            arrowFireSound = gameWorld.Content.Load<SoundEffect>("Audio/arrow_fire");
         }
 
         public override bool ActivatesPressureSwitch()
@@ -345,7 +352,8 @@ namespace Adventure
         {
             base.Draw(spriteBatch, changeColorsEffect);
 
-            spriteBatch.DrawString(game.Font, State.ToString(), new Vector2(Position.X - 30, Position.Y - 70), Color.White);
+            //spriteBatch.DrawString(gameWorld.Font, State.ToString(), new Vector2(Position.X - 30, Position.Y - 70), Color.White);
+            //spriteBatch.DrawString(gameWorld.Font, Position.ToString(), new Vector2(Position.X - 30, Position.Y - 90), Color.White);
 
             //foreach (HitBox hitBox in GetActiveHitBoxes())
             //{
@@ -480,7 +488,7 @@ namespace Adventure
 
         public Interactable GetInteractableEntityInFrontOf()
         {
-            foreach (Entity entity in game.CurrentArea.Entities)
+            foreach (Entity entity in gameWorld.CurrentArea.Entities)
             {
                 if (entity is Interactable && IsInFrontOf(entity))
                     return (Interactable)entity;

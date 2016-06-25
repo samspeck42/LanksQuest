@@ -8,13 +8,15 @@ using Microsoft.Xna.Framework.Content;
 using TileEngine;
 using System.IO;
 using System.Reflection;
+using Adventure.Entities;
+using Adventure.Entities.Environment;
 
-namespace Adventure
+namespace Adventure.Maps
 {
     public class Area
     {
-        public const int TILE_WIDTH = 32;
-        public const int TILE_HEIGHT = 32;
+        public const int CELL_WIDTH = 32;
+        public const int CELL_HEIGHT = 32;
 
         public static string[] TileTextureImageExtensions = new string[] 
         {
@@ -24,15 +26,14 @@ namespace Adventure
         public int WidthInCells { get { return backgroundTileLayout.GetLength(1); } }
         public int HeightInCells { get { return backgroundTileLayout.GetLength(0); } }
 
-        public int WidthInPixels { get { return WidthInCells * TILE_WIDTH; } }
-        public int HeightInPixels { get { return HeightInCells * TILE_HEIGHT; } }
+        public int WidthInPixels { get { return WidthInCells * CELL_WIDTH; } }
+        public int HeightInPixels { get { return HeightInCells * CELL_HEIGHT; } }
 
-        public Point CellCoordinates = new Point();
+        public Point MapCellCoordinates = new Point();
 
         public List<Entity> Entities = new List<Entity>();
         public List<MapTransition> MapTransitions = new List<MapTransition>();
 
-        public bool IsLoaded { get { return isLoaded; } }
         public bool IsBossArea { get { return isBossArea; } }
         public bool IsRewardArea { get { return isRewardArea; } }
 
@@ -43,19 +44,19 @@ namespace Adventure
         private int[,] foregroundTileLayout;
         private int[,] collisionLayout;
 
+        private List<string> textureNames = new List<string>();
         private List<Texture2D> tileTextures = new List<Texture2D>();
         private List<Texture2D> shadowTextures = new List<Texture2D>();
 
-        private bool isLoaded = false;
         private bool isBossArea = false;
         private bool isRewardArea = false;
 
-        private GameWorld game;
+        private GameWorld gameWorld;
         private Map map;
 
-        public Area(GameWorld game, Map map, int width, int height)
+        public Area(GameWorld gameWorld, Map map, int width, int height)
         {
-            this.game = game;
+            this.gameWorld = gameWorld;
             this.map = map;
 
             backgroundTileLayout = new int[height, width];
@@ -73,47 +74,44 @@ namespace Adventure
             }
         }
 
-        public void LoadContent(ContentManager content, List<string> textureNames)
+        public void LoadContent()
         {
             foreach (string textureName in textureNames)
             {
-                Texture2D tileTexture = content.Load<Texture2D>("Tiles/" + textureName);
+                Texture2D tileTexture = gameWorld.Content.Load<Texture2D>("Tiles/" + textureName);
                 this.tileTextures.Add(tileTexture);
             }
 
-            this.shadowTextures.Add(content.Load<Texture2D>("Sprites/Environment/shadow_small"));
-            this.shadowTextures.Add(content.Load<Texture2D>("Sprites/Environment/shadow_medium"));
+            this.shadowTextures.Add(gameWorld.Content.Load<Texture2D>("Sprites/Environment/shadow_small"));
+            this.shadowTextures.Add(gameWorld.Content.Load<Texture2D>("Sprites/Environment/shadow_medium"));
         }
 
-        public static Area FromFile(GameWorld game, Map map, string areaName)
+        public static Area FromFile(string areaName, GameWorld gameWorld, Map map)
         {
-            List<string> textureNames = new List<string>();
-            Area area = processFile(game, map, "Content/Areas/" + areaName + ".area", textureNames);
+            Area area = processFile(gameWorld, map, "Content/Areas/" + areaName + ".area");
+            
+            area.LoadContent();
 
-            area.LoadContent(game.Content, textureNames);
-
-            area.isLoaded = true;
             return area;
         }
 
         public static Area FromFile(GraphicsDevice graphicsDevice, string contentPath, string fileName, Map map, out string[] tileTextureNames)
         {
-            List<string> textureNames = new List<string>();
-            Area area = processFile(null, map, fileName, textureNames);
+            Area area = processFile(null, map, fileName);
 
-            tileTextureNames = textureNames.ToArray();
-
-            area.isLoaded = true;
+            tileTextureNames = area.textureNames.ToArray();
+            
             return area;
         }
 
-        private static Area processFile(GameWorld game, Map map, string fileName, List<string> textureNames)
+        private static Area processFile(GameWorld gameWorld, Map map, string fileName)
         {
             Area area = null;
 
             List<List<int>> tempBackgroundTileLayout = new List<List<int>>();
             List<List<int>> tempForegroundTileLayout = new List<List<int>>();
             List<List<int>> tempCollisionLayout = new List<List<int>>();
+            List<string> tempTextureNames = new List<string>();
             List<string> entityData = new List<string>();
             List<MapTransition> tempMapTransitions = new List<MapTransition>();
             Dictionary<string, string> propertiesDict = new Dictionary<string, string>();
@@ -206,7 +204,7 @@ namespace Adventure
                     }
                     else if (readingTileTextures)
                     {
-                        textureNames.Add(line);
+                        tempTextureNames.Add(line);
                     }
                     else if (readingBackgroundTileLayout || readingForegroundTileLayout || readingCollisionLayout)
                     {
@@ -231,7 +229,7 @@ namespace Adventure
                     }
                     else if (readingMapTransitions)
                     {
-                        MapTransition mapTransition = MapTransition.CreateFromString(line);
+                        MapTransition mapTransition = MapTransition.FromString(line);
                         tempMapTransitions.Add(mapTransition);
                     }
                     else if (readingProperties)
@@ -245,7 +243,9 @@ namespace Adventure
             int width = tempBackgroundTileLayout[0].Count;
             int height = tempBackgroundTileLayout.Count;
 
-            area = new Area(game, map, width, height);
+            area = new Area(gameWorld, map, width, height);
+
+            area.textureNames = tempTextureNames;
 
             for (int y = 0; y < height; y++)
             {
@@ -258,7 +258,7 @@ namespace Adventure
             }
             foreach (string line in entityData)
             {
-                area.Entities.Add(Entity.CreateFromString(line, game, area));
+                area.Entities.Add(Entity.FromString(line, gameWorld, map, area));
             }
             area.MapTransitions = tempMapTransitions;
             if (propertiesDict.ContainsKey("isBossArea"))
@@ -361,13 +361,13 @@ namespace Adventure
         public static Point ConvertPositionToCell(Vector2 position)
         {
             return new Point(
-                (int)(Math.Round(position.X) / (float)TILE_WIDTH),
-                (int)(Math.Round(position.Y) / (float)TILE_HEIGHT));
+                (int)(Math.Round(position.X) / (float)CELL_WIDTH),
+                (int)(Math.Round(position.Y) / (float)CELL_HEIGHT));
         }
 
         public static Rectangle CreateRectangleForCell(Point cell)
         {
-            return new Rectangle(cell.X * TILE_WIDTH, cell.Y * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
+            return new Rectangle(cell.X * CELL_WIDTH, cell.Y * CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT);
         }
 
         public TileCollision GetCollisionAtCell(int x, int y)
@@ -477,10 +477,10 @@ namespace Adventure
                     spriteBatch.Draw(
                         texture,
                         new Rectangle(
-                            x * TILE_WIDTH,
-                            y * TILE_HEIGHT,
-                            TILE_WIDTH,
-                            TILE_HEIGHT),
+                            x * CELL_WIDTH,
+                            y * CELL_HEIGHT,
+                            CELL_WIDTH,
+                            CELL_HEIGHT),
                         null,
                         Color.White,
                         0f, Vector2.Zero, SpriteEffects.None, 1f);
@@ -504,10 +504,10 @@ namespace Adventure
                     spriteBatch.Draw(
                         texture,
                         new Rectangle(
-                            x * TILE_WIDTH,
-                            y * TILE_HEIGHT,
-                            TILE_WIDTH,
-                            TILE_HEIGHT),
+                            x * CELL_WIDTH,
+                            y * CELL_HEIGHT,
+                            CELL_WIDTH,
+                            CELL_HEIGHT),
                         null,
                         Color.White,
                         0f, Vector2.Zero, SpriteEffects.None, 0f);
@@ -558,7 +558,7 @@ namespace Adventure
                 possibleTypes.Add(PickupType.GoldCoin);
                 possibleTypes.Add(PickupType.Heart);
 
-                Pickup pickup = new Pickup(game, this, possibleTypes.ElementAt(GameWorld.Random.Next(possibleTypes.Count)), true);
+                Pickup pickup = new Pickup(gameWorld, map, this, possibleTypes.ElementAt(GameWorld.Random.Next(possibleTypes.Count)), true);
                 pickup.Center = pickupDropper.PickupDropPosition;
                 pickup.LoadContent();
                 Entities.Add(pickup);

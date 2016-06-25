@@ -6,8 +6,9 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Content;
+using Adventure.Entities.Items;
 
-namespace Adventure
+namespace Adventure.Screens
 {
     public class InventoryScreen
     {
@@ -77,8 +78,8 @@ namespace Adventure
         public void StartDisplaying()
         {
             isDisplaying = true;
-            position.X = (Adventure.SCREEN_WIDTH / 2) - (background.Width / 2);
-            position.Y = (Adventure.SCREEN_HEIGHT / 2) - (background.Height / 2);
+            position.X = (AdventureGame.SCREEN_WIDTH / 2) - (background.Width / 2);
+            position.Y = (AdventureGame.SCREEN_HEIGHT / 2) - (background.Height / 2);
             selectedItemPoint = new Point(0, 0);
         }
 

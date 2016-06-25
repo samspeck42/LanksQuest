@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
+using Adventure.Maps;
 
-namespace Adventure
+namespace Adventure.Entities
 {
     public abstract class ActivatingEntity : Entity
     {
@@ -15,8 +16,8 @@ namespace Adventure
         protected List<KeyValuePair<int, string>> dependentIds = new List<KeyValuePair<int, string>>();
         protected bool hasTriggeredActivations = false;
 
-        public ActivatingEntity(GameWorld game, Area area)
-            : base(game, area)
+        public ActivatingEntity(GameWorld game, Map map, Area area)
+            : base(game, map, area)
         { }
 
         protected override void processAttributeData(Dictionary<string, string> dataDict)

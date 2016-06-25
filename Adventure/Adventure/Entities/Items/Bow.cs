@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Audio;
 
-namespace Adventure
+namespace Adventure.Entities.Items
 {
     public class Bow : EquippableItem
     {

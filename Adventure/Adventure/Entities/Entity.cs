@@ -7,8 +7,10 @@ using Microsoft.Xna.Framework.Graphics;
 using TileEngine;
 using Microsoft.Xna.Framework.Content;
 using System.Reflection;
+using Adventure.Maps;
+using Adventure.Entities.MovementHandlers;
 
-namespace Adventure
+namespace Adventure.Entities
 {
     public abstract class Entity: IComparable
     {
@@ -47,7 +49,8 @@ namespace Adventure
         public bool ShouldBeDrawnByArea { get { return shouldBeDrawnByArea; } }
         public Point SpawnCell { get { return spawnCell; } }
         public string Id { get { return id; } }
-        public GameWorld Game { get { return game; } }
+        public GameWorld GameWorld { get { return gameWorld; } }
+        public Map Map { get { return map; } }
         public Area Area { get { return area; } }
 
         public HitBox BoundingBox { get { return GetHitBoxById(BOUNDING_BOX_ID); } }
@@ -66,19 +69,20 @@ namespace Adventure
         private Point spawnCell = new Point();
         protected string id = "";
 
-        protected GameWorld game;
+        protected GameWorld gameWorld;
+        protected Map map;
         protected Area area;
 
         private List<HitBox> hitBoxes;
 
 
-        public Entity(GameWorld game, Area area)
+        public Entity(GameWorld gameWorld, Map map, Area area)
         {
             Position = new Vector2();
             
             this.spriteHandler = new SpriteHandler(this);
 
-            this.game = game;
+            this.gameWorld = gameWorld;
             this.area = area;
 
             hitBoxes = new List<HitBox>();
@@ -90,7 +94,7 @@ namespace Adventure
 
         public virtual void LoadContent()
         {
-            spriteHandler.Load(game.Content);
+            spriteHandler.LoadSprites(gameWorld.Content);
         }
 
         /// <summary>
@@ -129,6 +133,16 @@ namespace Adventure
             return this.BoundingBox.CollidesWith(other.BoundingBox);
         }
 
+        /// <summary>
+        /// Determines whether the bounding box of this entity collides with a rectangle.
+        /// </summary>
+        /// <param name="rectangle">The Rectangle to perform a collision check with.</param>
+        /// <returns>True if this Entity collides with the Rectangle, false if it doesn't.</returns>
+        public bool CollidesWith(Rectangle rectangle)
+        {
+            return this.BoundingBox.CollidesWith(rectangle);
+        }
+
         public bool Contains(Vector2 point)
         {
             return this.BoundingBox.Contains(point);
@@ -146,8 +160,8 @@ namespace Adventure
         {
             spawnCell = Parser.ParsePoint(dataDict["spawnCell"]);
             Vector2 spawnPosition = new Vector2(
-                (spawnCell.X * Area.TILE_WIDTH) + (Area.TILE_WIDTH / 2),
-                (spawnCell.Y * Area.TILE_HEIGHT) + (Area.TILE_HEIGHT / 2));
+                (spawnCell.X * Area.CELL_WIDTH) + (Area.CELL_WIDTH / 2),
+                (spawnCell.Y * Area.CELL_HEIGHT) + (Area.CELL_HEIGHT / 2));
             this.Position = spawnPosition;
             if (dataDict.ContainsKey("id"))
             {
@@ -169,12 +183,13 @@ namespace Adventure
         /// </summary>
         /// <param name="str">A string containing the entity data read from an area file.</param>
         /// <param name="game">A GameWorld instance to create this entity within.</param>
+        /// <param name="map">An Map instance to create this entity within.</param>
         /// <param name="area">An Area instance to create this entity within.</param>
         /// <returns>An Entity instance created from the data string.</returns>
-        public static Entity CreateFromString(string str, GameWorld game, Area area)
+        public static Entity FromString(string str, GameWorld game, Map map, Area area)
         {
             Entity entity = null;
-            string entityTypeName = "Adventure." + str.Substring(0, str.IndexOf(" ")).Trim();
+            string entityTypeName = "Adventure.Entities." + str.Substring(0, str.IndexOf(" ")).Trim();
             string entityDataString = str.Substring(str.IndexOf(" ") + 1).Trim();
             Dictionary<string, string> entityAttributeData = Parser.ParseAttributeData(entityDataString);
 
@@ -182,7 +197,7 @@ namespace Adventure
                     true,
                     0,
                     null,
-                    new Object[] { game, area },
+                    new Object[] { game, map, area },
                     null,
                     null);
 

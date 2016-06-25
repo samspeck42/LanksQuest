@@ -5,8 +5,12 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using TileEngine;
+using Adventure.Entities.MovementHandlers;
+using Adventure.Maps;
+using Adventure.Entities.Enemies;
+using Adventure.Entities.Environment;
 
-namespace Adventure
+namespace Adventure.Entities.Items
 {
     class Arrow : Entity
     {
@@ -41,8 +45,8 @@ namespace Adventure
         private Vector2 entityHitPosition = Vector2.Zero;
 
 
-        public Arrow(GameWorld game, Area area)
-            : base(game, area)
+        public Arrow(GameWorld game, Map map, Area area)
+            : base(game, map, area)
         {
             BoundingBox.RelativeX = -4;
             BoundingBox.RelativeY = -4;

@@ -6,8 +6,10 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
 using TileEngine;
+using Adventure.Maps;
+using Adventure.Entities.MovementHandlers;
 
-namespace Adventure
+namespace Adventure.Entities.Enemies
 {
     public class RobotEnemy : Enemy, Triggerable
     {
@@ -88,8 +90,8 @@ namespace Adventure
         //    }
         //}
 
-        public RobotEnemy(GameWorld game, Area area)
-            : base(game, area)
+        public RobotEnemy(GameWorld game, Map map, Area area)
+            : base(game, map, area)
         {
             BoundingBox.RelativeX = -11;
             BoundingBox.RelativeY = -28;
@@ -170,7 +172,7 @@ namespace Adventure
             {
                 if (isAlert)
                 {
-                    float playerDistance = Vector2.Distance(game.Player.Center, this.Center);
+                    float playerDistance = Vector2.Distance(gameWorld.Player.Center, this.Center);
 
                     if (playerDistance <= ALERT_RADIUS)
                     {
@@ -196,7 +198,7 @@ namespace Adventure
 
                     if (jumpWaitTimer >= JUMP_WAIT_TIME)
                     {
-                        Vector2 directionToPlayer = game.Player.Center - this.Center;
+                        Vector2 directionToPlayer = gameWorld.Player.Center - this.Center;
                         float angleToPlayer = (float)Math.Atan2(directionToPlayer.Y, directionToPlayer.X);
 
                         if (angleToPlayer >= -(3 * MathHelper.PiOver4) && angleToPlayer <= -MathHelper.PiOver4)

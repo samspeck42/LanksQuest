@@ -9,13 +9,15 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using TileEngine;
+using Adventure.Screens;
+using Adventure.Entities.Items;
 
 namespace Adventure
 {
     /// <summary>
     /// This is the main type for your game
     /// </summary>
-    public class Adventure : Microsoft.Xna.Framework.Game
+    public class AdventureGame : Microsoft.Xna.Framework.Game
     {
         public const int SCREEN_WIDTH = 640, SCREEN_HEIGHT = 480;
 
@@ -40,7 +42,7 @@ namespace Adventure
 
         GameState gameState = GameState.Playing;
 
-        public Adventure()
+        public AdventureGame()
         { 
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
@@ -54,17 +56,13 @@ namespace Adventure
         /// </summary>
         protected override void Initialize()
         {
-            gameWorld = new GameWorld();
-            gameWorld.Initialize(Content, GraphicsDevice);
-
+            // TODO: Add your initialization logic here
+            gameWorld = new GameWorld(Content, GraphicsDevice);
+            gameWorld.Initialize();
             inventoryScreen = new InventoryScreen(gameWorld.Player.Inventory);
-
             gamepadState = GamePad.GetState(PlayerIndex.One);
             previousGamepadState = gamepadState;
 
-            
-
-            // TODO: Add your initialization logic here
             base.Initialize();
 
             //graphics.ToggleFullScreen();
@@ -238,11 +236,11 @@ namespace Adventure
                     Color.White);
             }
 
-            if (gameWorld.CurrentMap is Dungeon)
-            {
+            //if (gameWorld.CurrentMap is Dungeon)
+            //{
                 spriteBatch.Draw(keyIcon, new Vector2(10, SCREEN_HEIGHT - 25), Color.White);
                 spriteBatch.DrawString(font, "x " + gameWorld.Player.Inventory.NumKeys, new Vector2(25, SCREEN_HEIGHT - 25), Color.White);
-            }
+            //}
 
             spriteBatch.End();
         }

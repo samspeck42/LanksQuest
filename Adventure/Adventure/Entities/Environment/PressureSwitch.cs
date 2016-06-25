@@ -4,8 +4,9 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Adventure.Maps;
 
-namespace Adventure
+namespace Adventure.Entities.Environment
 {
     public class PressureSwitch : Switch
     {
@@ -20,8 +21,8 @@ namespace Adventure
             }
         }
 
-        public PressureSwitch(GameWorld game, Area area)
-            : base(game, area)
+        public PressureSwitch(GameWorld game, Map map, Area area)
+            : base(game, map, area)
         {
             BoundingBox.RelativeX = -12;
             BoundingBox.RelativeY = -12;

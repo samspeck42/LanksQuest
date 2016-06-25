@@ -5,8 +5,9 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Audio;
+using Adventure.Maps;
 
-namespace Adventure
+namespace Adventure.Entities.Environment
 {
     public class Chest : ActivatingEntity, Interactable, Triggerable
     {
@@ -29,8 +30,8 @@ namespace Adventure
         private Entity treasure = null;
         private int treasureDisplayTimer = 0;
 
-        public Chest(GameWorld game, Area area)
-            : base(game, area)
+        public Chest(GameWorld game, Map map, Area area)
+            : base(game, map, area)
         {
             BoundingBox.RelativeX = -15;
             BoundingBox.RelativeY = -12;
@@ -49,7 +50,7 @@ namespace Adventure
         {
             base.LoadContent();
 
-            openSound = game.Content.Load<SoundEffect>("Audio/chest_open");
+            openSound = gameWorld.Content.Load<SoundEffect>("Audio/chest_open");
         }
 
 
@@ -57,7 +58,7 @@ namespace Adventure
         {
             base.processAttributeData(dataDict);
 
-            treasure = Entity.CreateFromString(dataDict["treasure"], game, area);
+            treasure = Entity.FromString(dataDict["treasure"], gameWorld, map, area);
             isVisible = bool.Parse(dataDict["isActive"]);
         }
 
@@ -86,7 +87,7 @@ namespace Adventure
         public void StartInteraction()
         {
             if (CanStartInteraction)
-                game.Player.StartOpening(this);
+                gameWorld.Player.StartOpening(this);
         }
 
         public void StartOpening()

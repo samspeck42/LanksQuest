@@ -4,8 +4,10 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Adventure.Entities.Items;
+using Adventure.Entities.Environment;
 
-namespace Adventure
+namespace Adventure.PlayerStateHandlers
 {
     public class GrabbingStateHandler : PlayerStateHandler
     {

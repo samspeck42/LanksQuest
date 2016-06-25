@@ -215,7 +215,7 @@
       <Name>overworld_1</Name>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Dungeons\dungeon0.dungeon">
+    <None Include="Maps\dungeon0.gamemap">
       <Name>dungeon0</Name>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -4,8 +4,9 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Adventure.Entities.Items;
 
-namespace Adventure
+namespace Adventure.PlayerStateHandlers
 {
     public class UsingBowStateHandler : PlayerStateHandler
     {
@@ -92,7 +93,7 @@ namespace Adventure
             if (chargeTimer >= CHARGE_TIME && player.Input.IsEquippedItemButtonUp(itemButtonNumber))
             {
                 chargeTimer = 0;
-                Arrow arrow = new Arrow(player.Game, player.Game.CurrentArea);
+                Arrow arrow = new Arrow(player.GameWorld, player.GameWorld.CurrentMap, player.GameWorld.CurrentArea);
                 arrow.LoadContent();
                 if (player.FaceDirection == Directions4.Up)
                 {

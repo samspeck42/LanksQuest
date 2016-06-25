@@ -20,9 +20,9 @@ namespace Adventure
             filePath = "Content/Maps/overworld.gamemap";
         }
 
-        public override void Load()
+        public override void LoadContent()
         {
-            base.Load();
+            base.LoadContent();
 
             processLayout();
             backgroundMusic = game.Content.Load<SoundEffect>("Audio/DST-OverlandTheme");
@@ -31,11 +31,11 @@ namespace Adventure
         private void processLayout()
         {
             Dictionary<int, Area> areaDict = new Dictionary<int, Area>();
-            for (int y = 0; y < layout.GetLength(0); y++)
+            for (int y = 0; y < areaLayout.GetLength(0); y++)
             {
-                for (int x = 0; x < layout.GetLength(1); x++)
+                for (int x = 0; x < areaLayout.GetLength(1); x++)
                 {
-                    int index = layout[y, x];
+                    int index = areaLayout[y, x];
                     if (!areaDict.ContainsKey(index))
                     {
                         Area area = Area.FromFile(game, this, "overworld_" + index);
@@ -60,12 +60,12 @@ namespace Adventure
 
         public override Area GetPlayerArea()
         {
-            Point playerCell = GetCurrentCell();
+            Point playerCell = GetPlayerCell();
 
-            if (playerCell.X < layout.GetLength(1) && playerCell.Y < layout.GetLength(0) &&
+            if (playerCell.X < areaLayout.GetLength(1) && playerCell.Y < areaLayout.GetLength(0) &&
                 playerCell.X >= 0 && playerCell.Y >= 0)
             {
-                int index = layout[playerCell.Y, playerCell.X];
+                int index = areaLayout[playerCell.Y, playerCell.X];
                 return GetAreaByIndex(index);
             }
             return null;

@@ -30,12 +30,12 @@ namespace Adventure
             return sprites.Contains(sprite);
         }
 
-        public void Load(ContentManager content)
+        public void LoadContent(ContentManager content)
         {
             foreach (Sprite sprite in sprites)
             {
                 if (sprite != null)
-                    sprite.Load(content);
+                    sprite.LoadContent(content);
             }
         }
     }

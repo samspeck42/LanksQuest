@@ -76,9 +76,9 @@ dungeon_block
 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 
 
 [Entities]
-ClosedDoor (id:cd1)(spawnCell:9,1)(faceDirection:1)(isOpen:false)
+#ClosedDoor (id:cd1)(spawnCell:9,1)(faceDirection:1)(isOpen:false)
 Boss (spawnCell:9,5)(activations:cd1)
-ClosedDoor (id:cd2)(spawnCell:9,16)(faceDirection:0)(isOpen:true)
+#ClosedDoor (id:cd2)(spawnCell:9,16)(faceDirection:0)(isOpen:true)
 InvisibleSwitch (id:is1)(spawnCell:9,15)(deactivations:cd2;is1)(isActive:true)
 
 [Properties]

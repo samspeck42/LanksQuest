@@ -4,8 +4,9 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Adventure.Maps;
 
-namespace Adventure
+namespace Adventure.Entities.Environment
 {
     public class ObstacleDoor : Door, Triggerable
     {
@@ -14,8 +15,8 @@ namespace Adventure
         protected override string closedSpriteName { get { return "Sprites/Environment/closed_door"; } }
         protected override string openingSpriteName { get { return "Sprites/Environment/closed_door_opening"; } }
 
-        public ObstacleDoor(GameWorld game, Area area)
-            : base(game, area)
+        public ObstacleDoor(GameWorld game, Map map, Area area)
+            : base(game, map, area)
         {
             SpriteSet spriteSet = new SpriteSet();
             Vector2 origin = new Vector2(16, 16);
@@ -63,7 +64,7 @@ namespace Adventure
 
         private void startClosing()
         {
-            if (game.CurrentArea.Entities.Contains(this))
+            if (gameWorld.CurrentArea.Entities.Contains(this))
             {
                 state = DoorState.Closing;
                 spriteHandler.SetSprite(CLOSING_SPRITES_ID);

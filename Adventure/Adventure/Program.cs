@@ -10,7 +10,7 @@ namespace Adventure
         /// </summary>
         static void Main(string[] args)
         {
-            using (Adventure game = new Adventure())
+            using (AdventureGame game = new AdventureGame())
             {
                 game.Run();
             }

@@ -16,21 +16,20 @@ namespace Adventure
         private SoundEffect victoryBackgroundMusic;
         private SoundEffectInstance backgroundMusicInstance;
         private Area previousArea;
-
-        public int Number;
+        private int number;
 
         public Dungeon(GameWorld game, int number)
             : base(game)
         {
-            this.Number = number;
-            filePath = "Content/Dungeons/dungeon" + Number + ".dungeon";
+            this.number = number;
+            filePath = "Content/Dungeons/dungeon" + number + ".dungeon";
             areas = new List<Area>();
             previousArea = null;
         }
 
-        public override void Load()
+        public override void LoadContent()
         {
-            base.Load();
+            base.LoadContent();
 
             processLayout();
             normalBackgroundMusic = game.Content.Load<SoundEffect>("Audio/DST-CrystalCavern");
@@ -42,16 +41,16 @@ namespace Adventure
         {
             Dictionary<Area, Point> areaSizeDict = new Dictionary<Area, Point>();
             Dictionary<int, Area> areaDict = new Dictionary<int, Area>();
-            for (int y = 0; y < layout.GetLength(0); y++)
+            for (int y = 0; y < areaLayout.GetLength(0); y++)
             {
-                for (int x = 0; x < layout.GetLength(1); x++)
+                for (int x = 0; x < areaLayout.GetLength(1); x++)
                 {
-                    int index = layout[y, x];
+                    int index = areaLayout[y, x];
                     if (index != -1)
                     {
                         if (!areaDict.ContainsKey(index))
                         {
-                            Area area = Area.FromFile(game, this, "dungeon" + Number + "_" + index);
+                            Area area = Area.FromFile(game, this, "dungeon" + number + "_" + index);
                             area.CellCoordinates = new Point(x, y);
                             areaDict.Add(index, area);
                             areaSizeDict.Add(area, new Point(1, 1));
@@ -60,9 +59,9 @@ namespace Adventure
                         {
                             Area area = areaDict[index];
                             Point areaSize = areaSizeDict[area];
-                            if (x == 0 || layout[y, x - 1] != index)
+                            if (x == 0 || areaLayout[y, x - 1] != index)
                                 areaSizeDict[area] = new Point(areaSize.X, areaSize.Y + 1);
-                            else if (y == 0 || layout[y - 1, x] != index)
+                            else if (y == 0 || areaLayout[y - 1, x] != index)
                                 areaSizeDict[area] = new Point(areaSize.X + 1, areaSize.Y);
                         }
                     }
@@ -84,7 +83,9 @@ namespace Adventure
                     areas.Add(area);
                 }
                 else
+                {
                     areas.Add(null);
+                }
             }
         }
 
@@ -127,12 +128,12 @@ namespace Adventure
 
         public override Area GetPlayerArea()
         {
-            Point playerCell = GetCurrentCell();
+            Point playerCell = GetPlayerCell();
 
-            if (playerCell.X < layout.GetLength(1) && playerCell.Y < layout.GetLength(0) &&
+            if (playerCell.X < areaLayout.GetLength(1) && playerCell.Y < areaLayout.GetLength(0) &&
                 playerCell.X >= 0 && playerCell.Y >= 0)
             {
-                int index = layout[playerCell.Y, playerCell.X];
+                int index = areaLayout[playerCell.Y, playerCell.X];
                 if (index >= 0 && index < areas.Count)
                     return areas[index];
             }

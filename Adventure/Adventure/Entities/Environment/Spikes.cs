@@ -5,8 +5,9 @@ using System.Text;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
+using Adventure.Maps;
 
-namespace Adventure
+namespace Adventure.Entities.Environment
 {
     public class Spikes : Entity, Triggerable
     {
@@ -37,8 +38,8 @@ namespace Adventure
 
         private bool isUp = true;
 
-        public Spikes(GameWorld game, Area area)
-            : base(game, area)
+        public Spikes(GameWorld game, Map map, Area area)
+            : base(game, map, area)
         {
             BoundingBox.RelativeX = -16;
             BoundingBox.RelativeY = -16;
